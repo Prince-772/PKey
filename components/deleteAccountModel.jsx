@@ -5,7 +5,6 @@ import { handleDeleteAccount } from '@/lib/user/deleteAccount';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 export default function DeleteAccountModal({ isOpen, onClose, showPasswordInput }) {
-  console.log(showPasswordInput);
 
   const [confirmationText, setConfirmationText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);

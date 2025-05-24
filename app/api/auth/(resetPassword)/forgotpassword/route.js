@@ -35,7 +35,6 @@ export async function POST(req) {
              </a>`,
     });
     
-    console.log(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/resetpassword/${verifyToken}`);
 
     return NextResponse.json({ success: true, message: "Reset link sent to your email!" });
   } catch (err) {

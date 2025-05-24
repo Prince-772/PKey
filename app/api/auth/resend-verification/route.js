@@ -30,7 +30,6 @@ export async function POST(req) {
       html: `<p style="font-family:sans-serif;">Hello <b>${user.name}</b>, please verify your email by clicking on the link below:</p>
              <a style="font-family:sans-serif;" href="${process.env.NEXT_PUBLIC_BASE_URL}/auth/verifyemail/${verifyToken}">Verify Email</a>`,
     });
-    console.log(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/verifyemail/${verifyToken}`);
 
     return NextResponse.json({ success: true, message: "Verification email resent" });
   } catch (err) {

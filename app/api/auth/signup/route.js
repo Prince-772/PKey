@@ -51,8 +51,6 @@ export async function POST(req) {
              <a style="font-family:sans-serif;" href="${process.env.NEXT_PUBLIC_BASE_URL}/auth/verifyemail/${verifyToken}">Verify Email</a>`,
     });
 
-    console.log(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/verifyemail/${verifyToken}`);
-
     const response = NextResponse.json({
       success: true,
       message:"User registered successfully",

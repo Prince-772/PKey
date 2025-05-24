@@ -18,7 +18,6 @@ export async function POST(req) {
       .createHash("sha256")
       .update(token)
       .digest("hex");
-    console.log(hashedToken,"hashed token");
     const user = await UserModel.findOne({ resetPasswordToken: hashedToken });
     if (!user) throw new Error("Invalid token");
 

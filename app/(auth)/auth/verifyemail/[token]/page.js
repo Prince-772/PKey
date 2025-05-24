@@ -36,7 +36,6 @@ function VerifyEmailPage() {
         });
       }
     } catch (err) {
-      console.log(err);
       if (err)
         setMessage({
           message:

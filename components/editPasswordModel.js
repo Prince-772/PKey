@@ -15,7 +15,6 @@ import { useRouter } from "next/navigation";
 import categorizePassword from "@/lib/passwords/strengthChecker";
 
 const EditModal = ({ onClose, onSave, editingData }) => {
-  console.log(editingData);
   const { masPass } = useMasterPass();
   const router = useRouter();
 
