@@ -15,7 +15,7 @@ export async function POST(req) {
       "masPass remainingMasPassAtempts"
     );
     if (!user) throw new Error("User not found!");
-    if (user.remainingMasPassAtempts <= 0) throw new Error("Your account was blocked!")
+    if (user.remainingMasPassAtempts <= 0) throw new Error("BLOCKED_ACCOUNT");
     if (user.masPass) throw new Error("You already have a master password!");
     const hashedMasPass = await bcrypt.hash(masPass, 12);
 

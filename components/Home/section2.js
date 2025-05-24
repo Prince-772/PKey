@@ -1,42 +1,45 @@
-import React from 'react';
+import React from "react";
 // import {}
-import { ArrowDownUp, LayoutDashboard, LockKeyhole, ShieldCheck } from 'lucide-react';
+import {
+  ArrowDownUp,
+  LayoutDashboard,
+  LockKeyhole,
+  ShieldCheck,
+} from "lucide-react";
 const features = [
   {
-    icon: (
-      <ShieldCheck className="h-8 w-8 text-blue-500 dark:text-blue-400" />
-    ),
-    title: 'Robust Security',
-    shadowColor:"shadow-blue-500/20 dark:shadow-blue-400/20",
+    icon: <ShieldCheck className="h-8 w-8 text-blue-500 dark:text-blue-400" />,
+    title: "Privacy-first Security",
+    shadowColor: "shadow-blue-500/20 dark:shadow-blue-400/20",
     description:
-      'Utilize industry-leading encryption to keep your passwords secure from unauthorized access. Your data is always protected.',
+      "Your master password never leaves your device — encryption and decryption happen locally to ensure only you can access your data. Privacy and control, always.",
   },
   {
     icon: (
-      <LockKeyhole className='KeyIcon className="h-8 w-8 text-purple-500 dark:text-purple-400'/>
+      <LockKeyhole className='KeyIcon className="h-8 w-8 text-purple-500 dark:text-purple-400' />
     ),
-    shadowColor:"shadow-purple-500/20 dark:shadow-purple-400/20",
-    title: 'Smart Password Generation',
+    shadowColor: "shadow-purple-500/20 dark:shadow-purple-400/20",
+    title: "Smart Password Generation",
     description:
-      'Generate unique, complex, and unguessable passwords with a single click, tailored to your specific needs.',
+      "Generate unique, complex, and unguessable passwords with a single click, tailored to your specific needs.",
   },
   {
     icon: (
       <ArrowDownUp className="text-teal-500 dark:text-teal-400 rotate-90" />
     ),
-    shadowColor:"shadow-teal-500/20 dark:shadow-teal-400/20",
-    title: 'Cross-Device Access',
+    shadowColor: "shadow-teal-500/20 dark:shadow-teal-400/20",
+    title: "Cross-Device Access",
     description:
-      'Access your passwords securely from any device, anywhere. Your data is synchronized and always available.',
+      "Access your passwords securely from any device, anywhere. Your data is synchronized and always available.",
   },
   {
     icon: (
       <LayoutDashboard className="h-8 w-8 text-orange-500 dark:text-orange-400" />
     ),
-    shadowColor:"shadow-orange-500/20 dark:shadow-orange-400/20",
-    title: 'Intuitive Interface',
+    shadowColor: "shadow-orange-500/20 dark:shadow-orange-400/20",
+    title: "Intuitive Interface",
     description:
-      'Effortlessly manage your digital life with a clean, user-friendly interface designed for simplicity and efficiency.',
+      "Effortlessly manage your digital life with a clean, user-friendly interface designed for simplicity and efficiency.",
   },
 ];
 
@@ -46,10 +49,14 @@ const Section2 = () => {
       <div className="container  mx-auto px-4 md:px-8 lg:px-12">
         <div className="text-center mb-12 sm:mb-16">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-gray-50 mb-4">
-            Why Choose <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">PKey?</span>
+            Why Choose{" "}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
+              PKey?
+            </span>
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Discover how PKey simplifies your online security with powerful, user-friendly features.
+            Discover how PKey simplifies your online security with powerful,
+            user-friendly features.
           </p>
         </div>
 

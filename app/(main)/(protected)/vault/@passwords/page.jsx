@@ -5,16 +5,18 @@ import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
 import Loader from "@/components/Loader/loader2";
-import { PlusCircle, Search } from "lucide-react";
 import { handleEditPassword, handleToggleFavorite } from "@/lib/passwords/editpasswords";
 import toast, { Toaster } from "react-hot-toast";
-import { handleDeletePassword } from "@/lib/passwords/deletePassword";
 import { useMasterPass } from "@/context/MasterPassword";
-import { useRouter } from "next/navigation";
 import { decrypt } from "@/lib/passwords/encryptPassword";
+import MasterPasswordModel from "@/components/masterPassPage";
+import EmptyVault from "@/components/emptyVaultMsg";
+import VaultIsLocked from "@/components/lockVaultMessage";
+import DeleteEntryModal from "@/components/confirmDeleteEntryModel";
+import { Search } from "lucide-react";
 
 const Passwords = () => {
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [editingData, setEditingData] = useState({
     username: "",
@@ -25,18 +27,20 @@ const Passwords = () => {
 
   const [passwords, setPasswords] = useState([])
   const { masterPass, resetTimer } = useMasterPass()
-  const router = useRouter()
+  const [showMasterPassModel, setshowMasterPassModel] = useState(false)
+  const [showConfirmDeleteEntryModel, setshowConfirmDeleteEntryModel] = useState(false)
+  const [deleteEntryId, setdeleteEntryId] = useState(null)
 
   const handleEdit = useCallback((data) => {
-    if (!masterPass) return router.push("/masterPass?callback=vault")
+    if (!masterPass) return setshowMasterPassModel(true)
     setEditingData(data)
     setIsEditOpen(true)
     resetTimer()
-  }, [masterPass, router, resetTimer])
+  }, [masterPass, resetTimer])
 
 
   const fetchPasswords = useCallback(async () => {
-    if (!masterPass) return router.push("/masterPass?callback=vault")
+    if (!masterPass) return setshowMasterPassModel(true)
     try {
       setLoading(true)
       const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/protected/passwords/getallpasswords`)
@@ -48,17 +52,28 @@ const Passwords = () => {
       })
       setPasswords(deCryptedData)
     } catch (err) {
-      console.log(err);
-      
-      toast.error(err.message || "Faild to load your password!")
+      toast.error(() => {
+        if (err.message === "BLOCKED_ACCOUNT") {
+          return (
+            <span>
+              Your account is blocked due to too many invalid attempts.{" "}
+              <Link href="/blocked-accounts-help" className="underline text-blue-500">
+                Learn what to do
+              </Link>
+            </span>
+          );
+        } else {
+          return err.message || "Something went wrong";
+        }
+      })
     } finally {
       setLoading(false)
       resetTimer()
     }
-  }, [masterPass, router, resetTimer])
+  }, [masterPass, resetTimer])
 
   const onToggleFavorite = useCallback(async (idToToggle, value) => {
-    if (!masterPass) return router.push("/masterPass?callback=vault")
+    if (!masterPass) return setshowMasterPassModel(true)
     const passIndex = passwords.findIndex(p => p._id === idToToggle);
     if (passIndex === -1) return;
 
@@ -75,51 +90,64 @@ const Passwords = () => {
         resetTimer()
         return res.message || "Changes saved!"
       },
-      error: (err) => {
+      error: ({ message }) => {
         setPasswords(prevPasswords =>
           prevPasswords.map(p =>
             p._id === idToToggle ? { ...originalPassword } : p
           )
         );
-        return err.message || "Something went wrong!"
+        if (message === "BLOCKED_ACCOUNT") {
+          return (
+            <span>
+              Your account is blocked due to too many invalid attempts.{" "}
+              <Link href="/blocked-accounts-help" className="underline text-blue-500">
+                Learn what to do
+              </Link>
+            </span>
+          );
+        } else {
+          return message || "Something went wrong";
+        }
       }
     })
-  }, [passwords, handleToggleFavorite, toast, masterPass, router, resetTimer])
+  }, [passwords, masterPass, resetTimer])
 
 
   const handleDelete = useCallback(async (id) => {
-    if (!masterPass) return router.push("/masterPass?callback=vault")
-    await toast.promise(handleDeletePassword(id), {
-      loading: "Please wait...",
-      success: (data) => {
-        fetchPasswords()
-        return data.message || "Entry Deleted!"
-      },
-      error: (err) => err.message || "Something went wrong!"
-    })
-  }, [handleDeletePassword, fetchPasswords, toast, masterPass, router])
+    if (!masterPass) return setshowMasterPassModel(true)
+    setdeleteEntryId(id)
+    setshowConfirmDeleteEntryModel(true)
+  }, [masterPass])
 
   const onSaveChanges = useCallback((data) => {
-    if (!masterPass) return router.push("/masterPass?callback=vault")
+    if (!masterPass) return setshowMasterPassModel(true)
     toast.promise(handleEditPassword(data), {
       loading: "Saving...",
       success: (res) => {
         fetchPasswords()
         return res.message || "Changes saved!"
       },
-      error: (err) => err.message || "Something went wrong!"
+      error: ({ message }) => {
+        if (message === "BLOCKED_ACCOUNT") {
+          return (
+            <span>
+              Your account is blocked due to too many invalid attempts.{" "}
+              <Link href="/blocked-accounts-help" className="underline text-blue-500">
+                Learn what to do
+              </Link>
+            </span>
+          );
+        } else {
+          return message || "Something went wrong";
+        }
+      }
     })
-  }, [fetchPasswords, handleEditPassword, toast, masterPass, router])
+  }, [masterPass])
 
   useEffect(() => {
     fetchPasswords()
-    
-  }, [])
-  useEffect(() => {
-    console.log(passwords);
-
-    
-  }, [passwords])
+    return () => setshowMasterPassModel(false)
+  }, [masterPass])
 
   const [selectedOpt, setSelectedOpt] = useState(["all"])
   const filterOptArray = ["All", "Favorite", "Oldest First", "Strong", "Weak", "Moderte",];
@@ -128,27 +156,12 @@ const Passwords = () => {
   return (
     <div className="w-full p-3 md:px-6">
       <Toaster />
-      {(!loading && passwords.length === 0) && (
-        <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 max-w-2xl mx-auto text-center p-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-50 mb-4">
-            Your Vault is Empty!
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
-            Looks like you haven't added any passwords yet.
-            Click below to secure your first entry.
-          </p>
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full shadow-lg
-                    bg-gradient-to-r from-blue-600 to-purple-600 text-white
-                    hover:from-blue-700 hover:to-purple-700
-                    dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600
-                    transition-all duration-300 ease-in-out text-base md:text-lg font-bold transform hover:-translate-y-1"
-          >
-            <PlusCircle className="w-5 h-5" /> Add New Password
-          </Link>
-        </div>
-      )} {(passwords.length !== 0 &&
+      {showMasterPassModel && <MasterPasswordModel isOpen={showMasterPassModel} onClose={() => setshowMasterPassModel(false)} />}
+      {(!loading && masterPass && passwords.length === 0) && (
+        <EmptyVault />
+      )}
+      {(!loading && !masterPass) && <VaultIsLocked onUnLoack={() => setshowMasterPassModel(true)} />}
+      {(passwords.length !== 0 &&
         <>
           <div className="w-full flex flex-col items-center justify-center pb-6 bg-gray-50 dark:bg-gray-950">
             <h1 className="text-3xl md:text-4xl font-bold text-center mb-8 bg-clip-text text-transparent font-inter bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
@@ -226,6 +239,7 @@ const Passwords = () => {
         </>
       )}
       {loading && <Loader text="Loading Your Passwords..." color="blue" />}
+      {showConfirmDeleteEntryModel && <DeleteEntryModal {...{ onClose: () => setshowConfirmDeleteEntryModel(false), callback: fetchPasswords, id: deleteEntryId, resetID: () => setdeleteEntryId(null) }} />}
     </div>
   )
 }

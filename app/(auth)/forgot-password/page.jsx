@@ -1,9 +1,6 @@
 "use client";
-
-import React, { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
-import axios from "axios";
 import { LoaderCircle, Mail, Send, TriangleAlert } from "lucide-react";
 import Logo from "@/components/logo";
 import Link from "next/link";

@@ -4,43 +4,43 @@ import Link from 'next/link'
 import NavLink from './NavLink'
 import React, { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation';
-import { CircleUserRound, LayoutDashboard, Loader, LoaderCircle, Lock, LockKeyhole, LogIn, LogOut, UserRoundX } from 'lucide-react';
+import { CircleUserRound, Eraser, LayoutDashboard, Loader, LoaderCircle, Lock, LockKeyhole, LogIn, LogOut, RotateCcw, Undo2, UserRoundX } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation'
 import Logo from './logo'
+import DeleteAccountModal from './deleteAccountModel'
+import ResetVaultModal from './resetVault'
 
 
 const NavBar = () => {
   const pathname = usePathname()
   const router = useRouter()
-  // const { status } = useSession()
   const { data: session, status } = useSession()
-
-  // const [showSignIn, setShowSignIn] = useState(false)
-  // const [showVault, setShowVault] = useState(false)
-  // const [showDashboard, setShowDashboard] = useState(false)
-  // const [showGithub, setShowGithub] = useState(false)
-  // const [showProfile, setShowProfile] = useState(false)
+  const unProtectedRoutes = ["/", "/how-it-works", "/privacy-policy", "/terms&conditions","/blocked-accounts-help"]
 
   const showLoading = status === "loading"
-  const showSignIn = status === "unauthenticated" && pathname === "/";
+  const showSignIn = status === "unauthenticated" && unProtectedRoutes.includes(pathname)
   const showVault = status === "authenticated" && pathname === "/dashboard"
   const showDashboard = status === "authenticated" && pathname !== "/dashboard"
-  const showGithub = pathname === "/";
-  const showProfile = status === "authenticated" && pathname !== "/";
-
-  // useEffect(() => {
-  //   setShowSignIn(status !== "authenticated" && pathname === "/")
-  //   setShowVault(status === "authenticated" && pathname === "/dashboard")
-  //   setShowDashboard(status === "authenticated" && pathname !== "/dashboard")
-  //   setShowGithub(pathname === "/")
-  //   setShowProfile(status === "authenticated" && pathname !== "/")
-  // }, [status, pathname])
+  const showGithub = unProtectedRoutes.includes(pathname);
+  const showProfile = status === "authenticated" && !unProtectedRoutes.includes(pathname);
 
   const [isProfileView, setIsProfileView] = useState(false)
+  const [openDeleteAccountModel, setOpenDeleteAccountModel] = useState(false)
+  const [openResetVaultModel, setOpenResetVaultModel] = useState(false)
   const HandleLogOut = () => {
     signOut({ redirect: false })
     router.push("/")
+  }
+  const handleDeleteAccount = () => {
+    if (!unProtectedRoutes.includes(pathname))
+      setIsProfileView(false)
+    setOpenDeleteAccountModel(true)
+  }
+  const handleResetVault = () => {
+    if (!unProtectedRoutes.includes(pathname))
+      setIsProfileView(false)
+    setOpenResetVaultModel(true)
   }
 
 
@@ -49,12 +49,14 @@ const NavBar = () => {
       <div className='container mx-auto px-4 md:px-8 lg:px-12 flex justify-between items-center h-full'>
         {/* Logo */}
         <Logo />
+        {openDeleteAccountModel && <DeleteAccountModal {...{ isOpen: openDeleteAccountModel, onClose: () => setOpenDeleteAccountModel(false), showPasswordInput:session.user.provider === "credentials" }} />}
+        {openResetVaultModel && <ResetVaultModal {...{ isOpen: openResetVaultModel, onClose: () => setOpenResetVaultModel(false), showPasswordInput:session.user.provider === "credentials" }} />}
         {/* Navigation Links and User Actions */}
         <div className="flex items-center gap-4 md:gap-6">
           {/* GitHub Link */}
           {showGithub && (
             <a
-              href="https://github.com/Prince-772"
+              href="https://github.com/Prince-772/PKey"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md border border-gray-300 dark:border-gray-700
@@ -111,26 +113,32 @@ const NavBar = () => {
                     alt={session.user.name || "User Profile"}
                   />
                 ) : (
-                    <CircleUserRound className="w-full h-full text-gray-500 dark:text-gray-400 group-hover:text-blue-600 transition-colors duration-200" color={isProfileView?"blue":"currentColor"} />
+                  <CircleUserRound className="w-full h-full text-gray-500 dark:text-gray-400 group-hover:text-blue-600 transition-colors duration-200" color={isProfileView ? "blue" : "currentColor"} />
                 )}
               </button>
 
               {/* Profile Dropdown Content */}
               {isProfileView && (
-                <div className="absolute right-1/2 mt-0 w-40 bg-white dark:bg-gray-800 rounded-md rounded-tr-none shadow-lg overflow-hidden
+                <div className="absolute right-1/2 mt-0 bg-white dark:bg-gray-800 rounded-md rounded-tr-none shadow-lg overflow-hidden
                                  ring-1 ring-black ring-opacity-5 z-50 origin-top-right
                                  animate-fade-in-down">
                   <button
                     onClick={HandleLogOut}
-                    className="flex gap-1 cursor-pointer items-center font-inter w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 transition-colors duration-150"
+                    className="text-nowrap flex gap-1 cursor-pointer items-center font-inter w-full text-left px-2 md:px-4 py-1 md:py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-200/20 transition-colors duration-150"
                   >
-                    <LogOut className='w-4 h-4'/> Logout 
+                    <LogOut className='w-4 h-4' /> Logout
                   </button>
                   <button
-                    onClick={HandleLogOut}
-                    className="flex gap-1 cursor-pointer items-center font-inter w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 transition-colors duration-150"
+                    onClick={handleResetVault}
+                    className="text-nowrap flex gap-1 cursor-pointer items-center font-inter w-full text-left px-2 md:px-4 py-1 md:py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-200/20 transition-colors duration-150"
                   >
-                   <UserRoundX className='w-4 h-4'/> Delete Account
+                    <Eraser className='w-4 h-4' /> Reset Vault
+                  </button>
+                  <button
+                    onClick={handleDeleteAccount}
+                    className="text-nowrap flex gap-1 cursor-pointer items-center font-inter w-full text-left px-2 md:px-4 py-1 md:py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-200/20 transition-colors duration-150"
+                  >
+                    <UserRoundX className='w-4 h-4' /> Delete Account
                   </button>
                 </div>
               )}

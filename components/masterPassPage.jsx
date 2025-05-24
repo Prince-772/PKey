@@ -1,20 +1,16 @@
 "use client"
 import { useMasterPass } from '@/context/MasterPassword';
 import { VerifyMasterPass } from '@/lib/masterpassword/verify';
-import { KeyRound } from 'lucide-react'; // Icons
+import { KeyRound, X } from 'lucide-react'; // Icons
+import Link from 'next/link';
 import { useRef, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import { useSearchParams, useRouter } from 'next/navigation';
 
 
-export default function MasterPasswordPage() {
-  const router = useRouter()
+export default function MasterPasswordModel({ isOpen, onClose }) {
   const [isLoading, setIsLoading] = useState(false)
-  const {setMasterPass} = useMasterPass()
+  const { setMasterPass } = useMasterPass()
   const mPass = useRef(null)
-
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callback');
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -26,26 +22,39 @@ export default function MasterPasswordPage() {
           setMasterPass(mPass.current.value)
           mPass.current.value = ""
           setIsLoading(false)
-          if (callbackUrl === "vault") router.replace("/vault")
-          else router.replace("/dashboard")
+          onClose()
           return "Vault unlocked!"
         },
-        error: (err) => {
-          setMasterPass(null) // remove existing mPass for wrong attempts
+        error: ({ message }) => {
+          setMasterPass(null)
           mPass.current.value = ""
           setIsLoading(false)
-          return err.message
+
+          if (message === "BLOCKED_ACCOUNT") {
+            return (
+              <span>
+                Your account is blocked due to too many invalid attempts.{" "}
+                <Link href="/blocked-accounts-help" className="underline text-blue-500">
+                  Learn what to do
+                </Link>
+              </span>
+            );
+          } else {
+            return message || "Something went wrong";
+          }
         }
       })
     }
   };
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 px-4">
-      <Toaster />
-      <div className="bg-white dark:bg-gray-800 p-8 md:p-10 rounded-2xl shadow-2xl w-full max-w-md relative
-                      border border-gray-200 dark:border-gray-700 text-center">
+  if (!isOpen) return null;
 
+  return (
+    <div className="inset-0 fixed z-99 flex flex-col items-center justify-center min-h-screen bg-black/50 dark:bg-gray-950/20 text-gray-900 dark:text-gray-100 px-4">
+      <Toaster />
+      <div className="bg-white dark:bg-gray-800 p-4 md:p-10 rounded-2xl shadow-2xl w-full max-w-md relative
+                      border border-gray-200 dark:border-gray-700 text-center animate-scaleIn">
+        <X className="absolute top-5 right-5 cursor-pointer hover:text-red-500" onClick={onClose} />
         <div className="flex flex-col items-center justify-center mb-8">
           <KeyRound className="w-16 h-16 text-blue-600 dark:text-blue-400 mb-4" />
           <h1 className="text-3xl md:text-4xl font-extrabold
@@ -55,31 +64,31 @@ export default function MasterPasswordPage() {
           <p className="mt-2 text-gray-600 dark:text-gray-400">
             Enter your master password to unlock your saved credentials.
           </p>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            Or <Link href="/dashboard" className='text-blue-500 underline'>create one</Link> if you haven't done so yet.
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <div className="relative group">
+          <div className="group text-left">
             <label
               htmlFor="master-password-input"
-              className="absolute -top-3 left-4 px-2 text-sm font-medium
+              className="px-2 text-sm font-medium
                          bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300
                          transform transition-all duration-200 ease-in-out
-                         group-focus-within:top-[-0.75rem] group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400
-                         peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 dark:peer-placeholder-shown:text-gray-500"
+                         group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400"
             >
               Master Password
             </label>
             <input
               id="master-password-input"
               type="password"
-              placeholder=" "
               required
               ref={mPass}
               className="peer w-full px-4 py-2.5 border-2 rounded-lg
                          bg-gray-50 dark:bg-gray-700
                          border-gray-300 dark:border-gray-600
-                         text-gray-900 dark:text-gray-100
-                         placeholder-transparent outline-none
+                         text-gray-900 dark:text-gray-100 outline-none
                          focus:border-blue-500 dark:focus:border-blue-400
                          transition duration-200 text-lg pr-10"
               aria-label="Master Password"

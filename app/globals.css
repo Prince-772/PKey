@@ -45,9 +45,34 @@
     max-width: 0;
   }
   100%{
-    max-height: 72px;
+    max-height: 108px;
     opacity: 100;
     max-width: 160px;
   }
 }
 
+@keyframes scaleIn {
+  0% { transform: scale(0.95); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-scaleIn {
+  animation: scaleIn 0.3s ease-out forwards;
+}
+
+.animate-attention{
+  animation: attention 2s ease-in-out infinite ;
+}
+@keyframes attention {
+  0%{
+    box-shadow: 0 0 10px rgba(0, 0, 255, 0.5);
+    scale: 105%;
+  }
+  50%{
+    box-shadow: -10px 0 20px rgba(0, 255, 0, 0.2);
+    scale: 100%;
+  }
+  100%{
+    box-shadow: 0 0 10px rgba(0, 0, 255, 0.5);
+    scale: 105%;
+  }
+}

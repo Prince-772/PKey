@@ -3,22 +3,38 @@ import Link from "next/link"; // Ensure Link is imported if you want to use it f
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-100 dark:bg-gray-900 py-8 mt-12 border-t border-gray-200 dark:border-gray-800">
+    <footer className="bg-gray-100 font-roboto dark:bg-gray-900 py-8 mt-12 border-t border-gray-200 dark:border-gray-800">
       <div className="container mx-auto px-4 md:px-8 lg:px-12 flex flex-col md:flex-row items-center md:justify-between gap-4">
 
         {/* Copyright and Brand Name */}
         <div className="flex flex-col md:flex-row items-center gap-2 text-center md:text-left">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-nowrap text-sm text-gray-600 dark:text-gray-400">
             &copy; {new Date().getFullYear()}
           </p>
           <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">PKey.</span>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-nowrap text-sm text-gray-600 dark:text-gray-400">
             All rights reserved.
           </p>
         </div>
 
+        {/* Legal Links */}
+        <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-4 md:mt-0 order-first md:order-none">
+          <Link
+            href="/privacy-policy"
+            className="text-nowrap underline text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+          >
+            Privacy Policy
+          </Link>
+          <Link
+            href="/terms&conditions"
+            className="text-nowrap underline text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+          >
+            Terms & Conditions
+          </Link>
+        </div>
+
         {/* Made By */}
-        <p className="text-sm text-gray-600 dark:text-gray-400 order-last md:order-none mt-4 md:mt-0">
+        <p className="text-nowrap text-sm text-gray-600 dark:text-gray-400 order-last md:order-none mt-4 md:mt-0">
           Made with <span className="text-red-500">❤️</span> by{' '}
           <a
             className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors duration-200"

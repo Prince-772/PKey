@@ -1,7 +1,5 @@
-
-import React, { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { Toaster, toast } from 'react-hot-toast'; // For notifications
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { X, KeyRound, CheckCircle2, LoaderCircle } from 'lucide-react'; // Icons
 import zxcvbn from 'zxcvbn';
 
@@ -31,6 +29,11 @@ export default function CreateMasterPasswordModal({ isOpen, onClose, onSetMaster
   const masterPasswordValue = watch('masterPassword', '');
   const passwordStrength = getPasswordStrength(masterPasswordValue);
 
+    useEffect(() => {
+      document.body.style.overflow = 'hidden';
+      return () => (document.body.style.overflow = 'auto');
+    }, []);
+  
   if (!isOpen) return null;
 
   const onSubmit = (data) => {
@@ -99,16 +102,6 @@ export default function CreateMasterPasswordModal({ isOpen, onClose, onSetMaster
             {isSubmitting ? <><LoaderCircle className="w-5 h-5 mr-2 animate-spin" /> Setting...</> : <><CheckCircle2 className="w-5 h-5 mr-2" /> Set Password</>}
           </button>
         </form>
-
-        <style jsx>{`
-          @keyframes scaleIn {
-            0% { transform: scale(0.95); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-          }
-          .animate-scaleIn {
-            animation: scaleIn 0.3s ease-out forwards;
-          }
-        `}</style>
       </div>
     </div>
   );

@@ -103,11 +103,12 @@ export const authOptions = {
       } else return false;
     },
 
-    async jwt({ token, user }) {
-      if (user) {
+    async jwt({ token, user, account }) {
+      if (user && account) {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
+        token.provider = account.provider;
       }
       return token;
     },
@@ -115,6 +116,7 @@ export const authOptions = {
       session.user.id = token.id;
       session.user.email = token.email;
       session.user.name = token.name;
+      session.user.provider = token.provider;
       return session;
     },
   },

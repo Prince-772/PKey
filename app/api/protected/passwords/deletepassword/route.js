@@ -15,7 +15,7 @@ export async function DELETE(req) {
       "_id remainingMasPassAtempts"
     );
     if (!user) throw new Error("User not found");
-    if (user.remainingMasPassAtempts <= 0) throw new Error("Your account was blocked!")
+    if (user.remainingMasPassAtempts <= 0) throw new Error("BLOCKED_ACCOUNT");
     const Doc = await PasswordsModel.findOne({ userID: user._id, _id: id });
     if (!Doc) throw new Error("Entry not found in your account");
     await Doc.deleteOne()

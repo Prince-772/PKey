@@ -14,7 +14,7 @@ export async function GET() {
     await ConnectToDB();
     const user = await UserModel.findOne({ email }).select("_id remainingMasPassAtempts");
     if (!user) throw new Error("User not found");
-    if (user.remainingMasPassAtempts <= 0) throw new Error("Your account was blocked!")
+    if (user.remainingMasPassAtempts <= 0) throw new Error("BLOCKED_ACCOUNT");
     const PassDocs = await PasswordsModel.find({ userID: user._id }).select(
       "siteName userName password isFavorite strength"
     ).sort("-createdAt")

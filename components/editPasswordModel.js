@@ -236,22 +236,6 @@ const EditModal = ({ onClose, onSave, editingData }) => {
           </div>
         </form>
       </div>
-
-      <style jsx>{`
-        @keyframes scaleIn {
-          0% {
-            transform: scale(0.95);
-            opacity: 0;
-          }
-          100% {
-            transform: scale(1);
-            opacity: 1;
-          }
-        }
-        .animate-scaleIn {
-          animation: scaleIn 0.3s ease-out forwards;
-        }
-      `}</style>
     </div>
   );
 };

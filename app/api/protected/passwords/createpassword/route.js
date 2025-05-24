@@ -18,7 +18,8 @@ export async function POST(request) {
     const user = await UserModel.findOne({ email: session.user.email }).select(
       "_id remainingMasPassAtempts"
     );
-    if (user.remainingMasPassAtempts <= 0) throw new Error("Your account was blocked!")
+    if (user.remainingMasPassAtempts <= 0) throw new Error("BLOCKED_ACCOUNT");
+
     const isDuplicate =
       (await PasswordsModel.findOne({
         userID: user._id,

@@ -9,7 +9,7 @@ const PasswordCard = ({ id, platform, username, password, isFav, onEdit, onDelet
   const [isPassCopied, setIsPassCopied] = useState(false);
   const [isUserNameCopied, setIsUserNameCopied] = useState(false);
   const [isSlided, setIsSlided] = useState(false);
-
+  const [imgSrc, setImgSrc] = useState(`https://icons.duckduckgo.com/ip3/${platform}.ico`);
   const handlers = useSwipeable({
     onSwipedLeft: () => setIsSlided(true),
     onSwipedRight: () => setIsSlided(false),
@@ -63,13 +63,14 @@ const PasswordCard = ({ id, platform, username, password, isFav, onEdit, onDelet
           {/*Logo + Info */}
           <div className="flex items-center max-w-full gap-4 flex-1">
             {/* Logo */}
-            <div className="relative w-12 md:w-16 aspect-square rounded-full overflow-hidden bg-white shadow-inner border border-gray-300">
+            <div className="relative w-12 md:w-16 aspect-square rounded-full overflow-hidden bg-gray-800 shadow-inner border border-purple-600">
               <Image
-                src={`https://icons.duckduckgo.com/ip3/${platform}.ico`}
+                src={imgSrc}
                 alt="Logo"
                 fill
-                className="object-contain"
+                className="object-contain scale-80"
                 sizes="100%"
+                onError={() => setImgSrc("/images/fallback_logo.png")}
               />
             </div>
 

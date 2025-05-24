@@ -16,7 +16,7 @@ export async function PATCH(req) {
       "_id remainingMasPassAtempts"
     );
     if (!user) throw new Error("User not found");
-    if (user.remainingMasPass <= 0) throw new Error("Your account was blocked!")
+    if (user.remainingMasPass <= 0) throw new Error("BLOCKED_ACCOUNT");
 
     const oldDoc = await PasswordsModel.findOne({
       userID: user._id,

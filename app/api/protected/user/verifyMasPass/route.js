@@ -19,13 +19,16 @@ export async function POST(req) {
       throw new Error(
         "It seems like you haven't created a master password yet. Please create and then try again!"
       );
-    if (user.remainingMasPassAtempts <= 0)
-      throw new Error("Your account is blocked!");
+    if (user.remainingMasPassAtempts <= 0) throw new Error("BLOCKED_ACCOUNT");
     const isMatched = await bcrypt.compare(masPass, user.masPass);
     if (!isMatched) {
       user.remainingMasPassAtempts = user.remainingMasPassAtempts - 1;
       await user.save();
-      throw new Error(
+      if (user.remainingMasPassAtempts === 0)
+        throw new Error(
+          `Wrong password. We have blocked your account permanently!`
+        );
+      else throw new Error(
         `Wrong password. After ${user.remainingMasPassAtempts} unsuccessfull attemts your account will be blocked!`
       );
     }

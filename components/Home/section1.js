@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { useSession } from "next-auth/react";
+import { Check } from "lucide-react";
 
 const Section1 = () => {
   const { data: session } = useSession();
@@ -41,9 +42,7 @@ const Section1 = () => {
                          dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600 dark:focus:ring-blue-700
                          transition transform hover:-translate-y-1 hover:scale-105 duration-300 ease-in-out"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.276a2.008 2.008 0 00-2.239-2.239 1.996 1.996 0 00-1.879 1.135L9 16.118l-4.707-4.707a1 1 0 00-1.414 1.414l5.414 5.414a1 1 0 001.414 0l6.707-6.707a1 1 0 000-1.414z" />
-              </svg>
+              <Check className="h-6 w-6 mr-3" strokeWidth={5} />
               Get Started Securely
             </Link>
           </div>
@@ -64,7 +63,7 @@ const Section1 = () => {
 
       <div className="absolute inset-0 opacity-10 z-0">
         <Image
-          src="/images/subtle-pattern-bg.png" // Replace with a subtle geometric pattern or texture
+          src="/images/subtle-pattern-bg.png"
           alt="Background pattern"
           fill
           className="object-cover dark:invert-100"

@@ -20,7 +20,7 @@ export async function PATCH(req) {
       "_id remainingMasPassAtempts"
     );
     if (!user) throw new Error("User not found");
-    if (user.remainingMasPassAtempts <= 0) throw new Error("Your account was blocked!")
+    if (user.remainingMasPassAtempts <= 0) throw new Error("BLOCKED_ACCOUNT");
     const isDuplicate =
       (await PasswordsModel.findOne({
         userID: user._id,

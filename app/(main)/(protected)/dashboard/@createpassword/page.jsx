@@ -1,6 +1,5 @@
 "use client"
 import SuggestPassword from "@/lib/passwords/suggestPassword";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import toast, { Toaster } from 'react-hot-toast'
 import {
@@ -15,16 +14,21 @@ import {
   TriangleAlert,
   UserPen,
 } from "lucide-react";
-import React, { useState, } from "react";
+import React, { useCallback, useEffect, useState, } from "react";
 import { handleSavePassword } from "@/lib/passwords/submitPasswords";
 import { useMasterPass } from "@/context/MasterPassword";
 import { encrypt } from "@/lib/passwords/encryptPassword";
 import categorizePassword from "@/lib/passwords/strengthChecker";
+import MasterPasswordModel from "@/components/masterPassPage";
+import CreateMasterPasswordModal from "@/components/CreateMasterPassword";
+import { CreateMasterPass } from "@/lib/masterpassword/create";
 
 const CreatePassword = () => {
   const [seePassword, setseePassword] = useState(false);
   const [isPassSuggested, setIsPassSuggested] = useState(false)
-  const { masterPass, resetTimer } = useMasterPass()
+  const { masterPass, resetTimer, masterPassSet, setMasterPassSet } = useMasterPass()
+  const [showMasterPassModel, setshowMasterPassModel] = useState(false)
+  const [showCreateMasterModel, setShowCreateMasterModel] = useState(false);
   const {
     register,
     formState: { errors },
@@ -34,7 +38,6 @@ const CreatePassword = () => {
     reset,
   } = useForm();
 
-  const router = useRouter()
   const handleSeePassword = () => {
     setseePassword((prev) => !prev);
   };
@@ -51,11 +54,14 @@ const CreatePassword = () => {
   }
 
   const handleOnSubmit = async (formData) => {
-    if (!masterPass) return router.push("/masterPass?callback=dashboard")
+    if (!masterPass) {
+      if (masterPassSet) setShowCreateMasterModel(true)
+      else setshowMasterPassModel(true)
+      return
+    }
 
     // encrypting in client side
     const encryptedPass = encrypt(formData.password, masterPass)
-    console.log(encryptedPass);
     const strength = categorizePassword(formData.password)
     await toast.promise(handleSavePassword({ ...formData, password: encryptedPass, strength }), {
       loading: "Saving...",
@@ -63,14 +69,74 @@ const CreatePassword = () => {
         resetTimer()
         return message || "Saved Successfully!"
       },
-      error: ({ message }) => message || "Something went wrong"
+      error: ({ message }) => {
+        if (message === "BLOCKED_ACCOUNT") {
+          return (
+            <span>
+              Your account is blocked due to too many invalid attempts.{" "}
+              <Link href="/blocked-accounts-help" className="underline text-blue-500">
+                Learn what to do
+              </Link>
+            </span>
+          );
+        } else {
+          return message || "Something went wrong";
+        }
+      }
     })
     reset({ password: "" });
   }
+  const onCreateMasterPass = useCallback(async (masterPass) => {
+    setMasterPassSet(false)
+    setShowCreateMasterModel(false)
+    await toast.promise(CreateMasterPass(masterPass), {
+      loading: "Saving Securily...",
+      success: (res) => {
+        return res.message || "Master Password created!"
+      },
+      error: ({ message }) => {
+        setMasterPassSet(true)
+        if (message === "BLOCKED_ACCOUNT") {
+          return (
+            <span>
+              Your account is blocked due to too many invalid attempts.{" "}
+              <Link href="/blocked-accounts-help" className="underline text-blue-500">
+                Learn what to do
+              </Link>
+            </span>
+          );
+        } else {
+          return message || "Unable to create master password";
+        }
+      }
+    });
+  }, []);
+  useEffect(() => {
+    if (masterPassSet && !masterPass) setShowCreateMasterModel(true)
+    return () => setshowMasterPassModel(false)
+  }, [masterPassSet, masterPass])
   return (
     <div className="flex flex-col items-center justify-center py-8 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
       <Toaster position="top-center" reverseOrder={false} />
-
+      {showMasterPassModel && <MasterPasswordModel isOpen={showMasterPassModel} onClose={() => setshowMasterPassModel(false)} />}
+      {showCreateMasterModel && <CreateMasterPasswordModal
+        {...{
+          isOpen: showCreateMasterModel,
+          onClose: () => setShowCreateMasterModel(false),
+          onSetMasterPassword: onCreateMasterPass,
+        }}
+      />}
+      {masterPassSet && <button
+        type="button"
+        onClick={() => setShowCreateMasterModel(true)}
+        className="inline-flex items-center justify-center px-6 mb-4 py-3 rounded-full shadow-lg
+             bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg
+             hover:from-blue-700 hover:to-purple-700
+             transition-all duration-300 ease-in-out transform hover:-translate-y-1 animate-attention"
+      >
+        Set Master Password
+      </button>
+      }
       <div className="rounded-lg shadow-xl px-5 py-8 w-full max-w-2xl border border-gray-200 dark:border-gray-700">
         <h1 className="text-lg md:text-xl font-inter font-extrabold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
           Create New Password Entry
@@ -163,7 +229,7 @@ const CreatePassword = () => {
             </label>
             <div className="relative flex flex-col md:flex-row gap-4">
               <input
-                {...register("password", { required: "Password is required", minLength: { value: 6, message: "Password must be alteast 6 characters long" } })}
+                {...register("password", { required: "Password is required" })}
                 type={seePassword ? "text" : "password"}
                 placeholder=" "
                 className="peer w-full h-12 px-4 border-2 rounded-lg

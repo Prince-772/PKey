@@ -6,9 +6,9 @@ const Logo = () => {
   return (
     <Link
       href="/"
-      className="flex items-center gap-2"
+      className="flex items-center gap-1"
     >
-      <div className='relative h-8 w-8 md:h-10 md:w-10 rounded-full overflow-hidden flex-shrink-0'>
+      <div className='relative h-8 w-8 md:h-10 md:w-10 overflow-hidden flex-shrink-0'>
         <Image
           src="/logo.png"
           priority
