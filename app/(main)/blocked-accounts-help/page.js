@@ -37,7 +37,7 @@ export default function AccountBlockedPage() {
           {/* Actions Section */}
           <div className="mt-10 space-y-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center">
-              Here's what you can do:
+              {"Here's what you can do:"}
             </h2>
 
             {/* Reset Vault */}
@@ -80,8 +80,8 @@ export default function AccountBlockedPage() {
                   Learn More
                 </h3>
                 <p className="text-sm text-gray-700 dark:text-gray-300">
-                  Understand how we keep your data secure and why we don't store
-                  your master password.
+                  {`Understand how we keep your data secure and why we don't store
+                  your master password.`}
                 </p>
               </div>
             </div>
@@ -100,14 +100,14 @@ export default function AccountBlockedPage() {
           {/* Final Warning */}
           <div className="mt-10 text-center text-sm text-red-600 dark:text-red-400 font-semibold">
             <AlertTriangle className="inline w-4 h-4 mr-1" />
-            Resetting your vault is <strong>permanent</strong>. Make sure you
-            want to proceed.
+            {`Resetting your vault is ${<strong>permanent</strong>}. Make sure you
+            want to proceed.`}
           </div>
 
           <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900 rounded-lg border border-blue-200 dark:border-blue-700 text-sm text-blue-800 dark:text-blue-200 italic text-center">
             <AlertTriangle className="inline w-4 h-4 mr-2 text-blue-700 dark:text-blue-300" />
-            We <strong>never store</strong> your master password. We can't help
-            recover it. So keep it safe next time.
+           {`We ${<strong>never store</strong>} your master password. We can't help
+            recover it. So keep it safe next time.`}
           </div>
         </div>
       </div>
