@@ -5,6 +5,8 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import PasswordsModel from "@/models/Passwords";
+import { VaultResetHtml } from "@/lib/html/Emails";
+import { sendEmail } from "@/lib/managers/mailManager";
 
 export async function DELETE(req) {
   try {
@@ -19,6 +21,7 @@ export async function DELETE(req) {
     if (!user) throw new Error("User not found!");
 
     const userPass = user.password;
+    const name = user.name
     if (userPass && !password.trim()) throw new Error("Password is required!");
     if (userPass) {
       const isMatched = await bcrypt.compare(password, userPass);
@@ -29,6 +32,14 @@ export async function DELETE(req) {
     user.masPass = undefined;
     user.remainingMasPassAtempts = 5;
     await user.save();
+
+    // notify email
+        await sendEmail ({
+          to: email,
+          subject: "Vault Erased successfully!",
+          text: `Hello ${name}, we have reset your vault, including your master password, as per your request.`,
+          html: VaultResetHtml(name)
+        });
 
     return NextResponse.json(
       {

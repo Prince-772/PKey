@@ -5,6 +5,8 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import PasswordsModel from "@/models/Passwords";
+import { accountDeleteHtml } from "@/lib/html/Emails";
+import { sendEmail } from "@/lib/managers/mailManager";
 
 export async function DELETE(req) {
   try {
@@ -18,6 +20,7 @@ export async function DELETE(req) {
     const user = await UserModel.findOne({ email });
     if (!user) throw new Error("User not found!");
     const userPass = user.password;
+    const name = user.name;
 
     if (userPass && !password.trim()) throw new Error("Password is required!");
     if (userPass) {
@@ -26,6 +29,13 @@ export async function DELETE(req) {
     }
     await PasswordsModel.deleteMany({ userID: user._id });
     await user.deleteOne();
+
+    await sendEmail({
+      to: email,
+      subject: "Account Deleted Successfully!",
+      text: `Hello ${name}, we have deleted your account, including all your saved data, as per your request.`,
+      html: accountDeleteHtml(name),
+    });
 
     return NextResponse.json(
       {

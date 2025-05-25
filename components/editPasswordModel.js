@@ -14,8 +14,8 @@ import { useMasterPass } from "@/context/MasterPassword";
 import { useRouter } from "next/navigation";
 import categorizePassword from "@/lib/passwords/strengthChecker";
 
-const EditModal = ({ onClose, onSave, editingData }) => {
-  const { masPass } = useMasterPass();
+const EditModal = ({ onClose, onSave, editingData,noMasterPass }) => {
+  const { masterPass } = useMasterPass();
   const router = useRouter();
 
   const {
@@ -37,20 +37,20 @@ const EditModal = ({ onClose, onSave, editingData }) => {
 
   const handleSave = useCallback(
     (data) => {
-      if (!masPass) return router.push("/masPass");
+      if (!masterPass) return noMasterPass();
       const strength = categorizePassword(data.password);
       if (isDirty) {
         onSave({
           site: data.platform,
           username: data.username,
-          password: encrypt(data.password, masPass),
+          password: encrypt(data.password, masterPass),
           id: editingData.id,
           strength,
         });
       }
       onClose();
     },
-    [onSave, onClose, editingData.id, isDirty, masPass, router]
+    [onSave, onClose, editingData.id, isDirty, masterPass, router]
   );
 
   const HandleSuggestStrongPassword = useCallback(() => {
@@ -226,8 +226,6 @@ const EditModal = ({ onClose, onSave, editingData }) => {
             </button>
             <button
               type="submit"
-              // Optionally disable the button if the form is not dirty
-              // disabled={!isDirty}
               className="flex-1 text-sm text-nowrap md:text-base inline-flex items-center justify-center px-3 md:px-6 py-3 rounded-xl shadow-lg bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 dark:from-teal-600 dark:to-emerald-400 dark:hover:from-teal-700 dark:hover:to-emerald-500 transition-all duration-300 ease-in-out font-semibold transform hover:-translate-y-1"
             >
               Save Changes

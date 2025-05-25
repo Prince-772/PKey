@@ -2,12 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import {
-  Lock,
-  AlertTriangle,
-  RotateCcw,
-  BookOpen
-} from "lucide-react";
+import { Lock, AlertTriangle, RotateCcw, BookOpen } from "lucide-react";
 import Logo from "@/components/logo";
 import Footer from "@/components/Footer";
 
@@ -57,16 +52,26 @@ export default function AccountBlockedPage() {
                     Steps to Reset Your Vault:
                   </h4>
                   <ol className="list-decimal list-inside space-y-3 ml-4">
-                    <li><Link href="/sign-in" className="text-blue-500 underline">Log in</Link> to your account.</li>
+                    <li>
+                      <Link href="/sign-in" className="text-blue-500 underline">
+                        Log in
+                      </Link>{" "}
+                      to your account.
+                    </li>
                     <li>
                       Click the <b>Profile</b> button in the top right corner.
                     </li>
-                    <li>Click the <b>Reset Vault</b> option.</li>
+                    <li>
+                      Click the <b>Reset Vault</b> option.
+                    </li>
                     <li>
                       Enter your account password (if you logged in with email)
                       to confirm.
                     </li>
-                    <li>Create a new master password to set up your vault and start fresh.</li>
+                    <li>
+                      Create a new master password to set up your vault and
+                      start fresh.
+                    </li>
                   </ol>
                 </div>
               </div>
@@ -100,14 +105,18 @@ export default function AccountBlockedPage() {
           {/* Final Warning */}
           <div className="mt-10 text-center text-sm text-red-600 dark:text-red-400 font-semibold">
             <AlertTriangle className="inline w-4 h-4 mr-1" />
-            {`Resetting your vault is ${<strong>permanent</strong>}. Make sure you
-            want to proceed.`}
+            <>
+              Resetting your vault is <strong>permanent</strong>. Make sure you
+              want to proceed.
+            </>
           </div>
 
           <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900 rounded-lg border border-blue-200 dark:border-blue-700 text-sm text-blue-800 dark:text-blue-200 italic text-center">
             <AlertTriangle className="inline w-4 h-4 mr-2 text-blue-700 dark:text-blue-300" />
-           {`We ${<strong>never store</strong>} your master password. We can't help
-            recover it. So keep it safe next time.`}
+            We{" "}
+            <strong>never store</strong>{" "}
+            your master password. We {"can't"} help recover it. So keep it safe
+            next time.
           </div>
         </div>
       </div>

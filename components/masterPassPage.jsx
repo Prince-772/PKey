@@ -65,7 +65,9 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
             Enter your master password to unlock your saved credentials.
           </p>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Or <Link href="/dashboard" className='text-blue-500 underline'>create one</Link> if you haven't done so yet.
+            Or <Link
+              onClick={onClose}
+              href="/dashboard" className='text-blue-500 underline'>create one</Link> if you haven't done so yet.
           </p>
         </div>
 

@@ -7,6 +7,7 @@ import errorHandler from "@/lib/handlers/errorhandler";
 //users model
 import UserModel from "@/models/User";
 import { sendEmail } from "@/lib/managers/mailManager";
+import { verifyEmailHtml } from "@/lib/html/Emails";
 
 export async function POST(req) {
   try {
@@ -34,7 +35,7 @@ export async function POST(req) {
     const hashedToken = crypto.createHash('sha256').update(verifyToken).digest('hex');
 
     // Create user
-    const createdUser = await UserModel.create({
+    const createPdUser = await UserModel.create({
       name,
       email,
       password: hashedPassword,
@@ -46,9 +47,8 @@ export async function POST(req) {
     await sendEmail ({
       to: email,
       subject: "Verify your email",
-      text: `Hello ${name}, please verify your email by clicking on the link below: ${process.env.NEXT_PUBLIC_BASE_URL}/verify/${createdUser._id}`,
-      html: `<p style="font-family:sans-serif;">Hello <b>${name}</b>, please verify your email by clicking on the link below:</p>
-             <a style="font-family:sans-serif;" href="${process.env.NEXT_PUBLIC_BASE_URL}/auth/verifyemail/${verifyToken}">Verify Email</a>`,
+      text: `Hello ${name}, please verify your email by clicking on the link below: ${process.env.NEXT_PUBLIC_BASE_URL}/verify/${verifyToken}`,
+      html: verifyEmailHtml(name,verifyToken)
     });
 
     const response = NextResponse.json({

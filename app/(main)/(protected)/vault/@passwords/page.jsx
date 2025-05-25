@@ -219,7 +219,7 @@ const Passwords = () => {
           <div className="flex flex-col gap-4 mb-10">
             {isEditOpen && <EditModal
               {...{
-                isOpen: isEditOpen, onClose: () => setIsEditOpen(false), onSave: onSaveChanges, editingData
+                isOpen: isEditOpen, onClose: () => setIsEditOpen(false), onSave: onSaveChanges, editingData, noMasterPass:()=>{setshowMasterPassModel(true)}
               }} />}
 
             {passwords.map((item) => (

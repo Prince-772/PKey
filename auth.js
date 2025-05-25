@@ -88,7 +88,12 @@ export const authOptions = {
           const { email, name } = user;
           await ConnectToDB();
           const alreadyExist = await UserModel.findOne({ email });
-          if (!alreadyExist) {
+          if (alreadyExist) {
+            if (alreadyExist.password) {
+              throw new Error("Account already exists. Please sign in with correct method.");
+            }
+          }
+          else if (!alreadyExist) {
             const newUser = new UserModel({
               name,
               email,
