@@ -30,7 +30,7 @@ export default function DeleteEntryModal({ onClose, callback, id, resetID }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/70 dark:bg-black/80 backdrop-blur-md transition-opacity duration-300 ease-in-out">
-      <div className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-2xl shadow-2xl w-[95%] max-w-md relative
+      <div className="bg-white dark:bg-gray-800 p-4 md:p-8 rounded-2xl shadow-2xl w-[95%] max-w-md relative
                       border border-gray-200 dark:border-gray-700 text-center animate-scaleIn">
 
         {/* Close Button */}
@@ -53,7 +53,7 @@ export default function DeleteEntryModal({ onClose, callback, id, resetID }) {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-4 mt-8">
+        <div className="flex gap-2 md:gap-4 mt-8">
           <button
             onClick={onClose}
             disabled={isDeleting}
@@ -62,7 +62,7 @@ export default function DeleteEntryModal({ onClose, callback, id, resetID }) {
                        hover:bg-gray-400
                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400
                        dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600
-                       transition-all duration-300 ease-in-out text-base font-semibold
+                       transition-all duration-300 ease-in-out text-sm font-semibold
                        disabled:opacity-60 disabled:cursor-not-allowed"
           >
             Cancel
@@ -70,8 +70,8 @@ export default function DeleteEntryModal({ onClose, callback, id, resetID }) {
           <button
             onClick={handleDelete}
             disabled={isDeleting}
-            className="flex-1 inline-flex items-center justify-center px-6 py-3 rounded-full shadow-lg
-                       bg-red-600 text-white font-bold text-lg
+            className="flex-1 inline-flex items-center justify-center px-3 md:px-6 py-3 rounded-full shadow-lg
+                       bg-red-600 text-white font-bold text-sm text-nowrap
                        hover:bg-red-700
                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500
                        dark:bg-red-500 dark:hover:bg-red-600
@@ -80,11 +80,11 @@ export default function DeleteEntryModal({ onClose, callback, id, resetID }) {
           >
             {isDeleting ? (
               <>
-                <LoaderCircle className="w-5 h-5 mr-2 animate-spin" /> Deleting...
+                <LoaderCircle className="w-5 h-5 mr-2 shrink-0 animate-spin" /> Deleting...
               </>
             ) : (
               <>
-                <Trash2 className="w-5 h-5 mr-2" /> Delete Entry
+                <Trash2 className="w-5 h-5 mr-2 shrink-0 " /> Delete Entry
               </>
             )}
           </button>
