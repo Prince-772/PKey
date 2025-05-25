@@ -4,6 +4,7 @@ import crypto from "crypto";
 import errorHandler from "@/lib/handlers/errorhandler";
 import UserModel from "@/models/User";
 import { sendEmail } from "@/lib/managers/mailManager";
+import { verifyEmailHtml } from "@/lib/html/Emails";
 
 export async function POST(req) {
   try {
@@ -27,9 +28,7 @@ export async function POST(req) {
       to: email,
       subject: "Verify your email",
       text: `Hello ${user.name}, please verify your email by clicking on the link below: ${process.env.NEXT_PUBLIC_BASE_URL}/auth/verifyemail/${verifyToken}`,
-      html: `<p style="font-family:sans-serif;">Hello <b>${user.name}</b>, please verify your email by clicking on the link below:</p>
-             <a style="font-family:sans-serif;" href="${process.env.NEXT_PUBLIC_BASE_URL}/auth/verifyemail/${verifyToken}">Verify Email</a>`,
-    });
+      html: verifyEmailHtml(user.name,verifyToken)});
 
     return NextResponse.json({ success: true, message: "Verification email resent" });
   } catch (err) {
