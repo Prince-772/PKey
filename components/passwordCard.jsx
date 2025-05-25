@@ -182,6 +182,7 @@ const PasswordCard = ({ id, platform, username, password, isFav, onEdit, onDelet
           <div className="flex absolute top-3 right-3 items-center gap-2">
             <div
               tabIndex={0}
+              onClick={(e)=>{e.preventDefault(); e.stopPropagation()}}
               className={`relative p-2 rounded-full ${strength === "weak" ? "bg-red-500" : strength === "moderate" ? "bg-yellow-500" : "bg-green-600"} group transition-colors cursor-pointer text-white`}>
               {strength === "weak" && <ShieldOff className="w-4 h-4 text-white" />}
               {strength === "moderate" && <AlertTriangle className="w-4 h-4 text-white" />}
