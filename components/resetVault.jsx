@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { X, Eraser, AlertTriangle, LoaderCircle } from 'lucide-react';
+import { X, Eraser, AlertTriangle, LoaderCircle, Router } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import { handleResetVault } from '@/lib/user/resetVault';
 import { useMasterPass } from '@/context/MasterPassword';
+import { useRouter } from 'next/navigation';
 
 export default function ResetVaultModal({ isOpen, onClose, showPasswordInput }) {
   const [confirmationText, setConfirmationText] = useState('');
   const [isResetting, setIsResetting] = useState(false);
   const { setMasterPass, setMasterPassSet } = useMasterPass();
-
+  const router = useRouter()
 
   const handleReset = async () => {
     setIsResetting(true);
@@ -17,6 +18,7 @@ export default function ResetVaultModal({ isOpen, onClose, showPasswordInput }) 
       success: (data) => {
         setIsResetting(false);
         onClose();
+        router.push("/dashboard")
         setMasterPass(null)
         setMasterPassSet(true)
         return data.message;
