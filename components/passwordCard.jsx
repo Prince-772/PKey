@@ -1,9 +1,10 @@
-import { Copy, CopyCheck, Eye, EyeOff, Heart, Pencil, Trash2 } from "lucide-react";
+import { AlertTriangle, Copy, CopyCheck, Eye, EyeOff, Heart, Pencil, ShieldCheck, ShieldOff, Trash2 } from "lucide-react";
 import Image from "next/image";
 import React, { memo, useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { useSwipeable } from "react-swipeable";
 
-const PasswordCard = ({ id, platform, username, password, isFav, onEdit, onDelete, onToggleFavorite }) => {
+const PasswordCard = ({ id, platform, username, password, isFav, onEdit, onDelete, onToggleFavorite, strength }) => {
 
   const [isPassVisible, setIsPassVisible] = useState(false);
   const [isPassCopied, setIsPassCopied] = useState(false);
@@ -33,9 +34,10 @@ const PasswordCard = ({ id, platform, username, password, isFav, onEdit, onDelet
         await navigator.clipboard.writeText(text);
       }
       setCopied(true);
+      toast.success("Copied!")
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      alert("Copy failed:", err);
+      toast.error("Failed to copy")
     }
   };
 
@@ -177,15 +179,23 @@ const PasswordCard = ({ id, platform, username, password, isFav, onEdit, onDelet
           </div>
 
           {/* Actions */}
-          <div className="hidden md:flex absolute top-3 right-3 items-center gap-2">
+          <div className="flex absolute top-3 right-3 items-center gap-2">
+            <div
+              tabIndex={0}
+              className={`relative p-2 rounded-full ${strength === "weak" ? "bg-red-500" : strength === "moderate" ? "bg-yellow-500" : "bg-green-600"} group transition-colors cursor-pointer text-white`}>
+              {strength === "weak" && <ShieldOff className="w-4 h-4 text-white" />}
+              {strength === "moderate" && <AlertTriangle className="w-4 h-4 text-white" />}
+              {strength === "strong" && <ShieldCheck className="w-4 h-4 text-white" />}
+              <p className={`absolute top-0 right-10 ${strength === "weak" ? "bg-red-500/70" : strength === "moderate" ? "bg-yellow-500/70" : "bg-green-600/70"} text-nowrap text-black py-1 px-2 rounded-lg text-sm hidden group-hover:block group-focus:block`}>This password is {strength}.</p>
+            </div>
             <button
               onClick={(e) => { e.stopPropagation(); onEdit({ username, password, platform, id }) }}
-              className="p-2 rounded-full bg-blue-600 hover:bg-blue-700 transition-colors text-white">
+              className="hidden md:block p-2 rounded-full bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer text-white">
               <Pencil className="w-4 h-4" />
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); onDelete(id) }}
-              className="p-2 rounded-full bg-red-600 hover:bg-red-700 transition-colors text-white">
+              className="hidden md:block p-2 rounded-full bg-red-600 hover:bg-red-700 transition-colors cursor-pointer text-white">
               <Trash2 className="w-4 h-4" />
             </button>
           </div>

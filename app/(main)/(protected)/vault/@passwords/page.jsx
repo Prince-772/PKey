@@ -14,6 +14,7 @@ import EmptyVault from "@/components/emptyVaultMsg";
 import VaultIsLocked from "@/components/lockVaultMessage";
 import DeleteEntryModal from "@/components/confirmDeleteEntryModel";
 import { Search } from "lucide-react";
+import NoMatchFound from "@/components/noMatchFound";
 
 const Passwords = () => {
   const [loading, setLoading] = useState(false)
@@ -150,8 +151,38 @@ const Passwords = () => {
   }, [masterPass])
 
   const [selectedOpt, setSelectedOpt] = useState(["all"])
-  const filterOptArray = ["All", "Favorite", "Oldest First", "Strong", "Weak", "Moderte",];
+  const [searchTerms, setsearchTerms] = useState("")
+  const filterOptArray = ["All", "Favorite", "Not Favorite", "Oldest First", "Strong", "Weak", "Moderate",];
+  const [filteredPasswords, setFilteredPasswords] = useState(passwords)
+  useEffect(() => {
 
+    let newPasswords = [...passwords]
+
+    if (searchTerms.trim()) {
+      const lowerSearch = searchTerms.toLowerCase();
+      newPasswords = newPasswords.filter(pas =>
+        pas.siteName.toLowerCase().includes(lowerSearch) ||
+        pas.userName.toLowerCase().includes(lowerSearch)
+      );
+    }
+    if (!selectedOpt.includes("all")) selectedOpt.forEach(opt => {
+      const strengthFilters = selectedOpt.filter(opt =>
+        ["strong", "moderate", "weak"].includes(opt)
+      );
+      if (strengthFilters.length > 0) {
+        newPasswords = newPasswords.filter(pas => strengthFilters.includes(pas.strength));
+      }
+      if (opt === "favorite") newPasswords = newPasswords.filter(pas => pas.isFavorite)
+      else if (opt === "not favorite") newPasswords = newPasswords.filter(pas => !pas.isFavorite)
+      else if (opt === "oldest first") newPasswords = [...newPasswords].reverse()
+    })
+    setFilteredPasswords(newPasswords)
+  }, [searchTerms, selectedOpt, passwords])
+
+  const clearFilters = useCallback(() => {
+    setsearchTerms("")
+    setSelectedOpt(["all"])
+  }, [])
 
   return (
     <div className="w-full p-3 md:px-6">
@@ -173,6 +204,8 @@ const Passwords = () => {
               <div className='relative'>
                 <input
                   type="text"
+                  value={searchTerms}
+                  onChange={(e) => setsearchTerms(e.target.value)}
                   placeholder="Search your passwords..."
                   className="w-full pl-10 pr-4 py-2.5 border-2 rounded-lg
                      bg-white dark:bg-gray-700
@@ -193,13 +226,25 @@ const Passwords = () => {
                       key={index}
                       onClick={() => {
                         const lowerCaseOpt = opt.toLowerCase();
-                        if (selectedOpt.includes(lowerCaseOpt)) {
-                          // Allow deselecting unless it's the last selected option
-                          if (selectedOpt.length > 1) {
-                            setSelectedOpt(selectedOpt.filter(option => option !== lowerCaseOpt));
-                          }
+
+                        if (lowerCaseOpt === "all") {
+                          // Selecting "all" clears other filters
+                          setSelectedOpt(["all"]);
                         } else {
-                          setSelectedOpt([...selectedOpt, lowerCaseOpt]);
+                          // Selecting other filters removes "all"
+                          let newSelection = selectedOpt.filter(option => option !== "all");
+                          if (lowerCaseOpt === "favorite" && newSelection.includes("not favorite")) newSelection = newSelection.filter(opt => opt !== "not favorite")
+                          if (lowerCaseOpt === "not favorite" && newSelection.includes("favorite")) newSelection = newSelection.filter(opt => opt !== "favorite")
+                          if (selectedOpt.includes(lowerCaseOpt)) {
+                            // Deselect if not the last option
+                            if (newSelection.length > 1) {
+                              newSelection = newSelection.filter(option => option !== lowerCaseOpt);
+                            }
+                          } else {
+                            newSelection = [...newSelection, lowerCaseOpt];
+                          }
+
+                          setSelectedOpt(newSelection);
                         }
                       }}
                       className={`flex-shrink-0 px-5 sm:px-7 py-1 rounded-full font-medium text-sm md:text-base whitespace-nowrap
@@ -219,10 +264,10 @@ const Passwords = () => {
           <div className="flex flex-col gap-4 mb-10">
             {isEditOpen && <EditModal
               {...{
-                isOpen: isEditOpen, onClose: () => setIsEditOpen(false), onSave: onSaveChanges, editingData, noMasterPass:()=>{setshowMasterPassModel(true)}
+                isOpen: isEditOpen, onClose: () => setIsEditOpen(false), onSave: onSaveChanges, editingData, noMasterPass: () => { setshowMasterPassModel(true) }
               }} />}
 
-            {passwords.map((item) => (
+            {filteredPasswords.length === 0 ? <NoMatchFound ClearFilters={clearFilters} /> : (filteredPasswords.map((item) => (
               <PasswordCard
                 key={item._id}
                 id={item._id}
@@ -232,9 +277,10 @@ const Passwords = () => {
                 isFav={item.isFavorite}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                strength={item.strength}
                 onToggleFavorite={onToggleFavorite}
               />
-            ))}
+            )))}
           </div>
         </>
       )}

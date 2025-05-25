@@ -153,10 +153,6 @@ const EditModal = ({ onClose, onSave, editingData,noMasterPass }) => {
                   name="password"
                   {...register("password", {
                     required: "Password is required!",
-                    minLength: {
-                      value: 6,
-                      message: "Must be 6 characters long!",
-                    },
                   })}
                   placeholder=" "
                   className="peer w-full font-mono px-4 py-2.5 border-2 rounded-lg border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-transparent outline-none focus:border-blue-500 dark:focus:border-blue-400 transition duration-200 text-lg pr-10"
