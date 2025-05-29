@@ -23,6 +23,28 @@ export const metadata = {
       { url: "/android-chrome-512x512.png", type: "image/png" },
     ],
   },
+  openGraph: {
+    title: "PKey - Secure Password Manager",
+    description: "Store and manage your passwords securely with PKey. Privacy-first, open-source, and reliable.",
+    url: "https://p-key.vercel.app",
+    siteName: "PKey",
+    images: [
+      {
+        url: "https://p-key.vercel.app/og.png",
+        width: 1200,
+        height: 630,
+        alt: "PKey Logo and preview",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PKey - Secure Password Manager",
+    description: "Store and manage your passwords securely with PKey.",
+    images: ["https://p-key.vercel.app/og.png"],
+  },
 };
 
 export default function RootLayout({ children }) {
