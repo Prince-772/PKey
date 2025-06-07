@@ -30,7 +30,7 @@ export const metadata = {
     siteName: "PKey",
     images: [
       {
-        url: "https://p-key.vercel.app/og.png",
+        url: "/og.png",
         width: 1200,
         height: 630,
         alt: "PKey Logo and preview",
@@ -43,7 +43,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "PKey - Secure Password Manager",
     description: "Store and manage your passwords securely with PKey.",
-    images: ["https://p-key.vercel.app/og.png"],
+    images: ["/og.png"],
   },
 };
 
