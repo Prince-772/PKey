@@ -103,7 +103,7 @@ export default function ResetPasswordPage() {
               <TriangleAlert className="w-5 h-5" /> {error}
             </p>
             <Link
-              href="/auth/forgot-password"
+              href="/forgot-password"
               className="mt-4 inline-block text-blue-600 dark:text-blue-400 hover:underline"
             >
               Request a new reset link
