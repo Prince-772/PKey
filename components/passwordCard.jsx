@@ -65,7 +65,7 @@ const PasswordCard = ({ id, platform, username, password, isFav, onEdit, onDelet
           {/*Logo + Info */}
           <div className="flex items-center max-w-full gap-4 flex-1">
             {/* Logo */}
-            <div className="relative w-12 md:w-16 aspect-square rounded-full overflow-hidden bg-gray-800 shadow-inner border border-purple-600">
+            <div className="relative w-12 md:w-16 aspect-square rounded-full overflow-hidden bg-gradient-to-r to-blue-600/20 from-purple-600/20 shadow-inner border border-purple-600">
               <Image
                 src={imgSrc}
                 alt="Logo"
