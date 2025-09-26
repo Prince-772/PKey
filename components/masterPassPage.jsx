@@ -99,6 +99,7 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
 
           <button
             type="submit"
+            disabled={isLoading}
             className="inline-flex items-center justify-center px-6 py-3 rounded-full shadow-lg
                        bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg
                        hover:from-blue-700 hover:to-purple-700
