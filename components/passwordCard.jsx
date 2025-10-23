@@ -72,7 +72,7 @@ const PasswordCard = ({ id, platform, username, password, isFav, onEdit, onDelet
                 fill
                 className="object-contain scale-80"
                 sizes="100%"
-                onError={() => setImgSrc("/images/fallback_logo.png")}
+                onError={() => setImgSrc("/images/fallback_logor.png")}
               />
             </div>
 
