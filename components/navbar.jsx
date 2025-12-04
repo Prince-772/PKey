@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation';
 import { CircleUserRound, Eraser, LayoutDashboard, Loader, LoaderCircle, Lock, LockKeyhole, LogIn, LogOut, Moon, RotateCcw, Sun, Undo2, UserRoundX } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
+import { useMasterPass } from "@/context/MasterPassword";
 import { useRouter } from 'next/navigation'
 import Logo from './logo'
 import DeleteAccountModal from './deleteAccountModel'
@@ -22,6 +23,8 @@ const NavBar = () => {
     setIsDark(document.body.classList.contains("dark"))
   }, [])
 
+  const { setMasterPass } = useMasterPass()
+
   const showLoading = status === "loading"
   const showSignIn = status === "unauthenticated" && unProtectedRoutes.includes(pathname)
   const showVault = status === "authenticated" && pathname === "/dashboard"
@@ -33,8 +36,9 @@ const NavBar = () => {
   const [isProfileView, setIsProfileView] = useState(false)
   const [openDeleteAccountModel, setOpenDeleteAccountModel] = useState(false)
   const [openResetVaultModel, setOpenResetVaultModel] = useState(false)
-  const HandleLogOut = () => {
-    signOut({ redirect: false })
+  const HandleLogOut = async () => {
+    await signOut({ redirect: false })
+    setMasterPass(null)
     router.push("/")
   }
   const handleDeleteAccount = () => {
