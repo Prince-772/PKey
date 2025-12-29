@@ -4,7 +4,7 @@ import { VerifyMasterPass } from '@/lib/masterpassword/verify';
 import { KeyRound, X } from 'lucide-react'; // Icons
 import Link from 'next/link';
 import { useRef, useState } from 'react';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 
 export default function MasterPasswordModel({ isOpen, onClose }) {
@@ -22,7 +22,6 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
           setMasterPass(mPass.current.value)
           mPass.current.value = ""
           setIsLoading(false)
-          onClose()
           return "Vault unlocked!"
         },
         error: ({ message }) => {
@@ -44,6 +43,7 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
           }
         }
       })
+      onClose()
     }
   };
 
@@ -51,7 +51,7 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
 
   return (
     <div className="inset-0 fixed z-99 flex flex-col items-center justify-center min-h-screen bg-black/50 dark:bg-gray-950/20 text-gray-900 dark:text-gray-100 px-4">
-      <Toaster />
+      {/* <Toaster /> */}
       <div className="bg-white dark:bg-gray-800 p-4 md:p-10 rounded-2xl shadow-2xl w-full max-w-md relative
                       border border-gray-200 dark:border-gray-700 text-center animate-scaleIn">
         <X className="absolute top-5 right-5 cursor-pointer hover:text-red-500" onClick={onClose} />

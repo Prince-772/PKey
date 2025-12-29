@@ -2,6 +2,7 @@ import { Inter, Roboto } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/context/AuthProvider";
 import MasterPassProvider from "@/context/MasterPassword";
+import { Toaster } from "react-hot-toast";
 // import NavBar from "@/components/navbar";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -54,6 +55,7 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <MasterPassProvider>{children}</MasterPassProvider>
         </AuthProvider>
+        <Toaster />
       </body>
     </html>
   );
