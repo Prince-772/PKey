@@ -6,18 +6,18 @@ export default function LandingTestimonialsSection() {
   const testimonials = [
     {
       quote: "PKey has transformed how I manage my online accounts. It's incredibly secure and so intuitive!",
-      author: "Sarah J.",
+      author: "Arpit Kushwaha",
       title: "Marketing Manager"
     },
     {
       quote: "Finally, a password manager that's both powerful and easy to use. The sync feature is a lifesaver.",
-      author: "David R.",
+      author: "Sreyash Pandey",
       title: "Software Engineer"
     },
     {
       quote: "I feel so much more secure knowing my data is protected with PKey's strong encryption. Highly recommended!",
-      author: "Emily C.",
-      title: "Freelance Designer"
+      author: "Kishan Yadav",
+      title: "Senior Security Engineer"
     }
   ];
 
