@@ -6,7 +6,7 @@ import axios from "axios";
 import Link from "next/link";
 import Loader from "@/components/Loader/loader2";
 import { handleEditPassword, handleToggleFavorite } from "@/lib/passwords/editpasswords";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { useMasterPass } from "@/context/MasterPassword";
 import { decrypt } from "@/lib/passwords/encryptPassword";
 import MasterPasswordModel from "@/components/masterPassPage";
@@ -186,7 +186,6 @@ const Passwords = () => {
 
   return (
     <div className="w-full p-3 md:px-6">
-      <Toaster />
       {showMasterPassModel && <MasterPasswordModel isOpen={showMasterPassModel} onClose={() => setshowMasterPassModel(false)} />}
       {(!loading && masterPass && passwords.length === 0) && (
         <EmptyVault />

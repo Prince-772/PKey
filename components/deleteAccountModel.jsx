@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { X, AlertTriangle, Trash2, LoaderCircle } from 'lucide-react'; // Icons for warning, delete, and loading
-import { Toaster, toast } from 'react-hot-toast'; // For notifications
+import { toast } from 'react-hot-toast'; // For notifications
 import { handleDeleteAccount } from '@/lib/user/deleteAccount';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -48,7 +48,6 @@ export default function DeleteAccountModal({ isOpen, onClose, showPasswordInput 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/70 dark:bg-black/80 backdrop-blur-md transition-opacity duration-300 ease-in-out">
-      <Toaster position="top-center" reverseOrder={false} />
       <div className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-2xl shadow-2xl w-[95%] max-w-md relative
                       border border-gray-200 dark:border-gray-700 text-center animate-scaleIn">
 

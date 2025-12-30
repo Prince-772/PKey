@@ -1,7 +1,7 @@
 "use client"
 import SuggestPassword from "@/lib/passwords/suggestPassword";
 import { useForm } from "react-hook-form";
-import toast, { Toaster } from 'react-hot-toast'
+import toast from 'react-hot-toast'
 import {
   CheckCircle2,
   Eye,
@@ -117,7 +117,6 @@ const CreatePassword = () => {
   }, [masterPassSet, masterPass])
   return (
     <div className="flex flex-col items-center justify-center py-8 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
-      <Toaster position="top-center" reverseOrder={false} />
       {showMasterPassModel && <MasterPasswordModel isOpen={showMasterPassModel} onClose={() => setshowMasterPassModel(false)} />}
       {showCreateMasterModel && <CreateMasterPasswordModal
         {...{

@@ -15,7 +15,7 @@ import {
   GitHubSignInButton,
 } from "@/components/buttons.jsx";
 
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 // import { handleResendVerification } from "@/lib/auth/handleResendEmail";
 import axios from "axios";
 import Logo from "@/components/logo";
@@ -110,7 +110,6 @@ export default function LoginPage() {
       {isLoading && <Loader />}
 
       <div className="w-full max-w-md px-5 md:px-8 py-10 bg-white dark:bg-gray-800 rounded-xl shadow-lg border dark:border-gray-700">
-        <Toaster />
         <div className="flex justify-center mb-5">
           <Logo />
         </div>

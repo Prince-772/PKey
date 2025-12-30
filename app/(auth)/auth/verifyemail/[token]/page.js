@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import React, { useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 function VerifyEmailPage() {
   const [message, setMessage] = useState({});
@@ -48,7 +48,6 @@ function VerifyEmailPage() {
   };
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <Toaster />
       <div className="max-w-md w-full space-y-8 bg-white rounded-lg shadow-lg p-8">
         <div className="flex justify-center">
           <Logo />

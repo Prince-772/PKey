@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { X, Eraser, AlertTriangle, LoaderCircle, Router } from 'lucide-react';
-import { Toaster, toast } from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 import { handleResetVault } from '@/lib/user/resetVault';
 import { useMasterPass } from '@/context/MasterPassword';
 import { useRouter } from 'next/navigation';
@@ -39,7 +39,6 @@ export default function ResetVaultModal({ isOpen, onClose, showPasswordInput }) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/70 dark:bg-black/80 backdrop-blur-md transition-opacity duration-300 ease-in-out">
-      <Toaster position="top-center" reverseOrder={false} />
       <div className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-2xl shadow-2xl w-[95%] max-w-md relative border border-gray-200 dark:border-gray-700 text-center">
 
         {/* Close Button */}
