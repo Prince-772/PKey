@@ -1,5 +1,5 @@
-import Authenticaion from "@/auth"
+import Authentication from "@/auth"
 
-const handler = Authenticaion
+const handler = Authentication
 
 export { handler as GET, handler as POST };

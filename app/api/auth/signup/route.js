@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import ConnectToDB from "@/lib/dbConnect";
 import crypto from "crypto";
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 import errorHandler from "@/lib/handlers/errorhandler";
 
 //users model
@@ -44,7 +44,7 @@ export async function POST(req) {
     });
     
     //send verification email
-    await sendEmail ({
+    await sendEmail({
       to: email,
       subject: "Verify your email",
       text: `Hello ${name}, please verify your email by clicking on the link below: ${process.env.NEXT_PUBLIC_BASE_URL}/verify/${verifyToken}`,

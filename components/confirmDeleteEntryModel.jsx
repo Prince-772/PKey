@@ -31,14 +31,14 @@ export default function DeleteEntryModal({ onClose, callback, id, resetID }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/70 dark:bg-black/80 backdrop-blur-md transition-opacity duration-300 ease-in-out">
       <div className="bg-white dark:bg-gray-800 p-4 md:p-8 rounded-2xl shadow-2xl w-[95%] max-w-md relative
-                      border border-gray-200 dark:border-gray-700 text-center animate-scaleIn">
+                      border border-gray-200 dark:border-gray-700 text-center animate-scale-in">
 
         {/* Close Button */}
         <X
           onClick={onClose}
           className="absolute top-4 right-4 w-6 h-6 text-gray-500 dark:text-gray-400
                      hover:text-red-600 dark:hover:text-red-400
-                     transition-colors duration-200 cursor-pointer"
+                     transition-colors duration-300 cursor-pointer"
           role="button"
           aria-label="Close modal"
           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClose(); }}

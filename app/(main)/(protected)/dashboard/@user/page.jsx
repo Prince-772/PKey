@@ -13,8 +13,8 @@ export default function User() {
         <div className="w-full max-w-4xl">
             <div className="flex gap-1 md:gap-2 justify-center text-2xl md:text-4xl font-bold flex-wrap">
               <span className="text-gray-900 dark:text-gray-50">Welcome,</span>
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 text-nowrap">
-                {session?.user?.name || "PKey User"}!
+              <span className="bg-clip-text text-transparent bg-linear-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 text-nowrap">
+                {session?.user?.name || "User"}!
               </span>
             </div>
         </div>

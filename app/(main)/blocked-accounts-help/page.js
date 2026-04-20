@@ -1,126 +1,169 @@
 "use client";
-
 import React from "react";
 import Link from "next/link";
-import { Lock, AlertTriangle, RotateCcw, BookOpen } from "lucide-react";
+import { motion } from "framer-motion";
+import {
+  AlertTriangle,
+  RotateCcw,
+  ShieldAlert,
+  ArrowRight,
+  ShieldBan,
+} from "lucide-react";
 import Logo from "@/components/logo";
 import Footer from "@/components/Footer";
+import { BackToHomeBtn } from "@/components/backToHomeBtn";
 
 export default function AccountBlockedPage() {
+  // Animation Variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.15 },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+  };
+
   return (
-    <>
-      <div className="mt-24 font-roboto min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div className="w-full max-w-5xl space-y-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 md:p-8 border border-gray-200 dark:border-gray-700">
-          {/* Logo */}
-          <div className="flex justify-center mb-6">
-            <Logo />
-          </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col transition-colors duration-300">
+      <main className="grow flex flex-col items-center justify-center px-4 sm:px-6 pt-24 pb-16">
+        <motion.div
+          className="w-full max-w-3xl"
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+        >
+          {/* Main Blocked Card */}
+          <motion.div
+            variants={itemVariants}
+            className="relative overflow-hidden rounded-[2.5rem] bg-white dark:bg-gray-900 border border-red-100 dark:border-red-900/30 p-8 md:p-12 text-center shadow-2xl shadow-red-500/5 mb-8"
+          >
+            {/* Background glow*/}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-red-500/10 blur-[80px] rounded-full pointer-events-none" />
 
-          {/* Main Message */}
-          <div className="flex flex-col items-center justify-center text-center mb-6">
-            <Lock className="w-16 h-16 text-red-600 dark:text-red-400 mb-4" />
-            <h1 className="text-3xl md:text-4xl font-extrabold text-red-600 dark:text-red-400">
-              Account Blocked?
-            </h1>
-            <p className="mt-2 text-gray-700 dark:text-gray-300 max-w-2xl">
-              If your account has been <strong>permanently blocked</strong> due
-              to multiple incorrect master password attempts. This is a strict
-              security measure to ensure your passwords remain safe.
-            </p>
-          </div>
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="flex justify-center mb-10">
+                <Logo />
+              </div>
 
-          {/* Actions Section */}
-          <div className="mt-10 space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center">
-              {"Here's what you can do:"}
-            </h2>
+              <div className="w-20 h-20 rounded-3xl bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center mb-6 shadow-inner border border-red-100 dark:border-red-800/50">
+                <ShieldBan  className="w-10 h-10" />
+              </div>
 
-            {/* Reset Vault */}
-            <div className="flex gap-4 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
-              <RotateCcw className="w-6 h-6 text-orange-500 dark:text-orange-400 flex-shrink-0" />
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">
-                  Reset Your Vault
+              <h1 className="text-3xl md:text-5xl font-black text-gray-800 dark:text-white mb-4 tracking-tight">
+                Vault{" "}
+                <span className="text-transparent bg-clip-text bg-linear-to-r from-red-600 to-rose-600 dark:from-red-400 dark:to-rose-400">
+                  Locked
+                </span>
+              </h1>
+
+              <p className="text-lg text-gray-600 dark:text-gray-400 font-medium max-w-xl mx-auto leading-relaxed">
+                Your account has been permanently blocked due to multiple
+                incorrect master password attempts. This is a strict
+                zero-knowledge security measure to protect your data.
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Action Cards Grid */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Reset Vault Action */}
+            <motion.div
+              variants={itemVariants}
+              className="group p-6 md:p-8 rounded-3xl bg-white dark:bg-gray-900 border border-orange-100 dark:border-orange-900/30 shadow-sm hover:shadow-xl hover:border-orange-300 dark:hover:border-orange-700/50 transition-all duration-300 flex flex-col h-full"
+            >
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0 border border-orange-100 dark:border-orange-800/50 group-hover:scale-110 transition-transform">
+                  <RotateCcw className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  Reset Vault
                 </h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300">
-                  Since your account is blocked, the only way to reuse it is to
-                  reset your vault. This deletes all saved data and lets you
-                  start over with a new master password.
-                </p>
-                <div className="steps mt-3 text-sm text-gray-700 dark:text-gray-300">
-                  <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-2">
-                    Steps to Reset Your Vault:
-                  </h4>
-                  <ol className="list-decimal list-inside space-y-3 ml-4">
-                    <li>
-                      <Link href="/sign-in" className="text-blue-500 underline">
-                        Log in
-                      </Link>{" "}
-                      to your account.
-                    </li>
-                    <li>
-                      Click the <b>Profile</b> button in the top right corner.
-                    </li>
-                    <li>
-                      Click the <b>Reset Vault</b> option.
-                    </li>
-                    <li>
-                      Enter your account password (if you logged in with email)
-                      to confirm.
-                    </li>
-                    <li>
-                      Create a new master password to set up your vault and
-                      start fresh.
-                    </li>
-                  </ol>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400 font-medium text-sm mb-6 grow">
+                Since we don&apos;t know your password, we cannot recover your
+                data. The only way to reuse this account is to reset it
+                completely.
+              </p>
+              <div className="space-y-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-6 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
+                <div className="flex gap-2">
+                  <span className="text-orange-500 font-black">1.</span>{" "}
+                  <Link
+                    href="/sign-in"
+                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    Log in
+                  </Link>{" "}
+                  to your account.
+                </div>
+                <div className="flex gap-2">
+                  <span className="text-orange-500 font-black">2.</span> Go to
+                  Profile &gt; Reset Vault.
+                </div>
+                <div className="flex gap-2">
+                  <span className="text-orange-500 font-black">3.</span> Create
+                  a new Master Password.
                 </div>
               </div>
-            </div>
-
-            {/* Learn More */}
-            <div className="flex items-center gap-4 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
-              <BookOpen className="w-6 h-6 text-purple-600 dark:text-purple-400 shrink-0" />
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">
-                  Learn More
-                </h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300">
-                  {`Understand how we keep your data secure and why we don't store
-                  your master password.`}
-                </p>
+              <div className="flex items-center gap-2 text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+                <AlertTriangle className="w-4 h-4 shrink-0" /> Resetting deletes
+                all saved data.
               </div>
-            </div>
-            <Link
-              href="/how-it-works"
-              className="inline-flex items-center justify-center w-full px-6 py-3 rounded-full shadow-lg
-                       bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-base
-                       hover:from-purple-700 hover:to-indigo-700
-                       focus:outline-none focus:ring-4 focus:ring-purple-300 dark:focus:ring-purple-200
-                       transition-all duration-300 ease-in-out transform hover:-translate-y-1"
+            </motion.div>
+
+            {/* Learn More Action */}
+            <motion.div
+              variants={itemVariants}
+              className="group p-6 md:p-8 rounded-3xl bg-white dark:bg-gray-900 border border-blue-100 dark:border-blue-900/30 shadow-sm hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-700/50 transition-all duration-300 flex flex-col h-full"
             >
-              <BookOpen className="w-5 h-5 mr-2" /> Master Password System
-            </Link>
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-800/50 group-hover:scale-110 transition-transform">
+                  <ShieldAlert className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  Why did this happen?
+                </h3>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400 font-medium text-sm mb-8 grow">
+                Understand PKey&apos;s strict security protocols. We enforce a
+                zero-knowledge architecture, meaning if someone tries to
+                brute-force your vault, we lock it down to prevent unauthorized
+                decryption.
+              </p>
+
+              <Link
+                href="/security"
+                className="inline-flex items-center justify-center gap-2 w-full px-6 py-4 rounded-xl shadow-lg bg-linear-to-r from-blue-600 to-indigo-600 text-white font-bold hover:from-blue-700 hover:to-indigo-700 hover:-translate-y-1 transition-all duration-300 active:scale-95 group"
+              >
+                Read Security Docs{" "}
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-all duration-300" />
+              </Link>
+            </motion.div>
           </div>
 
-          {/* Final Warning */}
-          <div className="mt-10 text-center text-sm text-red-600 dark:text-red-400 font-semibold">
-            <AlertTriangle className="inline w-4 h-4 mr-1" />
-            <>
-              Resetting your vault is <strong>permanent</strong>. Make sure you
-              want to proceed.
-            </>
-          </div>
+          {/* Final Warning Footer */}
+          <motion.div
+            variants={itemVariants}
+            className="mt-10 p-5 rounded-2xl bg-gray-100 dark:bg-gray-900 border border-red-500 text-center flex flex-col sm:flex-row items-center justify-center gap-3"
+          >
+            <AlertTriangle className="w-5 h-5 text-red-500 dark:text-red-400 shrink-0" />
+            <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">
+              We{" "}
+              <span className="text-gray-900 dark:text-white font-black">
+                never store
+              </span>{" "}
+              your master password. Keep your new one safe.
+            </p>
+          </motion.div>
+          <BackToHomeBtn extClassName="hover:scale-105 transition-all duration-300 mt-10" />
+        </motion.div>
+      </main>
 
-          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900 rounded-lg border border-blue-200 dark:border-blue-700 text-sm text-blue-800 dark:text-blue-200 italic text-center">
-            <AlertTriangle className="inline w-4 h-4 mr-2 text-blue-700 dark:text-blue-300" />
-            We{" "}
-            <strong>never store</strong>{" "}
-            your master password. We {"can't"} help recover it. So keep it safe
-            next time.
-          </div>
-        </div>
-      </div>
       <Footer />
-    </>
+    </div>
   );
 }

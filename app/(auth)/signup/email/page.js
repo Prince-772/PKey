@@ -66,7 +66,7 @@ export default function SignupPage() {
   
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 px-3 md:px-4">
+    <div className="min-h-screen flex py-4 items-center justify-center bg-gray-100 dark:bg-gray-900 px-3 md:px-4">
       {/* {loading && <Loader />} */}
       <div className="w-full max-w-md px-5 md:px-8 py-10 bg-white dark:bg-gray-800 rounded-xl shadow-lg border dark:border-gray-700">
         <div className="flex justify-center mb-5">
@@ -189,10 +189,10 @@ export default function SignupPage() {
 
           <button
             type="submit"
-            className="w-full py-2 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white
+            className="w-full py-2 px-4 bg-linear-to-r from-blue-600 to-purple-600 text-white
                          hover:from-blue-700 hover:to-purple-700
                          dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600
-                         transition-colors duration-200 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+                         transition-colors duration-300 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 dark:bg-indigo-500 dark:hover:bg-indigo-600"
           >
             Sign Up
           </button>

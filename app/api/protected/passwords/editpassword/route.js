@@ -8,7 +8,7 @@ import { NextResponse } from "next/server";
 export async function PATCH(req) {
   try {
     const session = await getServerSession(authOptions);
-    const { site, username, password, id, strength } = await req.json();
+    const { site, username, password, id, strength, version } = await req.json();
 
     if (!site) throw new Error("Site is required");
     if (!username) throw new Error("Username is required");
@@ -21,17 +21,18 @@ export async function PATCH(req) {
     );
     if (!user) throw new Error("User not found");
     if (user.remainingMasPassAtempts <= 0) throw new Error("BLOCKED_ACCOUNT");
-    const isDuplicate =
-      (await PasswordsModel.findOne({
-        userID: user._id,
-        _id: { $ne: id },
-        siteName: site,
-        userName: username,
-      })) && true;
-    if (isDuplicate)
-      throw new Error(
-        "You can't add two different passwords for same credendials."
-      );
+    
+    // const isDuplicate =
+    //   (await PasswordsModel.findOne({
+    //     userID: user._id,
+    //     _id: { $ne: id },
+    //     siteName: site,
+    //     userName: username,
+    //   })) && true;
+    // if (isDuplicate)
+    //   throw new Error(
+    //     "A password with these credentials already exists."
+    //   );
 
     const oldDoc = await PasswordsModel.findOne({ userID: user._id, _id: id });
     if (!oldDoc) throw new Error("Entry not found in your account");
@@ -39,7 +40,8 @@ export async function PATCH(req) {
       siteName: site,
       userName: username,
       password,
-      strength
+      strength,
+      version,
     });
     await oldDoc.save();
     return NextResponse.json(

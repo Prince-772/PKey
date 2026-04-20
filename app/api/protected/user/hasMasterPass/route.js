@@ -34,7 +34,7 @@ export async function POST(req) {
     return NextResponse.json(
       {
         success: false,
-        error: err.message || "Something went wrong!",
+        message: err.message || "Something went wrong!",
       },
       { status: 400 }
     );

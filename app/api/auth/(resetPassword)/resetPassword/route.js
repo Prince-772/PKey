@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import ConnectToDB from "@/lib/dbConnect";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import crypto from "crypto";
 
 //users model
@@ -23,8 +23,8 @@ export async function POST(req) {
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpiry = undefined;
+    user.resetPasswordToken = null;
+    user.resetPasswordTokenExpiry = null;
     await user.save();
 
     const response = NextResponse.json({
@@ -43,7 +43,8 @@ export async function POST(req) {
   } catch (err) {
     return NextResponse.json(
       {
-        error: err.message,
+        success: false,
+        message: err.message,
       },
       { status: 400 }
     );

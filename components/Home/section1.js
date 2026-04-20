@@ -1,74 +1,170 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { useSession } from "next-auth/react";
-import { Check } from "lucide-react";
+import { motion } from "framer-motion";
+import { ShieldCheck, ArrowRight, Lock, Key, Globe } from "lucide-react";
 
 const Section1 = () => {
   const { data: session } = useSession();
-  const user = session?.user;
-  const isLoggedIn = !!user; // Check if user is logged in
+  const isLoggedIn = !!session?.user;
+
+  // Animation Variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.2, delayChildren: 0.1 },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" },
+    },
+  };
 
   return (
-    <section className="bg-gray-50 dark:bg-gray-950 py-16 relative overflow-hidden">
-      {/* Abstract Gradient Background Overlay (Subtle) */}
-      <div className="absolute inset-0 z-0 opacity-10 dark:opacity-5">
-        <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-        <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+    <section className="relative min-h-[90vh] flex items-center bg-gray-50 dark:bg-gray-950 overflow-hidden py-10 rounded-2xl transition-all duration-300">
+      {/*High-End Gradient Background */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute top-0 -left-1/4 w-full h-full bg-blue-500/10 dark:bg-blue-600/5 rounded-full blur-[120px] animate-pulse transition-all duration-300" />
+        <div className="absolute bottom-0 -right-1/4 w-full h-full bg-purple-500/10 dark:bg-purple-600/5 rounded-full blur-[120px] animate-pulse animation-delay-2000 transition-all duration-300" />
       </div>
 
-      {/* Main Content Container */}
-      <div className="container mx-auto px-4 md:px-8 lg:px-12 flex flex-col lg:flex-row items-center gap-16 relative z-10">
-        {/* Text Content */}
-        <div className="w-full lg:w-1/2 text-center lg:text-left space-y-6">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight text-gray-900 dark:text-gray-50">
-            <span className="block">Your Digital Keys,</span>
-            <span className="block bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
-              Secured with PKey
-            </span>
-          </h1>
-          <p className="py-4 text-lg md:text-xl text-gray-700 dark:text-gray-300">
-            PKey is an intuitive password manager designed to help you generate,
-            securely store, and effortlessly access all your credentials.
-            Experience peace of mind with robust encryption and seamless organization.
-          </p>
-          <div className="mt-8">
-            <Link
-              href={isLoggedIn ? "/dashboard" : "/signup"}
-              className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-full shadow-lg
-                         bg-gradient-to-r from-blue-600 to-purple-600 text-white
-                         hover:from-blue-700 hover:to-purple-700
-                         focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-opacity-75
-                         dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600 dark:focus:ring-blue-700
-                         transition transform hover:-translate-y-1 hover:scale-105 duration-300 ease-in-out"
+      <div className="container mx-auto px-4 md:px-8 lg:px-12 relative z-10">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="flex flex-col lg:flex-row items-center gap-16"
+        >
+          {/*Left Side: Text Content */}
+          <div className="w-full lg:w-3/5 text-center lg:text-left space-y-8">
+            <motion.div
+              variants={itemVariants}
+              className="inline-flex items-center gap-2 px-6 py-4 rounded-full bg-blue-100/50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800/50 text-blue-600 dark:text-blue-400 text-xs md:text-sm font-black tracking-widest uppercase transition-all duration-300"
             >
-              <Check className="h-6 w-6 mr-3" strokeWidth={5} />
-              Get Started Securely
-            </Link>
+              <div className="flex justify-center items-center gap-2">
+                <ShieldCheck className="w-6 h-6" />{" "}
+                <p>Next-Gen Vault Security</p>
+              </div>
+            </motion.div>
+
+            <motion.h1
+              variants={itemVariants}
+              className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tighter text-gray-900 dark:text-white transition-colors duration-300"
+            >
+              Your Digital Keys, <br />
+              <span className="bg-clip-text text-transparent bg-linear-to-r from-blue-600 via-purple-600 to-pink-600">
+                Secured with PKey
+              </span>
+            </motion.h1>
+
+            <motion.p
+              variants={itemVariants}
+              className="max-w-xl mx-auto lg:mx-0 text-lg md:text-xl text-gray-600 dark:text-gray-400 font-medium leading-relaxed transition-colors duration-300"
+            >
+              Generate unbreakable passwords and store your digital life in a
+              zero-knowledge encrypted vault.
+              <span className="hidden md:inline">
+                {" "}
+                Local encryption. Global access. Total peace of mind.
+              </span>
+            </motion.p>
+
+            <motion.div
+              variants={itemVariants}
+              className="font-inter flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4"
+            >
+              <Link
+                href={isLoggedIn ? "/dashboard" : "/signup"}
+                className="group relative inline-flex items-center justify-center px-8 py-4 font-black text-white rounded-full bg-linear-to-r from-blue-600 to-purple-600 shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300 active:scale-95 overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                <span className="relative flex items-center gap-2">
+                  Get Started Securely{" "}
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                </span>
+              </Link>
+
+              <Link
+                href="/master-password"
+                className="px-8 py-4 font-bold text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
+              >
+                How it works?
+              </Link>
+            </motion.div>
           </div>
-        </div>
 
-        {/* Hero Image */}
-        <div className="w-full lg:w-1/2 relative h-72 sm:h-96 lg:h-[400px] flex items-center justify-center">
-          <Image
-            src="/images/undraw_security_on_m7le.svg"
-            alt="PKey Security Illustration"
-            width={600}
-            height={400}
-            className="object-contain rounded-lg opacity-90 dark:opacity-90 shadow-2xl"
-            priority
-          />
-        </div>
-      </div>
+          {/*Right Side: Visual Masterpiece */}
+          <motion.div
+            variants={itemVariants}
+            className="w-full lg:w-2/5 relative flex items-center justify-center"
+          >
+            <div className="relative w-full aspect-square max-w-[450px]">
+              {/* Floating Security Elements Animation */}
+              <motion.div
+                animate={{ y: [0, -20, 0] }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="absolute top-0 right-0 z-20 bg-white dark:bg-gray-900 p-4 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 flex items-center gap-4 transition-all duration-300"
+              >
+                <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl text-emerald-600 transition-all duration-300">
+                  <Lock className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-gray-400 uppercase font-inter">
+                    Status
+                  </p>
+                  <p className="text-sm font-bold font-inter">AES-256 Active</p>
+                </div>
+              </motion.div>
 
-      <div className="absolute inset-0 opacity-10 z-0">
-        <Image
-          src="/images/subtle-pattern-bg.png"
-          alt="Background pattern"
-          fill
-          className="object-cover dark:invert-100"
-          priority
-        />
+              <motion.div
+                animate={{ y: [0, 20, 0] }}
+                transition={{
+                  duration: 5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 1,
+                }}
+                className="absolute bottom-10 left-0 z-20 bg-white dark:bg-gray-900 p-4 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 flex items-center gap-4 transition-all duration-300"
+              >
+                <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-2xl text-blue-600 transition-all duration-300">
+                  <Key className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-gray-400 uppercase font-inter">
+                    Privacy
+                  </p>
+                  <p className="text-sm font-bold font-inter">Zero Knowledge</p>
+                </div>
+              </motion.div>
+
+              {/* Main Graphic Placeholder */}
+              <div className="absolute inset-0 bg-linear-to-br from-blue-500/20 to-purple-600/20 rounded-[40px] scale-105 blur-lg" />
+              <div className="relative z-10 w-full h-full rounded-[40px] border flex items-center justify-center overflow-hidden">
+                <Image
+                  src="/images/hero2.webp"
+                  alt="PKey Security Illustration"
+                  width={500}
+                  height={500}
+                  className="object-contain rounded-[40px] drop-shadow-[0_20px_50px_rgba(37,99,235,0.3)] border border-purple-500 shrink-0 select-none"
+                  priority
+                />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl" />
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );

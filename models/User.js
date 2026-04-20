@@ -17,27 +17,68 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    // only saves the hashed master password
+    // only saves the hashed authHash (not master Password)
     masPass: {
       type: String,
+    },
+    salt: {
+      type: String,
+    },
+    version: {
+      type: Number,
+      default: 3,
     },
     remainingMasPassAtempts: {
       type: Number,
       default: 5,
     },
-    resetPasswordToken: String,
-    resetPasswordTokenExpiry: Date,
-
     isVerified: {
       type: Boolean,
       default: false,
     },
+    resetPasswordToken: String,
+    resetPasswordTokenExpiry: Date,
+
     verificationToken: String,
     verificationExpiry: Date,
+
+    resetVaultToken: String,
+    resetVaultTokenExpiry: Date,
+
+    deleteAccountToken: String,
+    deleteAccountTokenExpiry: Date,
+
+    deleteAccountAttempts: {
+      type: Number,
+      default: 0,
+    },
+    deleteAccountResetDate: {
+      type: Date,
+      default: null,
+    },
+
+    resetVaultAttempts: {
+      type: Number,
+      default: 0,
+    },
+    resetVaultResetDate: {
+      type: Date,
+      default: null,
+    },
+
+    loginAttempts: {
+      type: Number,
+      default: 0,
+    },
+    loginLockUntil: {
+      type: Date,
+      default: null,
+    },
   },
+
   {
     timestamps: true,
-  }
+  },
 );
 const UserModel = mongoose.models.users || mongoose.model("users", userSchema);
 

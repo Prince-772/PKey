@@ -74,13 +74,13 @@ function VerifyEmailPage() {
             type="button"
             onClick={handleVerify}
             disabled={isverifying || message.isVerified}
-            className="group relative w-full py-2 px-4 border border-transparent text-sm font-medium rounded-md bg-gradient-to-r from-blue-600 to-purple-600 text-white
+            className="group relative w-full py-2 px-4 border border-transparent text-sm font-medium rounded-md bg-linear-to-r from-blue-600 to-purple-600 text-white
                          hover:from-blue-700 hover:to-purple-700
                          dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600
-                         transition-all duration-200 flex justify-center items-center h-8"
+                         transition-all duration-300 flex justify-center items-center h-8"
           >
             {isverifying ? (
-              <LoaderCircle className="w-4 h-4 animate-spin" />
+              <LoaderCircle className="w-4 h-4 shrink-0 animate-spin" />
             ) : (
               "Verify Email"
             )}

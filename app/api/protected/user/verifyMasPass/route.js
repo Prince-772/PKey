@@ -2,7 +2,7 @@ import { authOptions } from "@/auth";
 import ConnectToDB from "@/lib/dbConnect";
 import UserModel from "@/models/User";
 import { getServerSession } from "next-auth";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { accountBlocked } from "@/lib/html/Emails";
 import { sendEmail } from "@/lib/managers/mailManager";
@@ -10,28 +10,28 @@ import { sendEmail } from "@/lib/managers/mailManager";
 export async function POST(req) {
   try {
     const session = await getServerSession(authOptions);
-    const { masPass } = await req.json();
+    const { authHash } = await req.json();
+    if (!authHash) throw new Error("authHash is required")
     await ConnectToDB();
     const { email } = session.user;
     const user = await UserModel.findOne({ email }).select(
-      "name masPass remainingMasPassAtempts"
+      "name masPass remainingMasPassAtempts",
     );
     if (!user) throw new Error("User not found!");
-    const name = user.name
     if (!user.masPass)
-      throw new Error(
-        "It seems like you haven't created a master password yet. Please create and then try again!"
-      );
+      throw new Error("Please create a master password to proceed");
     if (user.remainingMasPassAtempts <= 0) {
       return NextResponse.json(
         {
           success: false,
           message: "BLOCKED_ACCOUNT",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
-    const isMatched = await bcrypt.compare(masPass, user.masPass);
+    const name = user.name;
+    // No need to check version here as all Uv use same process
+    const isMatched = await bcrypt.compare(authHash, user.masPass);
     if (!isMatched) {
       user.remainingMasPassAtempts = user.remainingMasPassAtempts - 1;
       await user.save();
@@ -43,13 +43,13 @@ export async function POST(req) {
           html: accountBlocked(name),
         });
         throw new Error(
-          `Wrong password. We have permanently blocked your account!`
+          `Wrong password. We have permanently blocked your account!`,
         );
       } else
         throw new Error(
-          `Wrong password. After ${user.remainingMasPassAtempts} faild ${
+          `Wrong password. After ${user.remainingMasPassAtempts} failed ${
             user.remainingMasPassAtempts === 1 ? "attempt" : "attempts"
-          } your account will be blocked!`
+          } your account will be blocked!`,
         );
     }
     user.remainingMasPassAtempts = 5;
@@ -61,15 +61,16 @@ export async function POST(req) {
       },
       {
         status: 200,
-      }
+      },
     );
   } catch (err) {
+    console.error(err)
     return NextResponse.json(
       {
         success: false,
         message: err.message || "Something went wrong!",
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }

@@ -2,35 +2,38 @@ import { authOptions } from "@/auth";
 import ConnectToDB from "@/lib/dbConnect";
 import UserModel from "@/models/User";
 import { getServerSession } from "next-auth";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
     const session = await getServerSession(authOptions);
-    const { masPass } = await req.json();
+    const {authHash, salt} = await req.json();
     await ConnectToDB();
     const { email } = session.user;
     const user = await UserModel.findOne({ email }).select(
-      "masPass remainingMasPassAtempts"
+      "masPass remainingMasPassAtempts salt",
     );
     if (!user) throw new Error("User not found!");
     if (user.remainingMasPassAtempts <= 0) throw new Error("BLOCKED_ACCOUNT");
     if (user.masPass) throw new Error("You already have a master password!");
-    const hashedMasPass = await bcrypt.hash(masPass, 12);
+    // const hashedMasPass = await bcrypt.hash(masPass, 12);
+    const finalHash = await bcrypt.hash(authHash, 12);
 
-    // saves only hashed master password
-    user.masPass = hashedMasPass;
+    // saves only hashed verison of authHash
+    user.masPass = finalHash;
     user.remainingMasPassAtempts = 5;
+    user.salt = salt;
     await user.save();
+
     return NextResponse.json(
       {
         success: true,
-        message: "Master Password Created successfylly!",
+        message: "Master Password Created successfully!",
       },
       {
         status: 200,
-      }
+      },
     );
   } catch (err) {
     return NextResponse.json(
@@ -38,7 +41,7 @@ export async function POST(req) {
         success: false,
         message: err.message || "Something went wrong!",
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }

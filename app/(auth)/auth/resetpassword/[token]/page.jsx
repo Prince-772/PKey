@@ -58,7 +58,7 @@ export default function ResetPasswordPage() {
   // Handle password reset form submission
   const onSubmit = async (data) => {
     await toast.promise(ResetPassword(token, data.newPassword), {
-      loading: "Reseting...",
+      loading: "Resetting...",
       success: (res) => {
         setTimeout(() => {
           router.push("/sign-in")
@@ -102,7 +102,7 @@ export default function ResetPasswordPage() {
               <TriangleAlert className="w-5 h-5" /> {error}
             </p>
             <Link
-              href="/forgot-password"
+              href="/reset-password"
               className="mt-4 inline-block text-blue-600 dark:text-blue-400 hover:underline"
             >
               Request a new reset link
@@ -177,7 +177,7 @@ export default function ResetPasswordPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center justify-center px-6 py-3 rounded-full shadow-lg mt-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-200 transition-all duration-300 ease-in-out transform hover:-translate-y-1 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
+              className="inline-flex items-center justify-center px-6 py-3 rounded-full shadow-lg mt-4 bg-linear-to-r from-blue-600 to-purple-600 text-white font-bold text-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-200 transition-all duration-300 ease-in-out transform hover:-translate-y-1 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
             >
               {isSubmitting ? (
                 <>

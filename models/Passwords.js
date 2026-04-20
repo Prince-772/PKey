@@ -6,7 +6,7 @@ const passwordsSchema = new mongoose.Schema(
     userID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "users",
-      required: [true, "UserId is required"],
+      required: [true, "userID is required"],
     },
     siteName: {
       type: String,
@@ -26,6 +26,10 @@ const passwordsSchema = new mongoose.Schema(
     isFavorite: {
       type: Boolean,
       default:false
+    },
+    version : {
+      type : Number,
+      default : 3
     }
   },
   {

@@ -4,11 +4,13 @@ import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 //local imports
 import ConnectToDB from "./lib/dbConnect";
 import UserModel from "./models/User";
+import { WelcomeHtml } from "./lib/html/Emails";
+import { sendEmail } from "./lib/managers/mailManager";
 
 export const authOptions = {
   providers: [
@@ -20,41 +22,70 @@ export const authOptions = {
       },
       async authorize(credentials) {
         try {
-          const { email, password } = credentials;
+          const { email, password } = credentials || {};
 
-          // validation
+          // Basic validation
           if (!email) throw new Error("Email is required");
           if (!password) throw new Error("Password is required");
 
-          // check if user exists in the database
           await ConnectToDB();
-          const findUser = await UserModel.findOne({ email }).select(
-            "email name password isVerified"
+
+          const user = await UserModel.findOne({ email }).select(
+            "email name password isVerified version salt loginAttempts loginLockUntil",
           );
 
-          if (!findUser) throw new Error("No user found with this email");
+          if (!user) throw new Error("Invalid email or password");
 
-          if (!findUser.password)
+          if (user.loginLockUntil && user.loginLockUntil < new Date()) {
+            user.loginAttempts = 0;
+            user.loginLockUntil = null;
+          }
+
+          // Check if account is locked
+          if (user.loginLockUntil && user.loginLockUntil > new Date()) {
             throw new Error(
-              "This account was created using a different sign-in method. Please use the same method to log in."
+              "Account locked due to too many failed attempts. Try again aftre 30 minutes.",
             );
+          }
 
-          const isMatch = await bcrypt.compare(password, findUser.password);
-          if (!isMatch) throw new Error("Invalid Password");
+          // OAuth account
+          if (!user.password) {
+            throw new Error(
+              "This account uses a different sign-in method. Please use that.",
+            );
+          }
 
-          if (!findUser.isVerified) {
+          // Compare password
+          const isMatch = await bcrypt.compare(password, user.password);
+
+          if (!isMatch) {
+            user.loginAttempts = (user.loginAttempts || 0) + 1;
+
+            if (user.loginAttempts >= 5) {
+              user.loginLockUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 mins
+            }
+
+            await user.save();
+            throw new Error("Invalid email or password");
+          }
+
+          if (!user.isVerified) {
             throw new Error("EMAIL_NOT_VERIFIED");
           }
-          
 
-          // if user exists, return user object
+          user.loginAttempts = 0;
+          user.loginLockUntil = null;
+          await user.save();
+
           return {
-            id: findUser._id.toString(),
-            name: findUser.name,
-            email: findUser.email,
+            id: user._id.toString(),
+            name: user.name,
+            email: user.email,
+            version: user.version,
+            salt: user.salt,
           };
         } catch (err) {
-          throw new Error(err || "Authentication failed");
+          throw new Error(err.message || "Authentication failed");
         }
       },
     }),
@@ -78,50 +109,80 @@ export const authOptions = {
   },
   callbacks: {
     signIn: async ({ user, account }) => {
-      if (account.provider === "credentials") {
-        return true;
-      } else if (
-        account.provider === "google" ||
-        account.provider === "github"
-      ) {
+      if (account.provider === "credentials") return true;
+
+      if (account.provider === "google" || account.provider === "github") {
         try {
           const { email, name } = user;
           await ConnectToDB();
           const alreadyExist = await UserModel.findOne({ email });
+
           if (alreadyExist) {
             if (alreadyExist.password) {
-              throw new Error("Account already exists. Please sign in with correct method.");
+              throw new Error("Please sign in using your password.");
             }
-          }
-          else if (!alreadyExist) {
+          } else {
             const newUser = new UserModel({
               name,
               email,
               isVerified: true,
             });
             await newUser.save();
+
+            await sendEmail({
+              to: email,
+              subject: "Welcome to PKey! 🚀 Your Secure Vault is Ready",
+              text: `Hello ${name || "User"}, welcome to PKey! Your secure, zero-knowledge vault is ready...`,
+              html: WelcomeHtml(name || "User"),
+            });
           }
           return true;
         } catch (error) {
-          throw new Error(error.message || "Error while creating user");
+          console.error("Sign-in Error:", error);
+          throw error;
         }
-      } else return false;
+      }
+      return false;
     },
 
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger, session }) {
       if (user && account) {
-        token.id = user.id;
+        token.id = user.id || user._id;
         token.email = user.email;
         token.name = user.name;
         token.provider = account.provider;
+
+        if (account.provider !== "credentials") {
+          await ConnectToDB();
+          const dbUser = await UserModel.findOne({ email: user.email }).select(
+            "version salt",
+          );
+          if (dbUser) {
+            token.version = dbUser.version;
+            token.salt = dbUser.salt;
+          }
+        } else {
+          token.version = user.version;
+          token.salt = user.salt;
+        }
       }
+      if (trigger === "update" && session?.user) {
+        token.version = session.user.version;
+        token.salt = session.user.salt;
+      }
+
       return token;
     },
+
     async session({ session, token }) {
-      session.user.id = token.id;
-      session.user.email = token.email;
-      session.user.name = token.name;
-      session.user.provider = token.provider;
+      if (token) {
+        session.user.id = token.id;
+        session.user.email = token.email;
+        session.user.name = token.name;
+        session.user.provider = token.provider;
+        session.user.version = token.version;
+        session.user.salt = token.salt;
+      }
       return session;
     },
   },

@@ -1,187 +1,303 @@
-"use client"
-import Image from 'next/image'
-import Link from 'next/link'
-import NavLink from './NavLink'
-import React, { useEffect, useState } from 'react'
-import { usePathname } from 'next/navigation';
-import { CircleUserRound, Eraser, LayoutDashboard, Loader, LoaderCircle, Lock, LockKeyhole, LogIn, LogOut, Moon, RotateCcw, Sun, Undo2, UserRoundX } from 'lucide-react';
-import { signOut, useSession } from 'next-auth/react';
+"use client";
+import Image from "next/image";
+import Link from "next/link";
+import NavLink from "./NavLink";
+import React, { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import {
+  CircleUserRound,
+  Eraser,
+  LayoutDashboard,
+  Loader,
+  LoaderCircle,
+  Lock,
+  LockKeyhole,
+  LockKeyholeOpen,
+  LogIn,
+  LogOut,
+  Moon,
+  PencilLine,
+  RotateCcw,
+  Sun,
+  Undo2,
+  UserRoundX,
+} from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
 import { useMasterPass } from "@/context/MasterPassword";
-import { useRouter } from 'next/navigation'
-import Logo from './logo'
-import DeleteAccountModal from './deleteAccountModel'
-import ResetVaultModal from './resetVault'
-
+import { useRouter } from "next/navigation";
+import Logo from "./logo";
+import DeleteAccountModal from "./deleteAccountModel";
+import ResetVaultModal from "./resetVault";
+import { AnimatePresence, motion } from "framer-motion";
+import toast from "react-hot-toast";
 
 const NavBar = () => {
-  const pathname = usePathname()
-  const router = useRouter()
-  const { data: session, status } = useSession()
-  const unProtectedRoutes = ["/", "/how-it-works", "/privacy-policy", "/terms&conditions", "/blocked-accounts-help"]
-  const [isDark, setIsDark] = useState(false)
+  const pathname = usePathname();
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  const unProtectedRoutes = [
+    "/",
+    "/security",
+    "/password-strength",
+    "/master-password",
+    "/privacy-policy",
+    "/terms&conditions",
+    "/blocked-accounts-help",
+  ];
+  const [isDark, setIsDark] = useState(false);
   useEffect(() => {
-    setIsDark(document.body.classList.contains("dark"))
-  }, [])
+    const shouldBeDark = localStorage.getItem("pKey-isDark") === "true";
+    setIsDark(
+      shouldBeDark || document.documentElement.classList.contains("dark"),
+    );
+    if (shouldBeDark) document.documentElement.classList.add("dark");
+    else document.documentElement.classList.remove("dark");
+  }, []);
 
-  const { setMasterPass } = useMasterPass()
+  const { setMasterPass, setEncKey, encKey } = useMasterPass();
 
-  const showLoading = status === "loading"
-  const showSignIn = status === "unauthenticated" && unProtectedRoutes.includes(pathname)
-  const showVault = status === "authenticated" && pathname === "/dashboard"
-  const showDashboard = status === "authenticated" && pathname !== "/dashboard"
+  const showLoading = status === "loading";
+  const showSignIn =
+    status === "unauthenticated" && unProtectedRoutes.includes(pathname);
+  const showVault = status === "authenticated" && pathname === "/dashboard";
+  const showDashboard = status === "authenticated" && pathname !== "/dashboard";
   const showGithub = unProtectedRoutes.includes(pathname);
-  const showProfile = status === "authenticated" && !unProtectedRoutes.includes(pathname);
+  const showProfile =
+    status === "authenticated" && !unProtectedRoutes.includes(pathname);
   const showToggleTheme = unProtectedRoutes.includes(pathname);
 
-  const [isProfileView, setIsProfileView] = useState(false)
-  const [openDeleteAccountModel, setOpenDeleteAccountModel] = useState(false)
-  const [openResetVaultModel, setOpenResetVaultModel] = useState(false)
+  const [isProfileView, setIsProfileView] = useState(false);
+  const [openDeleteAccountModel, setOpenDeleteAccountModel] = useState(false);
+  const [openResetVaultModel, setOpenResetVaultModel] = useState(false);
   const HandleLogOut = async () => {
-    await signOut({ redirect: false })
-    setMasterPass(null)
-    router.push("/")
-  }
+    await signOut({ redirect: false });
+    setMasterPass(null);
+    setEncKey(null);
+    router.push("/");
+  };
   const handleDeleteAccount = () => {
-    if (!unProtectedRoutes.includes(pathname))
-      setIsProfileView(false)
-    setOpenDeleteAccountModel(true)
-  }
+    if (!unProtectedRoutes.includes(pathname)) setIsProfileView(false);
+    setOpenDeleteAccountModel(true);
+  };
   const handleResetVault = () => {
-    if (!unProtectedRoutes.includes(pathname))
-      setIsProfileView(false)
-    setOpenResetVaultModel(true)
-  }
+    if (!unProtectedRoutes.includes(pathname)) setIsProfileView(false);
+    setOpenResetVaultModel(true);
+  };
 
   const toggleTheme = () => {
-    document.body.classList.toggle("dark")
-    setIsDark(prev => !prev)
-    setIsProfileView(false)
+    document.documentElement.classList.toggle("dark");
+    setIsDark((prev) => {
+      localStorage.setItem("pKey-isDark", !prev);
+      return !prev;
+    });
+    setIsProfileView(false);
+  };
+
+  const lockValut = () => {
+    setEncKey(null);
+    setMasterPass(null);
+    setIsProfileView(false);
+    toast.success("Your Vault is now locked");
+  };
+
+  const forwardToForgetPassword = () => {
+    return router.push("/reset-password");
   }
 
-
   return (
-    <nav className='w-full flex h-16 bg-white dark:bg-gray-950 shadow-md shadow-gray-200/50 dark:shadow-black/50 fixed top-0 left-0 z-50 border-b border-gray-100 dark:border-gray-800'>
-      <div className='container mx-auto px-4 md:px-8 lg:px-12 flex justify-between items-center h-full'>
-        {/* Logo */}
-        <Logo />
-        {openDeleteAccountModel && <DeleteAccountModal {...{ isOpen: openDeleteAccountModel, onClose: () => setOpenDeleteAccountModel(false), showPasswordInput: session.user.provider === "credentials" }} />}
-        {openResetVaultModel && <ResetVaultModal {...{ isOpen: openResetVaultModel, onClose: () => setOpenResetVaultModel(false), showPasswordInput: session.user.provider === "credentials" }} />}
-        {/* Navigation Links and User Actions */}
-        <div className="flex items-center gap-4 md:gap-6 justify-around">
-          {showToggleTheme && <button
-            className='flex cursor-pointer items-center gap-1.5 px-3 py-2 rounded-md border border-gray-300 dark:border-gray-700
-                         text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50
-                         transition-colors duration-200 text-sm md:text-base font-medium'
-            onClick={toggleTheme}>
-            {isDark ? <Sun className='w-5 h-5 md:h-6 md:w-6 text-yellow-400' /> : <Moon className='w-5 h-5 md:h-6 md:w-6' />}
-          </button>}
-          {/* GitHub Link */}
-          {showGithub && (
-            <a
-              href="https://github.com/Prince-772/PKey"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-2 rounded-md border border-gray-300 dark:border-gray-700
-                         text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50
-                         transition-colors duration-200 text-sm md:text-base font-medium"
+    <nav className="w-full h-16 bg-linear-to-r from-purple-100 to-blue-100/50 dark:to-purple-950/30 dark:from-blue-950/50 backdrop-blur-sm fixed top-0 left-0 z-50 border-b border-gray-200/50 dark:border-gray-800/50 transition-all duration-300 shadow-md dark:shadow-gray-900">
+      <div className="container mx-auto px-4 md:px-8 lg:px-12 flex justify-between items-center h-full">
+        <div className="flex items-center gap-2 group">
+          <Logo />
+        </div>
+
+        {openDeleteAccountModel && (
+          <DeleteAccountModal
+            {...{
+              isOpen: openDeleteAccountModel,
+              onClose: () => setOpenDeleteAccountModel(false),
+              showPasswordInput: session.user.provider === "credentials",
+            }}
+          />
+        )}
+        {openResetVaultModel && (
+          <ResetVaultModal
+            {...{
+              isOpen: openResetVaultModel,
+              onClose: () => setOpenResetVaultModel(false),
+              showPasswordInput: session.user.provider === "credentials",
+            }}
+          />
+        )}
+
+        <div className="flex items-center gap-2 md:gap-4">
+          {showToggleTheme && (
+            <button
+              className="flex cursor-pointer items-center justify-center p-1 sm:p-2 rounded-full border border-gray-300 dark:border-gray-700
+                         text-gray-700 dark:text-gray-300 duration-300 hover:-translate-y-px hover:scale-105 active:scale-97
+                         shadow-sm hover:shadow-md dark:shadow-gray-900 transition-all text-sm md:text-base font-medium bg-gray-50/50 dark:bg-gray-900/50 hover:border-blue-500"
+              onClick={toggleTheme}
             >
-              <div className="relative h-5 w-5 md:h-6 md:w-6">
-                <Image
-                  src="/images/github.svg"
-                  fill
-                  priority
-                  className="object-contain dark:invert" // Use dark:invert for SVGs to adjust in dark mode
-                  alt="GitHub"
-                />
-              </div>
-              <span className='hidden sm:inline'>GitHub</span> {/* Changed to sm:inline for better mobile */}
-            </a>
+              {isDark ? (
+                <Sun className="h-6 w-6 text-yellow-400 m-auto" />
+              ) : (
+                <Moon className="h-6 w-6 text-blue-600 m-auto" />
+              )}
+            </button>
+          )}
+          {showGithub && (
+            <NavLink
+              href="https://github.com/Prince-772/PKey"
+              icon={
+                <div className="relative h-6 w-6">
+                  <Image
+                    src="/images/github.svg"
+                    fill
+                    className="object-contain dark:invert"
+                    alt="GitHub"
+                  />
+                </div>
+              }
+              label="GitHub"
+              openInNewTab={true}
+            />
           )}
 
-          {/* Dynamic Links (Vault, Dashboard) */}
-          {showVault && <NavLink href="/vault" icon={<LockKeyhole className='w-5 h-5' />} label="Vault" />}
-          {showDashboard && <NavLink href="/dashboard" icon={<LayoutDashboard className='w-5 h-5' />} label="Dashboard" />}
-          {showLoading && <LoaderCircle className='animate-spin text-blue-600 dark:text-blue-400 w-6 h-6' />}
+          {(showVault || showDashboard) && (
+            <div className="flex items-center gap-2">
+              {showVault && (
+                <NavLink
+                  href="/vault"
+                  icon={<LockKeyhole className="w-6 h-6" />}
+                  label="Vault"
+                />
+              )}
+              {showDashboard && (
+                <NavLink
+                  href="/dashboard"
+                  icon={<LayoutDashboard className="w-6 h-6" />}
+                  label="Dashboard"
+                />
+              )}
+            </div>
+          )}
 
-          {/* Sign In Button */}
+          {showLoading && (
+            <LoaderCircle className="animate-spin text-blue-600 w-5 h-5" />
+          )}
+
           {showSignIn && (
             <Link
               href="/sign-in"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md
-                         bg-gradient-to-r from-blue-600 to-purple-600 text-white
-                         hover:from-blue-700 hover:to-purple-700
-                         dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600
-                         transition-all duration-200 text-sm md:text-base font-semibold"
+              className="relative inline-flex items-center gap-2 px-3 md:px-5 py-2 overflow-hidden font-bold text-white rounded-full bg-linear-to-r from-blue-600 to-purple-600 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 group"
             >
-              <LogIn className='h-5 w-5' />
-              Sign In
+              <LogIn className="h-4 w-4 group-hover:translate-x-1 transition-transform shrink-0 duration-300" />
+              <span className="text-sm">Sign In</span>
             </Link>
           )}
 
-          {/* User Profile Dropdown */}
           {showProfile && (
-            <div className="relative">
-              <button
-                onClick={() => setIsProfileView((prev) => !prev)}
-                className="relative flex items-center cursor-pointer justify-center rounded-full p-0.5
-                           w-8 h-8 md:w-10 md:h-10 transition-transform duration-200 hover:scale-105"
-              >
-                {session?.user?.image ? (
-                  <Image
-                    src={session?.user?.image}
-                    fill
-                    priority
-                    className="object-cover rounded-full" // Use object-cover for profile images
-                    alt={session.user.name || "User Profile"}
-                  />
-                ) : (
-                  <CircleUserRound className="w-full h-full text-gray-500 dark:text-gray-400 group-hover:text-blue-600 transition-colors duration-200" color={isProfileView ? "blue" : "currentColor"} />
-                )}
-              </button>
+            <div className="flex items-center gap-2 pl-3 md:pl-4">
+              <div className="relative">
+                <button
+                  onClick={() => setIsProfileView((prev) => !prev)}
+                  className={`cursor-pointer relative flex items-center justify-center rounded-full w-9 h-9 md:w-10 md:h-10 border-2 transition-all duration-300 hover:scale-105 active:scale-95 border-blue-500/0 hover:border-blue-500 ${isProfileView ? "shadow-md" : "bg-gray-100 dark:bg-gray-800"}`}
+                >
+                  {session?.user?.image ? (
+                    <Image
+                      src={session?.user?.image}
+                      fill
+                      className="object-cover rounded-full p-0.5 m-auto"
+                      alt="User"
+                    />
+                  ) : (
+                    <CircleUserRound
+                      className={`w-full h-full ${isProfileView ? "text-blue-500" : "text-gray-500"}`}
+                    />
+                  )}
+                </button>
 
-              {/* Profile Dropdown Content */}
-              {isProfileView && (
-                <div className="absolute right-1/2 mt-0 bg-white dark:bg-gray-800 rounded-md rounded-tr-none shadow-lg overflow-hidden
-                ring-1 ring-black/5 dark:ring-gray-700 z-50 origin-top-right
-                animate-fade-in-down">
-                  <button
-                    onClick={toggleTheme}
-                    className="text-nowrap flex gap-1 cursor-pointer items-center font-inter w-full text-left px-2 md:px-4 py-1 md:py-2 text-sm
-                   text-blue-600 dark:text-blue-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors duration-150"
-                  >
-                    {isDark ? <Sun className='w-4 h-4' /> : <Moon className='w-4 h-4' />} Toggle Theme
-                  </button>
+                <AnimatePresence>
+                  {isProfileView && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                      className="absolute right-[50%] mt-1 bg-white dark:bg-gray-900 rounded-2xl rounded-tr-none shadow-2xl border border-gray-500 overflow-hidden z-50 origin-top-right"
+                    >
+                      <div className="px-4 py-3 bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 text-nowrap">
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                          Account
+                        </p>
+                        <p className="text-sm font-bold truncate dark:text-gray-200">
+                          {session?.user?.name?.split(" ")[0] || "PKey User"}
+                        </p>
+                      </div>
 
-                  <button
-                    onClick={HandleLogOut}
-                    className="text-nowrap flex gap-1 cursor-pointer items-center font-inter w-full text-left px-2 md:px-4 py-1 md:py-2 text-sm
-                   text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors duration-150"
-                  >
-                    <LogOut className='w-4 h-4' /> Logout
-                  </button>
-                  <button
-                    onClick={handleResetVault}
-                    className="text-nowrap flex gap-1 cursor-pointer items-center font-inter w-full text-left px-2 md:px-4 py-1 md:py-2 text-sm
-                   text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors duration-150"
-                  >
-                    <Eraser className='w-4 h-4' /> Reset Vault
-                  </button>
-                  <button
-                    onClick={handleDeleteAccount}
-                    className="text-nowrap flex gap-1 cursor-pointer items-center font-inter w-full text-left px-2 md:px-4 py-1 md:py-2 text-sm
-                   text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors duration-150"
-                  >
-                    <UserRoundX className='w-4 h-4' /> Delete Account
-                  </button>
-                </div>
-              )}
+                      <div className="p-1.5 text-nowrap">
+                        <button
+                          onClick={toggleTheme}
+                          className="flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold rounded-xl text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 transition-all duration-300 cursor-pointer"
+                        >
+                          {isDark ? (
+                            <Sun className="w-4 h-4 text-yellow-500" />
+                          ) : (
+                            <Moon className="w-4 h-4 text-blue-500" />
+                          )}
+                          Toggle Theme
+                        </button>
+
+                        {encKey && (
+                          <button
+                            onClick={lockValut}
+                            className="flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold rounded-xl text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 transition-all duration-300 cursor-pointer"
+                          >
+                            <LockKeyhole className="w-4 h-4 text-emerald-500" />
+                            Lock Vault
+                          </button>
+                        )}
+                        <button
+                          onClick={forwardToForgetPassword}
+                          className="flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold rounded-xl text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 transition-all duration-300 cursor-pointer"
+                        >
+                          <PencilLine className="w-4 h-4 text-blue-500" />
+                          Change Password
+                        </button>
+
+                        <div className="h-px bg-gray-100 dark:bg-gray-800 my-1 mx-2" />
+
+                        <button
+                          onClick={HandleLogOut}
+                          className="cursor-pointer flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all duration-300"
+                        >
+                          <LogOut className="w-4 h-4" /> Logout
+                        </button>
+
+                        <button
+                          onClick={handleResetVault}
+                          className="cursor-pointer flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all duration-300"
+                        >
+                          <Eraser className="w-4 h-4" /> Reset Vault
+                        </button>
+
+                        <button
+                          onClick={handleDeleteAccount}
+                          className="cursor-pointer flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all duration-300"
+                        >
+                          <UserRoundX className="w-4 h-4" /> Delete Account
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           )}
         </div>
       </div>
     </nav>
+  );
+};
 
-  )
-}
-
-export default NavBar
+export default NavBar;

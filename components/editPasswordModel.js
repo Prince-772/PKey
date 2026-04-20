@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
   X,
   Eye,
@@ -6,16 +6,20 @@ import {
   ShieldCheck,
   Shield,
   TriangleAlert,
+  AlertCircle,
+  Cpu,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import SuggestPassword from "@/lib/passwords/suggestPassword";
-import { encrypt } from "@/lib/passwords/encryptPassword";
 import { useMasterPass } from "@/context/MasterPassword";
 import { useRouter } from "next/navigation";
 import categorizePassword from "@/lib/passwords/strengthChecker";
+import { encryptV3 } from "@/lib/passwords/encryptPassV3";
+import { capitalize, getPasswordStrength } from "@/lib/helper";
+import { AnimatePresence, motion } from "framer-motion";
 
-const EditModal = ({ onClose, onSave, editingData,noMasterPass }) => {
-  const { masterPass } = useMasterPass();
+const EditModal = ({ onClose, onSave, editingData, noMasterPass }) => {
+  const { masterPass, encKey } = useMasterPass();
   const router = useRouter();
 
   const {
@@ -23,9 +27,18 @@ const EditModal = ({ onClose, onSave, editingData,noMasterPass }) => {
     formState: { errors, isDirty },
     handleSubmit,
     setValue,
+    watch
   } = useForm({
     defaultValues: editingData,
   });
+
+  
+  const passwordValue = watch("password", ""); 
+
+  const entryStrength = useMemo(
+      () => getPasswordStrength(passwordValue),
+      [passwordValue],
+    );
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -37,20 +50,22 @@ const EditModal = ({ onClose, onSave, editingData,noMasterPass }) => {
 
   const handleSave = useCallback(
     (data) => {
-      if (!masterPass) return noMasterPass();
+      if (!encKey) return noMasterPass();
       const strength = categorizePassword(data.password);
       if (isDirty) {
+        // Changing old to new if doc is old
         onSave({
-          site: data.platform,
-          username: data.username,
-          password: encrypt(data.password, masterPass),
+          site: encryptV3(data.platform, encKey),
+          username: encryptV3(data.username, encKey),
+          password: encryptV3(data.password, encKey),
           id: editingData.id,
-          strength,
+          strength: encryptV3(strength, encKey),
+          version: 3, // Updating to Dv3
         });
       }
       onClose();
     },
-    [onSave, onClose, editingData.id, isDirty, masterPass, router]
+    [onSave, onClose, isDirty, masterPass, encKey, router],
   );
 
   const HandleSuggestStrongPassword = useCallback(() => {
@@ -68,14 +83,12 @@ const EditModal = ({ onClose, onSave, editingData,noMasterPass }) => {
   }, [setValue]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/70 dark:bg-black/80 backdrop-blur-md transition-opacity duration-300 ease-in-out">
+    <div className="fixed inset-0 z-50 flex justify-center bg-gray-950/70 dark:bg-black/80 backdrop-blur-md transition-opacity duration-300 ease-in-out">
       <div
-        className={`bg-white dark:bg-gray-800 px-3 py-6 md:p-8 rounded-2xl shadow-2xl w-[95%] max-w-md relative
-                         transform transition-transform duration-300 ease-in-out scale-100 opacity-100 animate-scaleIn
-                         border border-gray-200 dark:border-gray-700`}
+        className={`relative bg-white dark:bg-gray-800 p-4 md:p-8 rounded-2xl shadow-2xl w-[95%] max-w-md max-h-[95vh] animate-scale-in border-3 border-gray-200 dark:border-gray-700 overflow-auto scroll-bar-hide my-auto`}
       >
         <div className="flex items-center justify-between mb-6 pb-3 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
+          <h2 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
             Edit Password
           </h2>
 
@@ -83,7 +96,7 @@ const EditModal = ({ onClose, onSave, editingData,noMasterPass }) => {
             onClick={onClose}
             className="w-6 h-6 text-gray-500 dark:text-gray-400
                        hover:text-red-600 dark:hover:text-red-400
-                       transition-colors duration-200 cursor-pointer"
+                       transition-colors duration-300 cursor-pointer"
             role="button"
             aria-label="Close modal"
           />
@@ -94,7 +107,7 @@ const EditModal = ({ onClose, onSave, editingData,noMasterPass }) => {
             <div className="relative group">
               <label
                 htmlFor="edit-platform"
-                className="absolute -top-3 left-4 px-2 text-sm font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 transform transition-all duration-200 ease-in-out group-focus-within:top-[-0.75rem] group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 dark:peer-placeholder-shown:text-gray-500"
+                className="absolute -top-3 left-4 px-2 text-sm font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 transform transition-all duration-300 ease-in-out group-focus-within:-top-3 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 dark:peer-placeholder-shown:text-gray-500"
               >
                 Site Name
               </label>
@@ -104,7 +117,7 @@ const EditModal = ({ onClose, onSave, editingData,noMasterPass }) => {
                 name="platform"
                 {...register("platform", { required: "Site is required!" })}
                 placeholder=" "
-                className="w-full px-4 py-2.5 border-2 rounded-lg  border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-transparent outline-none focus:border-blue-500 dark:focus:border-blue-400 transition duration-200 text-lg"
+                className="w-full px-4 py-2.5 border-2 rounded-lg  border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-transparent outline-none focus:border-blue-500 dark:focus:border-blue-400 transition duration-300 text-lg"
                 aria-label="Site Name"
               />
               {errors.platform && (
@@ -118,7 +131,7 @@ const EditModal = ({ onClose, onSave, editingData,noMasterPass }) => {
             <div className="relative group">
               <label
                 htmlFor="edit-username"
-                className="absolute -top-3 left-4 px-2 text-sm font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 transform transition-all duration-200 ease-in-out group-focus-within:top-[-0.75rem] group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 dark:peer-placeholder-shown:text-gray-500"
+                className="absolute -top-3 left-4 px-2 text-sm font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 transform transition-all duration-300 ease-in-out group-focus-within:-top-3 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 dark:peer-placeholder-shown:text-gray-500"
               >
                 Username
               </label>
@@ -128,7 +141,7 @@ const EditModal = ({ onClose, onSave, editingData,noMasterPass }) => {
                 name="username"
                 {...register("username", { required: "Username is required!" })}
                 placeholder=" "
-                className="peer w-full px-4 py-2.5 border-2 rounded-lg border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-transparent outline-none focus:border-blue-500 dark:focus:border-blue-400 transition duration-200 text-lg"
+                className="peer w-full px-4 py-2.5 border-2 rounded-lg border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-transparent outline-none focus:border-blue-500 dark:focus:border-blue-400 transition duration-300 text-lg"
                 aria-label="Username"
               />
               {errors.username && (
@@ -143,7 +156,7 @@ const EditModal = ({ onClose, onSave, editingData,noMasterPass }) => {
               <div className="relative w-full">
                 <label
                   htmlFor="edit-password"
-                  className="absolute -top-3 left-4 px-2 text-sm font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 transform transition-all duration-200 ease-in-out group-focus-within:top-[-0.75rem] group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 dark:peer-placeholder-shown:text-gray-500"
+                  className="absolute -top-3 left-4 px-2 text-sm font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 transform transition-all duration-300 ease-in-out group-focus-within:-top-3 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 dark:peer-placeholder-shown:text-gray-500"
                 >
                   Password
                 </label>
@@ -155,7 +168,7 @@ const EditModal = ({ onClose, onSave, editingData,noMasterPass }) => {
                     required: "Password is required!",
                   })}
                   placeholder=" "
-                  className="peer w-full font-mono px-4 py-2.5 border-2 rounded-lg border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-transparent outline-none focus:border-blue-500 dark:focus:border-blue-400 transition duration-200 text-lg pr-10"
+                  className="peer w-full font-mono px-4 py-2.5 border-2 rounded-lg border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-transparent outline-none focus:border-blue-500 dark:focus:border-blue-400 transition duration-300 text-lg pr-10"
                   aria-label="Password"
                 />
                 {showPassword ? (
@@ -163,7 +176,7 @@ const EditModal = ({ onClose, onSave, editingData,noMasterPass }) => {
                     onClick={() => setShowPassword(false)}
                     className="absolute right-3 cursor-pointer top-1/2 transform -translate-y-1/2
                           w-5 h-5 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-300
-                          transition-all duration-200"
+                          transition-all duration-300"
                     role="button"
                     aria-label="Hide password"
                   />
@@ -172,7 +185,7 @@ const EditModal = ({ onClose, onSave, editingData,noMasterPass }) => {
                     onClick={() => setShowPassword(true)}
                     className="absolute right-3 cursor-pointer top-1/2 transform -translate-y-1/2
                           w-5 h-5 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-300
-                          transition-all duration-200"
+                          transition-all duration-300"
                     role="button"
                     aria-label="Show password"
                   />
@@ -193,7 +206,7 @@ const EditModal = ({ onClose, onSave, editingData,noMasterPass }) => {
                               ${
                                 isPassSuggested
                                   ? "bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300 cursor-not-allowed"
-                                  : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600"
+                                  : "bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600"
                               }
                               transition-all duration-300 ease-in-out text-sm md:text-base font-semibold
                               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
@@ -210,6 +223,103 @@ const EditModal = ({ onClose, onSave, editingData,noMasterPass }) => {
                 Suggest Strong Password
               </button>
             </div>
+            <AnimatePresence mode="popLayout">
+              {passwordValue && (
+                <motion.div
+                  key="strength-meter-main"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className=""
+                >
+                  <motion.div
+                    layout
+                    className="font-inter p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 space-y-3 overflow-auto scroll-bar-hide mt-3 max-h-60"
+                  >
+                    {/* Header Section */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] md:text-[12px] uppercase font-bold text-gray-800 dark:text-gray-200">
+                        Security Score
+                      </span>
+                      <motion.span
+                        layout
+                        key={entryStrength.category}
+                        className={`text-[10px] md:text-[12px] font-bold px-2 py-0.5 rounded-full transition-colors duration-300 ${
+                          entryStrength.score > 70
+                            ? "bg-emerald-100 dark:bg-emerald-800 text-emerald-800 dark:text-emerald-100"
+                            : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100"
+                        }`}
+                      >
+                        {entryStrength.category}
+                      </motion.span>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
+                      <motion.div
+                        layout
+                        className={`h-1.5 rounded-full ${
+                          entryStrength.score > 75
+                            ? "bg-emerald-500"
+                            : entryStrength.score > 40
+                              ? "bg-orange-500"
+                              : "bg-red-500"
+                        }`}
+                        animate={{ width: `${entryStrength.score}%` }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 30,
+                        }}
+                      />
+                    </div>
+
+                    {entryStrength.result?.crack_times_display && (
+                      <motion.div
+                        layout
+                        key="crack-time-display"
+                        className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 space-y-2"
+                      >
+                        <p className="text-[10px] md:text-[12px] font-bold text-gray-800 dark:text-gray-100 uppercase flex items-center gap-1">
+                          <Cpu className="w-3 h-3" /> Estimated Time to Crack
+                        </p>
+
+                        <div className="space-y-1">
+                          {/* Scenario 1: Standard Hacker (Bitwarden Style) */}
+                          <div className="flex items-baseline gap-2">
+                            <span
+                              className={`text-[12px] md:text-sm font-semibold ${entryStrength.score > 70 ? "text-emerald-700 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
+                            >
+                              {capitalize(
+                                entryStrength.result.crack_times_display
+                                  .offline_slow_hashing_1e4_per_second,
+                              )}
+                            </span>
+                            <span className="text-[10px] md:text-[12px] text-gray-700 dark:text-gray-200 italic">
+                              (standard hacker attack, 10k guesses/sec)
+                            </span>
+                          </div>
+
+                          {/* Scenario 2: Supercomputer (Hardcore Reality) */}
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-[12px] md:text-sm font-semibold text-blue-700 dark:text-blue-400">
+                              {capitalize(
+                                entryStrength.result.crack_times_display
+                                  .offline_fast_hashing_1e10_per_second,
+                              )}
+                            </span>
+                            <span className="text-[10px] md:text-[12px] text-gray-700 dark:text-gray-200 italic">
+                              (by a supercomputer, 10B guesses/sec)
+                            </span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           <div className="flex gap-4 mt-5 items-center">
@@ -222,7 +332,7 @@ const EditModal = ({ onClose, onSave, editingData,noMasterPass }) => {
             </button>
             <button
               type="submit"
-              className="flex-1 text-sm text-nowrap md:text-base inline-flex items-center justify-center px-3 md:px-6 py-3 rounded-xl shadow-lg bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 dark:from-teal-600 dark:to-emerald-400 dark:hover:from-teal-700 dark:hover:to-emerald-500 transition-all duration-300 ease-in-out font-semibold transform hover:-translate-y-1"
+              className="flex-1 text-sm text-nowrap md:text-base inline-flex items-center justify-center px-3 md:px-6 py-3 rounded-xl shadow-lg bg-linear-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 dark:from-teal-600 dark:to-emerald-400 dark:hover:from-teal-700 dark:hover:to-emerald-500 transition-all duration-300 ease-in-out font-semibold transform hover:-translate-y-1"
             >
               Save Changes
             </button>

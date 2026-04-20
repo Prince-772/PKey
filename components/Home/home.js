@@ -5,7 +5,7 @@ import Section3 from './section3'
 
 const Home = () => {
   return (
-    <div className='mt-15 md:mt-16'>
+    <div className='mt-15 md:mt-16 flex flex-col gap-10'>
       <Section1 />
       <Section2 />
       <Section3 />

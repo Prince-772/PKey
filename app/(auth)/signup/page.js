@@ -7,7 +7,7 @@ import Logo from "@/components/logo";
 
 const Page = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 px-3 md:px-4">
+    <div className="min-h-screen flex py-4 items-center justify-center bg-gray-100 dark:bg-gray-900 px-3 md:px-4">
       {/* {loading && <Loader />} */}
       <div className="w-full max-w-md px-5 md:px-8 py-10 bg-white dark:bg-gray-800 rounded-xl shadow-lg border dark:border-gray-700">
         <div className="flex justify-center mb-5">
