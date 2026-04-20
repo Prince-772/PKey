@@ -45,13 +45,20 @@ const NavBar = () => {
     "/blocked-accounts-help",
   ];
   const [isDark, setIsDark] = useState(false);
+
   useEffect(() => {
-    const shouldBeDark = localStorage.getItem("pKey-isDark") === "true";
-    setIsDark(
-      shouldBeDark || document.documentElement.classList.contains("dark"),
-    );
-    if (shouldBeDark) document.documentElement.classList.add("dark");
-    else document.documentElement.classList.remove("dark");
+    const savedTheme = localStorage.getItem("pKey-isDark");
+
+    let isDarkNow;
+
+    if (savedTheme !== null) {
+      isDarkNow = savedTheme === "true";
+    } else {
+      isDarkNow = document.documentElement.classList.contains("dark");
+    }
+
+    setIsDark(isDarkNow);
+    document.documentElement.classList.toggle("dark", isDarkNow);
   }, []);
 
   const { setMasterPass, setEncKey, encKey } = useMasterPass();
@@ -85,11 +92,15 @@ const NavBar = () => {
   };
 
   const toggleTheme = () => {
-    document.documentElement.classList.toggle("dark");
     setIsDark((prev) => {
-      localStorage.setItem("pKey-isDark", !prev);
-      return !prev;
+      const newValue = !prev;
+
+      document.documentElement.classList.toggle("dark", newValue);
+      localStorage.setItem("pKey-isDark", newValue);
+
+      return newValue;
     });
+
     setIsProfileView(false);
   };
 
@@ -102,7 +113,7 @@ const NavBar = () => {
 
   const forwardToForgetPassword = () => {
     return router.push("/reset-password");
-  }
+  };
 
   return (
     <nav className="w-full h-16 bg-linear-to-r from-purple-100 to-blue-100/50 dark:to-purple-950/30 dark:from-blue-950/50 backdrop-blur-sm fixed top-0 left-0 z-50 border-b border-gray-200/50 dark:border-gray-800/50 transition-all duration-300 shadow-md dark:shadow-gray-900">

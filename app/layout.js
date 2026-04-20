@@ -48,7 +48,8 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "PKey | Secure Your Digital World",
-    description: "Zero-knowledge password storage. Your data, your keys, your privacy.",
+    description:
+      "Zero-knowledge password storage. Your data, your keys, your privacy.",
     images: ["/og.png"],
   },
   robots: {
@@ -57,9 +58,9 @@ export const metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
 };
@@ -67,28 +68,30 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head></head>
-      <body
-        className={`${inter.variable} ${roboto.variable} bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300`}
-      >
-        {/* Anti-Flash Script */}
+      <head>
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              (function() {
-                try {
-                  let savedTheme = localStorage.getItem('pKey-isDark');
-                  if (savedTheme === 'true' || 
-                     (savedTheme === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                    document.documentElement.classList.add('dark');
-                  } else {
-                    document.documentElement.classList.remove('dark');
-                  }
-                } catch (e) {}
-              })();
-            `,
+          (function() {
+            try {
+              let savedTheme = localStorage.getItem('pKey-isDark');
+              let isDark = savedTheme === 'true' || 
+                (savedTheme === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+              if (isDark) {
+                document.documentElement.classList.add('dark');
+              } else {
+                document.documentElement.classList.remove('dark');
+              }
+            } catch (e) {}
+          })();
+        `,
           }}
         />
+      </head>
+      <body
+        className={`${inter.variable} ${roboto.variable} bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300`}
+      >
         <AuthProvider>
           <MasterPassProvider>{children}</MasterPassProvider>
         </AuthProvider>
