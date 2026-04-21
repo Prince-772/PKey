@@ -342,7 +342,13 @@ const CreatePassword = () => {
             <form
               onSubmit={handleSubmit(handleOnSubmit)}
               className="flex flex-col gap-6"
+               autoComplete="off"
             >
+              // To Avoid Browsers from asking to save passwrod
+              <input type="text" name="fakeuser" autoComplete="username" style={{ display: "none" }} />
+              <input type="password" name="fakepass" autoComplete="new-password" style={{ display: "none" }} />
+
+
               <div className="group">
                 <label className="px-2 text-sm font-medium text-gray-700 dark:text-gray-300 transition-all duration-300 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 flex items-center gap-1 mb-1">
                   <Globe className="w-4 h-4 shrink-0" /> Site Name
@@ -437,6 +443,7 @@ const CreatePassword = () => {
                       required: "Password is required",
                     })}
                     type={seePassword ? "text" : "password"}
+                    autoComplete="new-password"
                     className="w-full h-12 pl-4 pr-12 border-2 rounded-lg bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 outline-none focus:border-blue-500 transition-all text-lg duration-300 font-mono"
                   />
                   <div
