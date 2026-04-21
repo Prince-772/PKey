@@ -5,12 +5,15 @@ export default function Layout({ children }) {
 export const metadata = {
   title: "Master Password Guide | PKey Security",
   description:
-    "Learn about PKey's Zero-Knowledge architecture and how your Master Password keeps your vault uncrackable with PBKDF2 encryption.",
+    "Learn about PKey's Zero-Knowledge architecture and how your Master Password keeps your vault mathematically uncrackable with memory-hard Argon2id and AES-256-GCM encryption.",
   keywords: [
-    "Zero-Knowledge",
+    "Zero-Knowledge Architecture",
     "Password Security",
-    "PBKDF2",
-    "Encryption",
+    "Argon2id",
+    "AES-256-GCM",
+    "HKDF Key Isolation",
+    "WebAssembly Cryptography",
+    "Client-Side Encryption",
     "PKey Vault",
     "Master Password",
   ],

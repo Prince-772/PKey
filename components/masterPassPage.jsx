@@ -25,10 +25,10 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
       let authHash, encryptionKey, salt;
       if (version > 1) {
         salt = session?.user?.salt;
-        ({ authHash, encryptionKey } = generateAuthData(mPassValue, salt));
+        ({ authHash, encryptionKey } = await generateAuthData(mPassValue, salt));
       } else if (version === 1) {
         authHash = mPassValue;
-        ({ salt, encryptionKey } = generateAuthData(mPassValue));
+        ({ salt, encryptionKey } = await generateAuthData(mPassValue));
       }
 
       await toast.promise(VerifyMasterPass(authHash), {
@@ -41,7 +41,7 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
           if (version === 1) {
             setMasterPass(mPassValue); // raw mPass is still required for Uv1 users
             // generate New Zero-Knowldege Data
-            const { authHash: newHash } = generateAuthData(mPassValue, salt);
+            const { authHash: newHash } = await generateAuthData(mPassValue, salt);
             try {
               const response = await AutoMigrateToUv2(newHash, salt);
               if (response.success) {

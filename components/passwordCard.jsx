@@ -1,3 +1,4 @@
+import { handleCopy } from "@/lib/helper";
 import { AlertTriangle, Copy, CopyCheck, Eye, EyeOff, Heart, Pencil, ShieldCheck, ShieldOff, Trash2 } from "lucide-react";
 import Image from "next/image";
 import React, { memo, useState, useEffect } from "react";
@@ -16,30 +17,6 @@ const PasswordCard = ({ id, platform, username, password, isFav, onEdit, onDelet
     onSwipedRight: () => setIsSlided(false),
     delta: 50
   });
-
-
-  const handleCopy = async (text, setCopied) => {
-    try {
-      if (!navigator.clipboard || !navigator.clipboard.writeText) {
-        const input = document.createElement("textarea");
-        input.value = text;
-        input.setAttribute("readonly", "");
-        input.style.position = "absolute";
-        input.style.left = "-9999px";
-        document.body.appendChild(input);
-        input.select();
-        document.execCommand("copy");
-        document.body.removeChild(input);
-      } else {
-        await navigator.clipboard.writeText(text);
-      }
-      setCopied(true);
-      toast.success("Copied!")
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      toast.error("Failed to copy")
-    }
-  };
 
   return (
     <div {...handlers} className=" w-full backdrop-blur-md max-w-2xl mx-auto overflow-hidden">

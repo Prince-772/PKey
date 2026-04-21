@@ -2,34 +2,38 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Quote, Star, ArrowRight, ShieldCheck, Zap } from "lucide-react";
+import { Quote, Star, ArrowRight, ShieldCheck, Zap, Cpu } from "lucide-react";
 import Image from "next/image";
 
 const testimonials = [
   {
-    quote: "PKey has completely changed how I handle passwords. I don’t have to remember anything anymore, and everything just works seamlessly.",
+    quote:
+      "PKey has completely changed how I handle passwords. I don’t have to remember anything anymore, and everything just works seamlessly.",
     author: "Arpit Kushwaha",
     title: "Marketing Manager",
-    img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Arpit&mouth=smile&top=shortFlat&clothing=overall&clothingColor=3c4f5e"
+    img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Arpit&mouth=smile&top=shortFlat&clothing=overall&clothingColor=3c4f5e",
   },
   {
-    quote: "The auto-fill and cross-device sync are insanely smooth. I can log in anywhere in seconds without worrying about security.",
+    quote:
+      "The auto-fill and cross-device sync are insanely smooth. I can log in anywhere in seconds without worrying about security.",
     author: "Sreyash Pandey",
     title: "Software Engineer",
-    img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sreyash&mouth=default&top=shortWaved&accessories=round&clothing=hoodie"
+    img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sreyash&mouth=default&top=shortWaved&accessories=round&clothing=hoodie",
   },
   {
-    quote: "Strong encryption and zero stress. I finally feel confident that my credentials are safe and not exposed.",
+    quote:
+      "Strong encryption and zero stress. I finally feel confident that my credentials are safe and not exposed.",
     author: "Kishan Yadav",
     title: "Senior Security Engineer",
-    img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Kishan&mouth=smile&top=shortRound&accessories=prescription02"
+    img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Kishan&mouth=smile&top=shortRound&accessories=prescription02",
   },
   {
-    quote: "The password strength meter is a game changer. No more weak passwords - everything is handled perfectly.",
+    quote:
+      "The password strength meter is a game changer. No more weak passwords - everything is handled perfectly.",
     author: "Ayush Kumar",
     title: "Freelance Web Developer",
-    img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Rohit&mouth=smile&top=shortFlat&accessories=prescription02&facialHair=beardLight&clothing=hoodie&clothingColor=262626"
-  }
+    img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Rohit&mouth=smile&top=shortFlat&accessories=prescription02&facialHair=beardLight&clothing=hoodie&clothingColor=262626",
+  },
 ];
 
 export default function Section3() {
@@ -122,7 +126,7 @@ export default function Section3() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-4">
               <Link
                 href="/signup"
-                className="w-full sm:w-auto px-10 py-5 bg-white text-blue-700 font-black rounded-full text-lg shadow-xl hover:bg-blue-50 hover:scale-105 active:scale-95 duration-300 transition-all flex items-center justify-center gap-2"
+                className="p-4 sm:px-10 sm:py-5 bg-white text-blue-700 font-black rounded-full text-sm sm:text-lg shadow-xl hover:bg-blue-50 hover:scale-105 active:scale-95 duration-300 transition-all flex items-center justify-center gap-2"
               >
                 Create Free Vault <ArrowRight className="w-5 h-5 shrink-0" />
               </Link>
@@ -130,10 +134,13 @@ export default function Section3() {
 
             <div className="flex flex-wrap justify-center gap-8 pt-8 opacity-70">
               <div className="flex items-center gap-2 text-sm font-bold">
-                <ShieldCheck className="w-5 h-5" /> AES-256 Standard
+                <ShieldCheck className="w-5 h-5" /> AES-256-GCM Standard
               </div>
               <div className="flex items-center gap-2 text-sm font-bold">
-                <Zap className="w-5 h-5" /> Instant Cross Devive Sync
+                <Cpu className="w-5 h-5" /> Argon2id Protected
+              </div>
+              <div className="flex items-center gap-2 text-sm font-bold">
+                <Zap className="w-5 h-5" /> Instant Cross-Device Sync
               </div>
             </div>
           </div>

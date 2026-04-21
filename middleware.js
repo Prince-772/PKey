@@ -20,13 +20,14 @@ export async function middleware(req) {
       return new NextResponse("🚧 Site under maintenance", { status: 503 });
     }
   }
+
   if (!token) {
     if (pathname.startsWith("/api/protected/")) {
       return NextResponse.json(
         { success: false, message: "Unauthorized: Please sign in" },
-        { status: 401 }
+        { status: 401 },
       );
-    } else if (["/dashboard", "/vault","/masterPass"].includes(pathname)) {
+    } else if (["/dashboard", "/vault", "/masterPass"].includes(pathname)) {
       return NextResponse.redirect(new URL("/sign-in", req.url));
     }
   }
@@ -34,5 +35,5 @@ export async function middleware(req) {
 }
 
 export const config = {
-  matcher: ["/api/protected/:path*","/dashboard","/vault","/masterPass"],
+  matcher: ["/api/protected/:path*", "/dashboard", "/vault", "/masterPass"],
 };

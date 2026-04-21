@@ -29,6 +29,10 @@ import {
   BookOpen,
   Info,
   ArrowRight,
+  GitMerge,
+  Layers,
+  Copy,
+  CopyCheck,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -44,7 +48,7 @@ import categorizePassword from "@/lib/passwords/strengthChecker";
 import MasterPasswordModel from "@/components/masterPassPage";
 import CreateMasterPasswordModal from "@/components/CreateMasterPassword";
 import { CreateMasterPass } from "@/lib/masterpassword/create";
-import { capitalize, getPasswordStrength } from "@/lib/helper";
+import { capitalize, getPasswordStrength, handleCopy } from "@/lib/helper";
 
 // function capitalize(str) {
 //   if (!str) return "";
@@ -54,6 +58,8 @@ import { capitalize, getPasswordStrength } from "@/lib/helper";
 const CreatePassword = () => {
   const [seePassword, setseePassword] = useState(false);
   const [isPassSuggested, setIsPassSuggested] = useState(false);
+  const [isPassCopied, setIsPassCopied] = useState(false);
+  const [isUserNameCopied, setIsUserNameCopied] = useState(false);
   const { encKey, resetTimer, masterPassSet, setMasterPassSet, masterPass } =
     useMasterPass();
   const [showMasterPassModel, setshowMasterPassModel] = useState(false);
@@ -67,47 +73,47 @@ const CreatePassword = () => {
       text: "Zero-Knowledge Architecture",
     },
     {
+      icon: <Cpu className="w-5 h-5 text-orange-500" />,
+      text: "Argon2id Memory-Hard Derivation",
+    },
+    {
+      icon: <Lock className="w-5 h-5 text-red-500" />,
+      text: "AES-256-GCM Authenticated Encryption",
+    },
+    {
       icon: <Zap className="w-5 h-5 text-yellow-500" />,
-      text: "Instant Encryption",
+      text: "WASM Accelerated Cryptography",
+    },
+    {
+      icon: <GitMerge className="w-5 h-5 text-purple-500" />,
+      text: "HKDF Key Splitting Protocol",
+    },
+    {
+      icon: <Activity className="w-5 h-5 text-rose-500" />,
+      text: "Non-Blocking Background Workers",
+    },
+    {
+      icon: <Terminal className="w-5 h-5 text-slate-500" />,
+      text: "Native Web Crypto API Engine",
     },
     {
       icon: <Database className="w-5 h-5 text-emerald-500" />,
       text: "Encrypted Cloud Backup",
     },
     {
-      icon: <Fingerprint className="w-5 h-5 text-purple-500" />,
-      text: "Unique Salt Derivation",
-    },
-    {
-      icon: <Cpu className="w-5 h-5 text-orange-500" />,
-      text: "PBKDF2 Key Hardening",
-    },
-    {
-      icon: <Lock className="w-5 h-5 text-red-500" />,
-      text: "AES-256 Encryption",
-    },
-    {
-      icon: <Terminal className="w-5 h-5 text-slate-500" />,
-      text: "End-to-End Encrypted Sync",
+      icon: <Fingerprint className="w-5 h-5 text-indigo-500" />,
+      text: "Hardware-Backed Secure Salting",
     },
     {
       icon: <KeyRound className="w-5 h-5 text-cyan-500" />,
       text: "In-Built Strong Password Generator",
     },
     {
-      icon: <Globe className="w-5 h-5 text-sky-500" />,
-      text: "Privacy-First Data Routing",
-    },
-    {
-      icon: <Activity className="w-5 h-5 text-rose-500" />,
+      icon: <Gauge className="w-5 h-5 text-green-500" />,
       text: "Real-time Entropy Analysis",
     },
     {
-      icon: <Gauge className="w-5 h-5 text-green-500" />,
-      text: "Real-time Password Strength Meter",
-    },
-    {
-      icon: <Lock className="w-5 h-5 text-indigo-500" />,
+      icon: <Layers className="w-5 h-5 text-sky-500" />,
       text: "Client-Side Data Masking",
     },
   ];
@@ -132,6 +138,7 @@ const CreatePassword = () => {
   } = useForm();
 
   const passwordValue = watch("password", "");
+  const usernameValue = watch("username", "");
   const entryStrength = useMemo(
     () => getPasswordStrength(passwordValue),
     [passwordValue],
@@ -156,10 +163,10 @@ const CreatePassword = () => {
     const strength = categorizePassword(formData.password);
     await toast.promise(
       handleSavePassword({
-        site: encryptV3(formData.site, encKey),
-        username: encryptV3(formData.username, encKey),
-        password: encryptV3(formData.password, encKey),
-        strength: encryptV3(strength, encKey),
+        site: await encryptV3(formData.site, encKey),
+        username: await encryptV3(formData.username, encKey),
+        password: await encryptV3(formData.password, encKey),
+        strength: await encryptV3(strength, encKey),
       }),
       {
         loading: "Saving...",
@@ -193,7 +200,7 @@ const CreatePassword = () => {
     async (masterPass) => {
       setMasterPassSet(false);
       setShowCreateMasterModel(false);
-      const { authHash, salt } = generateAuthData(masterPass);
+      const { authHash, salt } = await generateAuthData(masterPass);
       await toast.promise(CreateMasterPass(authHash, salt), {
         loading: "Processing Securily...",
         success: async (res) => {
@@ -253,7 +260,6 @@ const CreatePassword = () => {
       )}
 
       <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-       
         <div className="lg:col-span-4 space-y-4">
           <div className="p-6 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
             <h2 className="text-2xl font-black mb-1">
@@ -287,12 +293,10 @@ const CreatePassword = () => {
                 <div className="h-35 w-full animate-pulse bg-gray-100 dark:bg-gray-800 rounded-lg" />
               )}
               <div className="flex flex-col sm:flex-row lg:flex-col gap-3 sm:gap-6 lg:gap-3 items-center justify-center sm:justify-start lg:justify-center mt-6 text-xs sm:test-sm">
-               
                 <Link
                   href="/security"
                   className="group relative inline-flex items-center justify-center gap-2 p-2 pl-4 hover:pl-2 rounded-xl bg-linear-to-r from-blue-600 to-purple-600 text-white font-bold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300 active:scale-95 overflow-hidden"
                 >
-
                   <div className="absolute inset-0 bg-linear-to-r from-blue-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                   <Info className="w-4 h-4 shrink-0 relative z-10 transition-transform duration-300 group-hover:-rotate-12" />
@@ -304,7 +308,6 @@ const CreatePassword = () => {
                   href="/password-strength"
                   className="group relative inline-flex items-center justify-center gap-2 p-2 pl-4 hover:pl-2 rounded-xl bg-linear-to-r from-blue-600 to-purple-600 text-white font-bold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300 active:scale-95 overflow-hidden"
                 >
-
                   <div className="absolute inset-0 bg-linear-to-r from-blue-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                   <BookOpen className="w-4 h-4 shrink-0 relative z-10 transition-transform duration-300 group-hover:-rotate-12" />
@@ -359,9 +362,32 @@ const CreatePassword = () => {
 
               {/* Username Input */}
               <div className="group">
-                <label className="px-2 text-sm font-medium text-gray-700 dark:text-gray-300 transition-all duration-300 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 flex items-center gap-1 mb-1">
+                <div className="relative px-2 text-sm font-medium text-gray-700 dark:text-gray-300 transition-all duration-300 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 flex items-center gap-1 mb-1">
                   <UserPen className="w-4 h-4 shrink-0" /> Username
-                </label>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(usernameValue, setIsUserNameCopied)}
+                    disabled={!usernameValue || isUserNameCopied}
+                    className={`absolute right-2 inline-flex bg-linear-to-r items-center gap-2 transition-all duration-300 active:scale-95 rounded-md font-semibold text-sm
+                    ${
+                      !usernameValue
+                        ? "cursor-not-allowed"
+                        : isUserNameCopied
+                          ? "text-emerald-600 dark:text-green-400 scale-95 cursor-progress"
+                          : "" // Normal State
+                    }`}
+                  >
+                    {isUserNameCopied ? (
+                      <>
+                        <CopyCheck className="w-4 h-4 animate-bounce" />
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </div>
                 <input
                   {...register("username", {
                     required: "Username is required",
@@ -379,9 +405,32 @@ const CreatePassword = () => {
 
               {/* Password Input */}
               <div className="group">
-                <label className="px-2 text-sm font-medium text-gray-700 dark:text-gray-300 transition-all duration-300 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 flex items-center gap-1 mb-1">
+                <div className="relative px-2 text-sm font-medium text-gray-700 dark:text-gray-300 transition-all duration-300 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 flex items-center gap-1 mb-1">
                   <KeyRound className="w-4 h-4" /> Password
-                </label>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(passwordValue, setIsPassCopied)}
+                    disabled={!passwordValue || isPassCopied}
+                    className={`absolute right-2 inline-flex bg-linear-to-r items-center gap-2 transition-all duration-300 active:scale-95 rounded-md font-semibold text-sm
+                    ${
+                      !passwordValue
+                        ? "cursor-not-allowed"
+                        : isPassCopied
+                          ? "text-emerald-600 dark:text-green-400 scale-95 cursor-progress"
+                          : "" // Normal State
+                    }`}
+                  >
+                    {isPassCopied ? (
+                      <>
+                        <CopyCheck className="w-4 h-4 animate-bounce" />
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </div>
                 <div className="relative">
                   <input
                     {...register("password", {
@@ -422,12 +471,12 @@ const CreatePassword = () => {
                   >
                     {isPassSuggested ? (
                       <>
-                        <ShieldCheck className="w-5 h-5 animate-bounce" />
+                        <ShieldCheck className="w-5 h-5 animate-bounce shrink-0" />
                         <span>Password Suggested!</span>
                       </>
                     ) : (
                       <>
-                        <Shield className="w-5 h-5" />
+                        <Shield className="w-5 h-5 shrink-0" />
                         <span>Suggest Strong Password</span>
                       </>
                     )}

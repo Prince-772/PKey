@@ -66,16 +66,16 @@ const Passwords = () => {
 
       const oldDocs = []; // To store the new encrypted data of Dv1 or Dv2
       // decrypting in client side
-      const deCryptedData = getPasswords.map((p) => {
+      const deCryptedData = await Promise.all(getPasswords.map(async (p) => {
         // For Old Entries, Updaing to new
         if (p.version === 1) {
 
           let { userName, siteName, strength } = p;
-          const userNameV3 = encryptV3(userName, encKey);
-          const siteNameV3 = encryptV3(siteName, encKey);
-          const strengthV3 = encryptV3(strength, encKey);
+          const userNameV3 = await encryptV3(userName, encKey);
+          const siteNameV3 = await encryptV3(siteName, encKey);
+          const strengthV3 = await encryptV3(strength, encKey);
           const password = decrypt(p.password, masterPass); // Getting raw password
-          const passwordV3 = encryptV3(password, encKey); // Encrypting raw password to dv3 version
+          const passwordV3 = await encryptV3(password, encKey); // Encrypting raw password to dv3 version
           const newData = {
             ...p,
             password: passwordV3,
@@ -84,7 +84,7 @@ const Passwords = () => {
             strength: strengthV3,
             version: 3,
           };
-
+          console.log(newData, "Line - 87")
           oldDocs.push(newData);
           return { ...p, password };
         }
@@ -95,10 +95,10 @@ const Passwords = () => {
           const userName = decrypt(p.userName, masterPass);
           const strength = decrypt(p.strength, masterPass);
           const password = decrypt(p.password, masterPass);
-          const siteNameV3 = encryptV3(siteName, encKey);
-          const userNameV3 = encryptV3(userName, encKey);
-          const strengthV3 = encryptV3(strength, encKey);
-          const passwordV3 = encryptV3(password, encKey);
+          const siteNameV3 = await encryptV3(siteName, encKey);
+          const userNameV3 = await encryptV3(userName, encKey);
+          const strengthV3 = await encryptV3(strength, encKey);
+          const passwordV3 = await encryptV3(password, encKey);
 
           const newData = {
             ...p,
@@ -123,15 +123,15 @@ const Passwords = () => {
         else {
           return {
             ...p,
-            siteName: decryptV3(p.siteName, encKey),
-            userName: decryptV3(p.userName, encKey),
-            password: decryptV3(p.password, encKey),
-            strength: decryptV3(p.strength, encKey),
+            siteName: await decryptV3(p.siteName, encKey),
+            userName: await decryptV3(p.userName, encKey),
+            password: await decryptV3(p.password, encKey),
+            strength: await decryptV3(p.strength, encKey),
           };
         }
-      });
+      }));
       setPasswords(deCryptedData);
-
+      console.log(deCryptedData, "Line - 134")
       // To updated the stored old entries to new
       if (oldDocs.length > 0) {
         toast.promise(UpdateToDV3(oldDocs), {
@@ -324,6 +324,7 @@ const Passwords = () => {
           newPasswords = [...newPasswords].reverse();
       });
     setFilteredPasswords(newPasswords);
+    console.log(newPasswords)
   }, [searchTerms, selectedOpt, passwords]);
 
   const clearFilters = useCallback(() => {

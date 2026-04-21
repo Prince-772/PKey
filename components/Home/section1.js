@@ -55,6 +55,15 @@ const Section1 = () => {
               </div>
             </motion.div>
 
+            <motion.div
+              variants={itemVariants}
+              className="mb-5 flex justify-center lg:justify-start"
+            >
+              <span className="px-4 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400 text-sm font-semibold tracking-wide shadow-[0_0_15px_rgba(59,130,246,0.15)]">
+                The Open-Source Password Manager
+              </span>
+            </motion.div>
+
             <motion.h1
               variants={itemVariants}
               className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tighter text-gray-900 dark:text-white transition-colors duration-300"
@@ -69,8 +78,8 @@ const Section1 = () => {
               variants={itemVariants}
               className="max-w-xl mx-auto lg:mx-0 text-lg md:text-xl text-gray-600 dark:text-gray-400 font-medium leading-relaxed transition-colors duration-300"
             >
-              Generate unbreakable passwords and store your digital life in a
-              zero-knowledge encrypted vault.
+              Take back control of your security. Generate unbreakable passwords
+              and store them in an ultra-secure, client-side encrypted vault.
               <span className="hidden md:inline">
                 {" "}
                 Local encryption. Global access. Total peace of mind.
@@ -93,7 +102,7 @@ const Section1 = () => {
               </Link>
 
               <Link
-                href="/master-password"
+                href="/security"
                 className="px-8 py-4 font-bold text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
               >
                 How it works?
@@ -124,7 +133,9 @@ const Section1 = () => {
                   <p className="text-xs font-black text-gray-400 uppercase font-inter">
                     Status
                   </p>
-                  <p className="text-sm font-bold font-inter">AES-256 Active</p>
+                  <p className="text-sm font-bold font-inter">
+                    AES-256-GCM Active
+                  </p>
                 </div>
               </motion.div>
 

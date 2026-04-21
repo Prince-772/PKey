@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 
 import Link from "next/link";
 
@@ -24,135 +30,371 @@ import {
   GlobeLock,
   Menu,
   X,
+  Zap,
+  GitMerge,
 } from "lucide-react";
 
 import Footer from "@/components/Footer";
 import { BackToHomeBtn } from "@/components/backToHomeBtn";
 
 export default function SecurityPage() {
-  const sections = useMemo(()=>[
-    {
-      id: "definition",
+  const sections = useMemo(
+    () => [
+      {
+        id: "definition",
 
-      icon: <KeyRound className="w-6 h-6 text-blue-500" />,
+        icon: <KeyRound className="w-6 h-6 text-blue-500" />,
 
-      title: "What is the Master Password?",
-      content:
-        <>The Master Password is your <span className="font-bold text-emerald-500">unique cryptographic key</span>. It serves as the primary seed to <span className="font-bold text-emerald-500">encrypt and decrypt your sensitive data locally</span>. PKey follows a strict <span className="font-bold text-emerald-500">zero-knowledge protocol</span>: we <span className="font-bold text-red-500">never store, transmit, or have access</span> to this password.</>,
-    },
+        title: "What is the Master Password?",
+        content: (
+          <>
+            The Master Password is your{" "}
+            <span className="font-bold text-emerald-500">
+              unique cryptographic key
+            </span>
+            . It serves as the primary seed to{" "}
+            <span className="font-bold text-emerald-500">
+              encrypt and decrypt your sensitive data locally
+            </span>
+            . PKey follows a strict{" "}
+            <span className="font-bold text-emerald-500">
+              zero-knowledge protocol
+            </span>
+            : we{" "}
+            <span className="font-bold text-red-500">
+              never store, transmit, or have access
+            </span>{" "}
+            to this password.
+          </>
+        ),
+      },
 
-    {
-      id: "storage",
+      {
+        id: "storage",
 
-      icon: <CloudOff className="w-6 h-6 text-red-500" />,
+        icon: <CloudOff className="w-6 h-6 text-red-500" />,
 
-      title: "Is it stored on your servers?",
-      content:
-        <> <span className="font-bold text-red-500">No</span>. We only store a <span className="font-bold text-emerald-500">non-reversible cryptographic hash</span> of your Master Password for authentication purposes. The raw password is <span className="font-bold text-red-500">never saved in any database</span>, ensuring that even in the event of a <span className="font-bold text-amber-500">server breach</span>, your actual key remains <span className="font-bold text-emerald-500">unknown</span>.</>,
-    },
+        title: "Is it stored on your servers?",
+        content: (
+          <>
+            {" "}
+            <span className="font-bold text-red-500">No</span>. We only store a{" "}
+            <span className="font-bold text-emerald-500">
+              non-reversible cryptographic hash
+            </span>{" "}
+            of your Master Password for authentication purposes. The raw
+            password is{" "}
+            <span className="font-bold text-red-500">
+              never saved in any database
+            </span>
+            , ensuring that even in the event of a{" "}
+            <span className="font-bold text-amber-500">server breach</span>,
+            your actual key remains{" "}
+            <span className="font-bold text-emerald-500">unknown</span>.
+          </>
+        ),
+      },
 
-    {
-      id: "usage",
+      {
+        id: "usage",
+        icon: <GlobeLock className="w-6 h-6 text-emerald-500" />,
+        title: "How is the encryption handled?",
+        content: (
+          <>
+            PKey utilizes{" "}
+            <span className="font-bold text-emerald-500">
+              client-side encryption
+            </span>
+            . This means the heavy lifting of securing your data happens{" "}
+            <span className="font-bold text-emerald-500">
+              directly in your browser using the AES-256-GCM standard via
+              WebAssembly
+            </span>
+            . Your data is{" "}
+            <span className="font-bold text-emerald-500">
+              encrypted before it ever leaves your device
+            </span>
+            .
+          </>
+        ),
+      },
 
-      icon: <GlobeLock className="w-6 h-6 text-emerald-500" />,
+      {
+        id: "security",
 
-      title: "How is the encryption handled?",
-      content:
-        <>PKey utilizes <span className="font-bold text-emerald-500">client-side encryption</span>. This means the heavy lifting of securing your data happens <span className="font-bold text-emerald-500">directly in your browser using the AES-256 standard</span>. Your data is <span className="font-bold text-emerald-500">encrypted before it ever leaves your device</span>.</>,
-    },
+        icon: <Timer className="w-6 h-6 text-orange-500" />,
 
-    {
-      id: "security",
+        title: "Session Security & Persistence",
+        content: (
+          <>
+            For your protection, the Master Password is held only in{" "}
+            <span className="font-bold text-emerald-500">
+              volatile memory (RAM)
+            </span>
+            . To prevent unauthorized access, the session{" "}
+            <span className="font-bold text-amber-500">
+              automatically expires after 5 minutes of inactivity
+            </span>
+            , requiring re-entry to unlock the vault.
+          </>
+        ),
+      },
+      {
+        id: "argon2",
+        icon: <Zap className="w-6 h-6 text-orange-500" />,
+        title: "Why Argon2id over standard hashing?",
+        content: (
+          <>
+            Unlike standard hashing algorithms,{" "}
+            <span className="font-bold text-emerald-500">
+              Argon2id is memory-hard
+            </span>
+            . It actively consumes device RAM during key derivation, which
+            effectively{" "}
+            <span className="font-bold text-emerald-500">
+              neutralizes botnets and GPU farms
+            </span>{" "}
+            from attempting to crack your Master Password.
+          </>
+        ),
+      },
 
-      icon: <Timer className="w-6 h-6 text-orange-500" />,
+      {
+        id: "hkdf",
+        icon: <GitMerge className="w-6 h-6 text-purple-500" />,
+        title: "How is my Master Key protected?",
+        content: (
+          <>
+            PKey uses the{" "}
+            <span className="font-bold text-emerald-500">
+              HKDF (HMAC-based Key Derivation Function) protocol
+            </span>
+            . Your master key is cryptographically split into{" "}
+            <span className="font-bold text-emerald-500">
+              two completely isolated keys
+            </span>
+            —one strictly for authentication and one strictly for
+            encryption—ensuring{" "}
+            <span className="font-bold text-emerald-500">
+              maximum architectural security
+            </span>
+            .
+          </>
+        ),
+      },
 
-      title: "Session Security & Persistence",
-      content:
-        <>For your protection, the Master Password is held only in <span className="font-bold text-emerald-500">volatile memory (RAM)</span>. To prevent unauthorized access, the session <span className="font-bold text-amber-500">automatically expires after 5 minutes of inactivity</span>, requiring re-entry to unlock the vault.</>,
-    },
+      {
+        id: "recovery",
 
-    {
-      id: "recovery",
+        icon: <AlertTriangle className="w-6 h-6 text-amber-500" />,
 
-      icon: <AlertTriangle className="w-6 h-6 text-amber-500" />,
+        title: "What if I lose my Master Password?",
+        content: (
+          <>
+            Due to our{" "}
+            <span className="font-bold text-emerald-500">
+              zero-knowledge architecture
+            </span>
+            , there is{" "}
+            <span className="font-bold text-red-500">
+              no 'Forgot Password' option
+            </span>
+            . If the Master Password is lost, the{" "}
+            <span className="font-bold text-red-500">
+              encrypted data cannot be recovered
+            </span>
+            . We recommend keeping a{" "}
+            <span className="font-bold text-amber-500">physical backup</span> of
+            your Master Password in a secure location.
+          </>
+        ),
+      },
 
-      title: "What if I lose my Master Password?",
-      content:
-        <>Due to our <span className="font-bold text-emerald-500">zero-knowledge architecture</span>, there is <span className="font-bold text-red-500">no 'Forgot Password' option</span>. If the Master Password is lost, the <span className="font-bold text-red-500">encrypted data cannot be recovered</span>. We recommend keeping a <span className="font-bold text-amber-500">physical backup</span> of your Master Password in a secure location.</>,
-    },
+      {
+        id: "trust",
 
-    {
-      id: "trust",
+        icon: <Code className="w-6 h-6 text-purple-500" />,
 
-      icon: <Code className="w-6 h-6 text-purple-500" />,
+        title: "Why is PKey Open Source?",
+        content: (
+          <>
+            {" "}
+            <span className="font-bold text-emerald-500">
+              Transparency is the foundation of security
+            </span>
+            . By making PKey{" "}
+            <span className="font-bold text-emerald-500">open-source</span>, we
+            allow the community to{" "}
+            <span className="font-bold text-emerald-500">
+              audit our encryption logic
+            </span>
+            , ensuring there are{" "}
+            <span className="font-bold text-emerald-500">
+              no backdoors or hidden vulnerabilities
+            </span>
+            . You can{" "}
+            <span className="font-bold text-emerald-500">
+              verify our claims on GitHub
+            </span>
+            .
+          </>
+        ),
+      },
 
-      title: "Why is PKey Open Source?",
-      content:
-        <> <span className="font-bold text-emerald-500">Transparency is the foundation of security</span>. By making PKey <span className="font-bold text-emerald-500">open-source</span>, we allow the community to <span className="font-bold text-emerald-500">audit our encryption logic</span>, ensuring there are <span className="font-bold text-emerald-500">no backdoors or hidden vulnerabilities</span>. You can <span className="font-bold text-emerald-500">verify our claims on GitHub</span>.</>,
-    },
+      {
+        id: "access",
 
-    {
-      id: "access",
+        icon: <EyeOff className="w-6 h-6 text-indigo-500" />,
 
-      icon: <EyeOff className="w-6 h-6 text-indigo-500" />,
+        title: "Can PKey access my data?",
+        content: (
+          <>
+            {" "}
+            <span className="font-bold text-red-500">No</span>. PKey follows a{" "}
+            <span className="font-bold text-emerald-500">
+              strict zero-knowledge architecture
+            </span>
+            , meaning your data is{" "}
+            <span className="font-bold text-emerald-500">
+              encrypted before it reaches our servers
+            </span>
+            . Even our team{" "}
+            <span className="font-bold text-red-500">
+              cannot view, access, or decrypt
+            </span>{" "}
+            your stored information.
+          </>
+        ),
+      },
 
-      title: "Can PKey access my data?",
-      content:
-        <> <span className="font-bold text-red-500">No</span>. PKey follows a <span className="font-bold text-emerald-500">strict zero-knowledge architecture</span>, meaning your data is <span className="font-bold text-emerald-500">encrypted before it reaches our servers</span>. Even our team <span className="font-bold text-red-500">cannot view, access, or decrypt</span> your stored information.</>,
-    },
+      {
+        id: "breach",
 
-    {
-      id: "breach",
+        icon: <ShieldAlert className="w-6 h-6 text-rose-500" />,
 
-      icon: <ShieldAlert className="w-6 h-6 text-rose-500" />,
+        title: "What happens if PKey servers are compromised?",
+        content: (
+          <>
+            Even in the{" "}
+            <span className="font-bold text-amber-500">
+              unlikely event of a server breach
+            </span>
+            , your data{" "}
+            <span className="font-bold text-emerald-500">
+              remains protected
+            </span>
+            . All sensitive information is{" "}
+            <span className="font-bold text-emerald-500">
+              encrypted client-side
+            </span>
+            , and without your Master Password, the encrypted data is{" "}
+            <span className="font-bold text-red-500">
+              useless and cannot be decrypted
+            </span>
+            .
+          </>
+        ),
+      },
 
-      title: "What happens if PKey servers are compromised?",
-      content:
-        <>Even in the <span className="font-bold text-amber-500">unlikely event of a server breach</span>, your data <span className="font-bold text-emerald-500">remains protected</span>. All sensitive information is <span className="font-bold text-emerald-500">encrypted client-side</span>, and without your Master Password, the encrypted data is <span className="font-bold text-red-500">useless and cannot be decrypted</span>.</>,
-    },
+      {
+        id: "strength",
+        icon: <Lock className="w-6 h-6 text-blue-500" />,
+        title: "How strong is the encryption?",
+        content: (
+          <>
+            PKey uses{" "}
+            <span className="font-bold text-emerald-500">
+              AES-256-GCM authenticated encryption
+            </span>
+            . Your Master Password is run through{" "}
+            <span className="font-bold text-emerald-500">
+              Argon2id (a memory-hard algorithm)
+            </span>{" "}
+            to derive a secure key, making advanced GPU brute-force attacks{" "}
+            <span className="font-bold text-emerald-500">
+              nearly impossible
+            </span>
+            .
+          </>
+        ),
+      },
 
-    {
-      id: "strength",
+      {
+        id: "sync",
 
-      icon: <Lock className="w-6 h-6 text-blue-500" />,
+        icon: <Smartphone className="w-6 h-6 text-green-500" />,
 
-      title: "How strong is the encryption?",
-      content:
-        <>PKey uses <span className="font-bold text-emerald-500">AES-256 encryption</span>, an <span className="font-bold text-emerald-500">industry-standard algorithm trusted by banks and security systems worldwide</span>. Your Master Password is used to derive a secure encryption key, ensuring <span className="font-bold text-emerald-500">maximum protection</span>.</>,
-    },
+        title: "Is syncing across devices secure?",
+        content: (
+          <>
+            {" "}
+            <span className="font-bold text-emerald-500">Yes</span>. Your data
+            is{" "}
+            <span className="font-bold text-emerald-500">
+              always encrypted before syncing
+            </span>
+            . This ensures that even while transferring between devices, your
+            information remains{" "}
+            <span className="font-bold text-emerald-500">
+              protected and unreadable
+            </span>{" "}
+            to anyone without your Master Password.
+          </>
+        ),
+      },
 
-    {
-      id: "sync",
+      {
+        id: "environment",
+        icon: <Cpu className="w-6 h-6 text-green-500" />,
+        title: "Is browser-based encryption safe and fast?",
+        content: (
+          <>
+            {" "}
+            <span className="font-bold text-emerald-500">Yes</span>. PKey
+            leverages{" "}
+            <span className="font-bold text-emerald-500">
+              WebAssembly (WASM)
+            </span>{" "}
+            and the{" "}
+            <span className="font-bold text-emerald-500">
+              Native Web Crypto API
+            </span>{" "}
+            via Background Workers. This ensures military-grade cryptography
+            happens locally{" "}
+            <span className="font-bold text-emerald-500">
+              without ever freezing or slowing down your device
+            </span>
+            .
+          </>
+        ),
+      },
 
-      icon: <Smartphone className="w-6 h-6 text-green-500" />,
+      {
+        id: "privacy",
 
-      title: "Is syncing across devices secure?",
-      content:
-        <> <span className="font-bold text-emerald-500">Yes</span>. Your data is <span className="font-bold text-emerald-500">always encrypted before syncing</span>. This ensures that even while transferring between devices, your information remains <span className="font-bold text-emerald-500">protected and unreadable</span> to anyone without your Master Password.</>,
-    },
+        icon: <UserX className="w-6 h-6 text-yellow-500" />,
 
-    {
-      id: "environment",
+        title: "Do you track or collect my data?",
+        content: (
+          <>
+            {" "}
+            <span className="font-bold text-red-500">No</span>. PKey{" "}
+            <span className="font-bold text-red-500">
+              does not track, analyze, or sell your personal data
+            </span>
+            . We only collect the{" "}
+            <span className="font-bold text-emerald-500">
+              minimum required information
+            </span>{" "}
+            to provide the service.
+          </>
+        ),
+      },
+    ],
+    [],
+  );
 
-      icon: <Cpu className="w-6 h-6 text-green-500" />,
-
-      title: "Is browser-based encryption safe?",
-      content:
-        <> <span className="font-bold text-emerald-500">Yes</span>. Modern browsers provide <span className="font-bold text-emerald-500">secure cryptographic APIs</span> that allow encryption to happen locally. PKey uses these standards to ensure your data is <span className="font-bold text-emerald-500">processed securely on your device</span>.</>,
-    },
-
-    {
-      id: "privacy",
-
-      icon: <UserX className="w-6 h-6 text-yellow-500" />,
-
-      title: "Do you track or collect my data?",
-      content:
-        <> <span className="font-bold text-red-500">No</span>. PKey <span className="font-bold text-red-500">does not track, analyze, or sell your personal data</span>. We only collect the <span className="font-bold text-emerald-500">minimum required information</span> to provide the service.</>,
-    },
-  ], []);
-
-  const activeSectionRef = useRef(""); 
+  const activeSectionRef = useRef("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Scroll observation logi
@@ -169,7 +411,7 @@ export default function SecurityPage() {
           activeSectionRef.current = entry.target.id;
         }
       });
-    }; 
+    };
 
     const observer = new IntersectionObserver(
       observerCallback,
@@ -198,8 +440,7 @@ export default function SecurityPage() {
       });
       // setIsSidebarOpen(false);
     }
-  },[]);
-  
+  }, []);
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full py-6 px-2 md:px-4">
@@ -216,20 +457,20 @@ export default function SecurityPage() {
             onClick={() => scrollToSection(section.id)}
             className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-3 group
               hover:bg-blue-50 hover:dark:bg-blue-900/30 hover:text-blue-600 hover:dark:text-blue-400 hover:border-l-4 hover:border-blue-600
-              focus:bg-blue-50 focus:dark:bg-blue-900/30 focus:text-blue-600 focus:dark:text-blue-400 focus:border-l-4 focus:border-blue-600`} 
+              focus:bg-blue-50 focus:dark:bg-blue-900/30 focus:text-blue-600 focus:dark:text-blue-400 focus:border-l-4 focus:border-blue-600`}
           >
             <span
               className={`shrink-0 transition-transform duration-300 group-hover:scale-110 ${activeSectionRef.current === section.id ? "scale-110" : "opacity-70"}`}
             >
               {React.cloneElement(section.icon)}
-            </span> 
+            </span>
             <span className="truncate">{section.title}</span>
           </button>
         ))}
       </div>
     </div>
   );
-  const MemoSideBarContent = React.memo(SidebarContent)
+  const MemoSideBarContent = React.memo(SidebarContent);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
@@ -257,7 +498,12 @@ export default function SecurityPage() {
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200, duration: 0.3 }}
+              transition={{
+                type: "spring",
+                damping: 25,
+                stiffness: 200,
+                duration: 0.3,
+              }}
               className="rounded-r-2xl fixed top-0 left-0 h-full w-70 bg-white dark:bg-gray-900 z-50 lg:hidden shadow-2xl border-r border-gray-200 dark:border-gray-800"
             >
               <button
@@ -297,7 +543,6 @@ export default function SecurityPage() {
               advanced encryption and zero-knowledge protocols.
             </p>
           </motion.div>
-
 
           <div className="grid gap-6">
             {sections.map((section, index) => (

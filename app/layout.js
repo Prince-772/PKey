@@ -14,7 +14,7 @@ export const metadata = {
     template: "%s | PKey Security",
   },
   description:
-    "PKey is a privacy-first, zero-knowledge password manager. Secure your digital life with AES-256 client-side encryption. Open-source, reliable, and built for humans.",
+    "PKey is a privacy-first, zero-knowledge password manager. Secure your digital life with AES-256-GCM client-side encryption. Open-source, reliable, and built for humans.",
   metadataBase: new URL("https://p-key.vercel.app"),
   icons: {
     icon: [

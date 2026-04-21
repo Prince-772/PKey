@@ -5,10 +5,10 @@ export default function Layout({ children }) {
 export const metadata = {
   title: "Security Architecture & Zero-Knowledge | PKey",
   description:
-    "Explore the security protocols behind PKey. Learn how AES-256 client-side encryption and Zero-Knowledge architecture keep your passwords unreadable even to us.",
+    "Explore the security protocols behind PKey. Learn how AES-256-GCM client-side encryption and Zero-Knowledge architecture keep your passwords unreadable even to us.",
   keywords: [
     "Security Architecture",
-    "AES-256",
+    "AES-256-GCM",
     "Zero-Knowledge Protocol",
     "Open Source Security",
     "Client-side Encryption",
@@ -31,7 +31,7 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "PKey Security | Built for Privacy",
-    description: "Understanding AES-256 and Zero-Knowledge encryption in PKey.",
+    description: "Understanding AES-256-GCM and Zero-Knowledge encryption in PKey.",
     images: ["/og.png"],
   },
 };

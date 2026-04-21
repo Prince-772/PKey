@@ -49,17 +49,17 @@ const EditModal = ({ onClose, onSave, editingData, noMasterPass }) => {
   const [isPassSuggested, setIsPassSuggested] = useState(false);
 
   const handleSave = useCallback(
-    (data) => {
+    async (data) => {
       if (!encKey) return noMasterPass();
       const strength = categorizePassword(data.password);
       if (isDirty) {
         // Changing old to new if doc is old
         onSave({
-          site: encryptV3(data.platform, encKey),
-          username: encryptV3(data.username, encKey),
-          password: encryptV3(data.password, encKey),
+          site: await encryptV3(data.platform, encKey),
+          username: await encryptV3(data.username, encKey),
+          password: await encryptV3(data.password, encKey),
           id: editingData.id,
-          strength: encryptV3(strength, encKey),
+          strength: await encryptV3(strength, encKey),
           version: 3, // Updating to Dv3
         });
       }

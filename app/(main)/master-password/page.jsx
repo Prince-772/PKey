@@ -73,9 +73,11 @@ const MasterPasswordGuide = () => {
               </p>
 
               <p>
-                Your Master Password is used to generate a complex{" "}
-                <b>Encryption Key</b> (using PBKDF2). This means even if someone
-                hacks our servers, they will only see unreadable encrypted data.
+                Your Master Password is run through a memory-hard algorithm{" "}
+                <b>(Argon2id)</b> and split via <b>HKDF</b> to generate a
+                military-grade <b>Encryption Key</b>. This means even if someone
+                hacks our servers, they will only see unreadable, mathematically
+                protected data.
               </p>
             </div>
           </div>
@@ -185,7 +187,7 @@ const MasterPasswordGuide = () => {
             {[
               {
                 title: "Length Matters",
-                desc: "Use at least 16–20 characters for maximum security and resistance against brute-force attacks.",
+                desc: "Use at least 16-20 characters for maximum security and resistance against brute-force attacks.",
                 extra: "(eg. G7@kL9!xP2#vQ8zR)",
                 icon: <Terminal className="w-5 h-5" />,
                 theme: "blue",
@@ -206,7 +208,7 @@ const MasterPasswordGuide = () => {
               {
                 title: "Avoid Patterns",
                 desc: "Avoid predictable information like names, birthdays, or common keyboard patterns.",
-                extra: "(eg. avoid: 123456, qwerty, john2005)",
+                extra: "(eg. 123456, qwerty, john2005)",
                 icon: <Lock className="w-5 h-5" />,
                 theme: "amber",
                 colorClasses:
@@ -228,7 +230,6 @@ const MasterPasswordGuide = () => {
                 key={i}
                 className={`relative group p-6 rounded-3xl border transition-all duration-300 overflow-hidden bg-linear-to-br ${tip.colorClasses}`}
               >
-                
                 <div
                   className={`absolute -right-4 -bottom-4 w-24 h-24 rounded-full blur-3xl transition-all duration-300 opacity-40 group-hover:opacity-70 ${tip.glow}`}
                 />
@@ -261,7 +262,7 @@ const MasterPasswordGuide = () => {
           </div>
         </motion.section>
 
-         <motion.div
+        <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
@@ -272,13 +273,14 @@ const MasterPasswordGuide = () => {
           </div>
           <div className="relative z-10 space-y-2">
             <h3 className="text-2xl font-black">
-              Think your password is safe?
+              Think your password is strong?
             </h3>
             <p className="text-blue-100 font-medium">
               Hackers can crack most passwords in seconds.
             </p>
             <p className="text-blue-100 font-medium">
-              Test the real strength of your passwords and learn how to build an uncrackable digital vault.
+              Test the real strength of your passwords and learn how to build an
+              uncrackable digital vault.
             </p>
           </div>
           <Link

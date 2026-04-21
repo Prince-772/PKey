@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import ConnectToDB from "@/lib/dbConnect";
 import crypto from "crypto";
-import bcrypt from "bcryptjs"
+import bcrypt from "bcryptjs";
 import errorHandler from "@/lib/handlers/errorhandler";
 
 //users model
@@ -25,41 +25,44 @@ export async function POST(req) {
     // Connect to the database
     await ConnectToDB();
 
-    const isAlreadyExist = await UserModel.findOne({ email })
-    
-    if (isAlreadyExist) throw new Error("This user is already registered, Please Login")
+    const isAlreadyExist = await UserModel.findOne({ email });
+
+    if (isAlreadyExist)
+      throw new Error("This user is already registered, Please Login");
 
     // hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-    const verifyToken = crypto.randomBytes(32).toString('hex');
-    const hashedToken = crypto.createHash('sha256').update(verifyToken).digest('hex');
+    const verifyToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(verifyToken)
+      .digest("hex");
+
+    //send verification email
+    await sendEmail({
+      to: email,
+      subject: "Verify your email",
+      text: `Hello ${name}, please verify your email by clicking on the link below: ${process.env.NEXT_PUBLIC_BASE_URL}/verify/${verifyToken}`,
+      html: verifyEmailHtml(name, verifyToken),
+    });
 
     // Create user
     const createPdUser = await UserModel.create({
       name,
       email,
       password: hashedPassword,
-      verificationToken:hashedToken,
+      verificationToken: hashedToken,
       verificationExpiry: Date.now() + 1000 * 60 * 60,
-    });
-    
-    //send verification email
-    await sendEmail({
-      to: email,
-      subject: "Verify your email",
-      text: `Hello ${name}, please verify your email by clicking on the link below: ${process.env.NEXT_PUBLIC_BASE_URL}/verify/${verifyToken}`,
-      html: verifyEmailHtml(name,verifyToken)
     });
 
     const response = NextResponse.json({
       success: true,
-      message:"User registered successfully",
+      message: "User registered successfully",
       data: { name, email },
     });
 
     return response;
   } catch (err) {
-    return errorHandler(err)
+    return errorHandler(err);
   }
 }
-

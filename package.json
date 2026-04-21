@@ -1,6 +1,6 @@
 {
   "name": "pkey",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -13,8 +13,8 @@
     "axios": "^1.9.0",
     "bcryptjs": "^3.0.3",
     "crypto": "^1.0.1",
-    "crypto-js": "^4.2.0",
     "framer-motion": "^12.38.0",
+    "hash-wasm": "^4.12.0",
     "jsonwebtoken": "^9.0.2",
     "ldrs": "^1.1.7",
     "lucide-react": "^0.503.0",
