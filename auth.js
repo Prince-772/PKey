@@ -127,14 +127,14 @@ export const authOptions = {
               email,
               isVerified: true,
             });
-            await newUser.save();
-
+            
             await sendEmail({
               to: email,
               subject: "Welcome to PKey! 🚀 Your Secure Vault is Ready",
               text: `Hello ${name || "User"}, welcome to PKey! Your secure, zero-knowledge vault is ready...`,
               html: WelcomeHtml(name || "User"),
             });
+            await newUser.save();
           }
           return true;
         } catch (error) {
