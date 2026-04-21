@@ -344,7 +344,7 @@ const CreatePassword = () => {
               className="flex flex-col gap-6"
                autoComplete="off"
             >
-              // To Avoid Browsers from asking to save passwrod
+              {/* To Avoid Browsers from asking to save passwrod */}
               <input type="text" name="fakeuser" autoComplete="username" style={{ display: "none" }} />
               <input type="password" name="fakepass" autoComplete="new-password" style={{ display: "none" }} />
 
