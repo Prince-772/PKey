@@ -8,7 +8,6 @@ import {
   useRef,
   useEffect,
 } from "react";
-import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import { hasMasterPass } from "@/lib/masterpassword/hasMasterPassword";
@@ -21,7 +20,6 @@ export default function MasterPassProvider({ children }) {
   const { status } = useSession();
   const [masterPassSet, setMasterPassSet] = useState(false);
   const timerRef = useRef(null);
-  const router = useRouter();
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -56,8 +54,7 @@ export default function MasterPassProvider({ children }) {
         removeDelay: 1000,
       },
     );
-    router.push("/dashboard");
-  }, [router]);
+  }, []);
 
   const resetTimer = useCallback(() => {
     if (!encKey) {
