@@ -84,7 +84,6 @@ const Passwords = () => {
             strength: strengthV3,
             version: 3,
           };
-          console.log(newData, "Line - 87")
           oldDocs.push(newData);
           return { ...p, password };
         }
@@ -131,7 +130,6 @@ const Passwords = () => {
         }
       }));
       setPasswords(deCryptedData);
-      console.log(deCryptedData, "Line - 134")
       // To updated the stored old entries to new
       if (oldDocs.length > 0) {
         toast.promise(UpdateToDV3(oldDocs), {
@@ -324,7 +322,6 @@ const Passwords = () => {
           newPasswords = [...newPasswords].reverse();
       });
     setFilteredPasswords(newPasswords);
-    console.log(newPasswords)
   }, [searchTerms, selectedOpt, passwords]);
 
   const clearFilters = useCallback(() => {
