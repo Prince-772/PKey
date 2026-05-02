@@ -235,7 +235,7 @@ const NavBar = () => {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                      className="absolute right-[50%] mt-1 bg-white dark:bg-gray-900 rounded-2xl rounded-tr-none shadow-2xl border border-gray-500 overflow-hidden z-50 origin-top-right"
+                      className="absolute right-[50%] mt-1 bg-white dark:bg-gray-900 rounded-2xl rounded-tr-none shadow-2xl border border-gray-500 overflow-x-hidden z-50 origin-top-right overflow-y-auto max-h-[70vh] overscroll-contain scroll-bar-hide"
                     >
                       <div className="px-4 py-3 bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 text-nowrap">
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">

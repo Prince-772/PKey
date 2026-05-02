@@ -63,7 +63,7 @@ export default function Section3() {
               key={i}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
+              // transition={{ delay: i * 0.1 }}
               viewport={{ once: true }}
               className="relative hover:-translate-y-3 p-8 rounded-[32px] bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:border-blue-500/30 transition-all duration-300 group shadow-md hover:shadow-xl shadow-blue-800/20 dark:shadow-purple-500/20"
             >

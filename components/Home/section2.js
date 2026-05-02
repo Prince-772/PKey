@@ -154,9 +154,9 @@ const Section2 = () => {
             return (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0.2, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
+                // transition={{ delay: i * 0.01 }}
                 viewport={{ once: true }}
                 className={`group p-6 rounded-2xl md:rounded-4xl border bg-linear-to-br from-blue-200 to-blue-100 dark:from-blue-950 dark:to-slate-900 transition-all duration-300 hover:-translate-y-1 ${
                   f.size === "large" ? "md:col-span-2" : "md:col-span-1"
