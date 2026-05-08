@@ -64,7 +64,7 @@ export default function Section5() {
 
           <div className="flex flex-col items-center justify-center gap-6">
             <Link
-              href="/sign-up"
+              href="/signup"
               className="px-10 py-5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-lg shadow-xl shadow-blue-500/20 transition-all hover:-translate-y-1 active:scale-95 w-full sm:w-auto"
             >
               Get Started for Free
