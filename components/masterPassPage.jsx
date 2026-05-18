@@ -18,6 +18,7 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const mPassValue = mPass.current?.value;
+    mPass.current.value = "";
     if (mPassValue) {
       setIsLoading(true);
       const version = session?.user?.version;
@@ -25,7 +26,10 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
       let authHash, encryptionKey, salt;
       if (version > 1) {
         salt = session?.user?.salt;
-        ({ authHash, encryptionKey } = await generateAuthData(mPassValue, salt));
+        ({ authHash, encryptionKey } = await generateAuthData(
+          mPassValue,
+          salt,
+        ));
       } else if (version === 1) {
         authHash = mPassValue;
         ({ salt, encryptionKey } = await generateAuthData(mPassValue));
@@ -34,14 +38,16 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
       await toast.promise(VerifyMasterPass(authHash), {
         loading: "Verifying...",
         success: async () => {
-          mPass.current.value = "";
           setIsLoading(false);
           setEncKey(encryptionKey);
 
           if (version === 1) {
             setMasterPass(mPassValue); // raw mPass is still required for Uv1 users
             // generate New Zero-Knowldege Data
-            const { authHash: newHash } = await generateAuthData(mPassValue, salt);
+            const { authHash: newHash } = await generateAuthData(
+              mPassValue,
+              salt,
+            );
             try {
               const response = await AutoMigrateToUv2(newHash, salt);
               if (response.success) {
@@ -67,7 +73,6 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
         error: (err) => {
           setMasterPass(null);
           setEncKey(null);
-          mPass.current.value = "";
           setIsLoading(false);
 
           if (err.message === "BLOCKED_ACCOUNT") {
@@ -95,9 +100,7 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex justify-center bg-gray-950/70 dark:bg-black/80 backdrop-blur-md overflow-auto scroll-bar-hide">
-      <div
-        className="relative bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-2xl w-[95%] max-w-md max-h-[95vh] animate-scale-in border-3 border-gray-200 dark:border-gray-700 overflow-auto scroll-bar-hide my-auto"
-      >
+      <div className="relative bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-2xl w-[95%] max-w-md max-h-[95vh] animate-scale-in border-3 border-gray-200 dark:border-gray-700 overflow-auto scroll-bar-hide my-auto">
         <X
           className="absolute top-5 right-5 cursor-pointer hover:text-red-500"
           onClick={onClose}
@@ -135,7 +138,8 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
                          transform transition-all duration-300 ease-in-out
                          group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 mb-1"
             >
-              <ShieldCheck className="w-4 h-4 group-focus-within:text-emerald-600 dark:group-focus-within:text-emerald-400" />Master Password
+              <ShieldCheck className="w-4 h-4 group-focus-within:text-emerald-600 dark:group-focus-within:text-emerald-400" />
+              Master Password
             </label>
             <input
               id="master-password-input"
@@ -164,8 +168,8 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
           >
             {isLoading ? (
               <>
-                <KeyRound className="w-5 h-5 mr-2 animate-bounce" />{" "}
-                Unlocking Securily...
+                <KeyRound className="w-5 h-5 mr-2 animate-bounce" /> Unlocking
+                Securily...
               </>
             ) : (
               "Unlock Vault"
