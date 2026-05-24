@@ -1,19 +1,14 @@
 "use client";
+import ScrollReveal from '@/components/ScrollReveal';
 import React from "react";
-import { motion } from "framer-motion";
+
 import { ServerOff, WifiOff, ShieldCheck } from "lucide-react";
 
 export default function Section3() {
   return (
     <section className="py-20 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="relative overflow-hidden rounded-[2.5rem] bg-gray-900 text-white shadow-2xl border border-gray-800"
-        >
+        <ScrollReveal direction="up" className="relative overflow-hidden rounded-[2.5rem] bg-gray-900 text-white shadow-2xl border border-gray-800">
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
             <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-500/20 rounded-full blur-[100px]" />
             <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-emerald-500/20 rounded-full blur-[100px]" />
@@ -40,29 +35,33 @@ export default function Section3() {
             </div>
 
             <div className="lg:w-1/2 flex flex-col gap-5 w-full max-w-md">
-              <div className="group flex items-start gap-3 md:gap-5 p-3 md:p-6 rounded-3xl bg-gray-800/50 border-2 border-blue-700/50 hover:bg-gray-800 transition-colors">
-                <div className="w-12 h-12 rounded-2xl bg-gray-900 border border-gray-700 flex items-center justify-center shrink-0 text-blue-400 group-hover:scale-110 transition-transform">
-                  <ServerOff className="w-6 h-6" />
+              <ScrollReveal direction='up'>
+                <div className="group flex items-start gap-3 md:gap-5 p-3 md:p-6 rounded-3xl bg-gray-800/50 border-2 border-blue-700/50 hover:bg-gray-800 transition-colors">
+                  <div className="w-12 h-12 rounded-2xl bg-gray-900 border border-gray-700 flex items-center justify-center shrink-0 text-blue-400 group-hover:scale-110 transition-transform">
+                    <ServerOff className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-100 mb-1">No Server Logs</h4>
+                    <p className="text-gray-400 text-sm font-medium">We don&apos;t have a database attached to this tool. There is nowhere for your password to be sent.</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-xl font-bold text-gray-100 mb-1">No Server Logs</h4>
-                  <p className="text-gray-400 text-sm font-medium">We don&apos;t have a database attached to this tool. There is nowhere for your password to be sent.</p>
-                </div>
-              </div>
+              </ScrollReveal>
 
-              <div className="group flex items-start gap-3 md:gap-5 p-3 md:p-6 rounded-3xl bg-gray-800/50 border-2 border-emerald-700/50 hover:bg-gray-800 transition-colors">
-                <div className="w-12 h-12 rounded-2xl bg-gray-900 border border-gray-700 flex items-center justify-center shrink-0 text-emerald-400 group-hover:scale-110 transition-transform">
-                  <WifiOff className="w-6 h-6" />
+              <ScrollReveal direction='up' delayMs={200}>
+                <div className="group flex items-start gap-3 md:gap-5 p-3 md:p-6 rounded-3xl bg-gray-800/50 border-2 border-emerald-700/50 hover:bg-gray-800 transition-colors">
+                  <div className="w-12 h-12 rounded-2xl bg-gray-900 border border-gray-700 flex items-center justify-center shrink-0 text-emerald-400 group-hover:scale-110 transition-transform">
+                    <WifiOff className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-100 mb-1">Try the Offline Test</h4>
+                    <p className="text-gray-400 text-sm font-medium">Don&apos;t trust us? Disconnect your device from Wi-Fi right now. This tool will continue to work perfectly.</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-xl font-bold text-gray-100 mb-1">Try the Offline Test</h4>
-                  <p className="text-gray-400 text-sm font-medium">Don&apos;t trust us? Disconnect your device from Wi-Fi right now. This tool will continue to work perfectly.</p>
-                </div>
-              </div>
+              </ScrollReveal>
             </div>
 
           </div>
-        </motion.div>
+        </ScrollReveal>
       </div>
     </section>
   );

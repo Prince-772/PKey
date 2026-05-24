@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import ScrollReveal from '@/components/ScrollReveal';
 import {
   CheckCircle, User, Lock, Ban, Wrench, XCircle, Archive, Code, Mail, ShieldCheck
 } from "lucide-react";
@@ -194,15 +194,6 @@ export default function TermsAndConditionsPage() {
 
   const effectiveDate = "April 18, 2026"; 
 
-  // Framer Motion Animation Variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
-
   const cardVariants = {
     hidden: { opacity: 0, y: 30 },
     show: { 
@@ -218,12 +209,7 @@ export default function TermsAndConditionsPage() {
       <main className="max-w-7xl mx-auto px-6 pt-24 pb-24">
         
         {/* Hero Section  */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="text-center mb-20 flex flex-col items-center"
-        >
+        <ScrollReveal direction="up" className="text-center mb-20 flex flex-col items-center">
           <BackToHomeBtn extClassName="mt-4" />
           <h1 className="text-5xl md:text-7xl font-black font-inter mb-6 bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight tracking-tighter">
             Terms & Conditions
@@ -234,15 +220,10 @@ export default function TermsAndConditionsPage() {
           <div className="mt-8 px-5 py-2 rounded-full bg-gray-100 dark:bg-gray-800 text-sm font-bold text-gray-600 dark:text-gray-400 inline-flex items-center gap-2">
              Effective Date: <span className="text-gray-900 dark:text-white">{effectiveDate}</span>
           </div>
-        </motion.div>
-        <motion.div 
-          className="max-w-3xl mx-auto space-y-8"
-          variants={containerVariants}
-          initial="hidden"
-          animate="show"
-        >
+        </ScrollReveal>
+        <div className="max-w-3xl mx-auto space-y-8">
             {sections.map((section) => (
-              <motion.div key={section.id} variants={cardVariants}>
+              <ScrollReveal direction="up" key={section.id}>
                 <div className={`group p-6 md:p-8 rounded-3xl border shadow-sm hover:shadow-xl transition-all duration-300 ${section.cardTheme}`}>
                   <div className="flex flex-col sm:flex-row items-start gap-6">
                     
@@ -262,10 +243,10 @@ export default function TermsAndConditionsPage() {
 
                   </div>
                 </div>
-              </motion.div>
+              </ScrollReveal>
             ))}
 
-            <motion.div variants={cardVariants} className="pt-8 pb-4 md:pt-16 md:pb-6 font-inter">
+            <ScrollReveal direction="up" delayMs={100} className="pt-8 pb-4 md:pt-16 md:pb-6 font-inter">
               <div className="relative overflow-hidden rounded-[2.5rem] bg-linear-to-b from-white to-blue-50/50 dark:from-gray-900 dark:to-blue-900/10 border border-blue-100 dark:border-blue-900/30 p-10 md:p-16 text-center shadow-2xl shadow-blue-500/5 group">
                 
   
@@ -287,9 +268,9 @@ export default function TermsAndConditionsPage() {
                   <BackToHomeBtn extClassName="hover:scale-105 transition-all duration-300" />
                 </div>
               </div>
-            </motion.div>
+            </ScrollReveal>
 
-        </motion.div>
+        </div>
       </main>
       <Footer />
     </div>

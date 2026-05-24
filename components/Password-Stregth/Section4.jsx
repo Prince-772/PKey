@@ -1,6 +1,7 @@
 "use client";
+import ScrollReveal from '@/components/ScrollReveal';
 import React from "react";
-import { motion } from "framer-motion";
+
 import { AlertOctagon, Globe, Hash, Keyboard, LayoutGrid, Music, UserMinus } from "lucide-react";
 
 export default function Section4() {
@@ -47,37 +48,12 @@ export default function Section4() {
       desc: "Movie characters, song lyrics, or famous quotes. Hackers use 'Culture Dictionaries' that include every popular movie and song title ever made.",
     }
   ];
-
-  // Framer Motion Animation Variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.15 },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    show: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
-    },
-  };
-
   return (
     <section className="py-24 px-6 relative">
       <div className="max-w-7xl mx-auto">
         
         {/* Warning Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16 flex flex-col items-center"
-        >
+        <ScrollReveal direction="up" className="text-center mb-16 flex flex-col items-center">
           <div className="w-16 h-16 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-6 shadow-inner">
             <AlertOctagon className="w-8 h-8" />
           </div>
@@ -87,18 +63,12 @@ export default function Section4() {
           <p className="text-lg text-gray-600 dark:text-gray-400 font-medium max-w-2xl mx-auto">
             Avoid these predictable patterns at all costs. Hackers use automated dictionaries that check for these exact mistakes first.
           </p>
-        </motion.div>
+        </ScrollReveal>
 
         {/* The Traps Grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-50px" }}
-          className="grid md:grid-cols-2 gap-8"
-        >
-          {traps.map((trap) => (
-            <motion.div key={trap.id} variants={itemVariants}>
+        <ScrollReveal direction="up" className="grid md:grid-cols-2 gap-8">
+          {traps.map((trap, i) => (
+            <ScrollReveal key={trap.id} direction='up' delayMs={50 + i%2 * 100}>
               <div 
               tabIndex={0}
               className="relative h-full group px-4 py-8 md:p-8 rounded-2xl bg-white dark:bg-gray-900 border border-rose-100 dark:border-rose-900/30 shadow-sm hover:shadow-xl hover:border-rose-300 dark:hover:border-rose-700/50 focus-within:shadow-xl focus-within:border-rose-300 dark:focus-within:border-rose-700/50 transition-all duration-300 overflow-hidden dark:shadow-[0_10px_30px_rgba(255,255,255,0.05)] dark:hover:shadow-[0_20px_40px_rgba(255,255,255,0.08)] dark:focus-within:shadow-[0_20px_40px_rgba(255,255,255,0.08)]">
@@ -131,9 +101,10 @@ export default function Section4() {
                 </div>
 
               </div>
-            </motion.div>
+            {/* </ScrollReveal> */}
+            </ScrollReveal>
           ))}
-        </motion.div>
+        </ScrollReveal>
 
       </div>
     </section>

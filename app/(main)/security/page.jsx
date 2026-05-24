@@ -1,4 +1,5 @@
 "use client";
+import ScrollReveal from "@/components/ScrollReveal";
 
 import React, {
   useState,
@@ -7,10 +8,6 @@ import React, {
   useCallback,
   useRef,
 } from "react";
-
-import Link from "next/link";
-
-import { motion, AnimatePresence } from "framer-motion";
 
 import {
   KeyRound,
@@ -394,21 +391,23 @@ export default function SecurityPage() {
     [],
   );
 
-  const activeSectionRef = useRef("");
+  const [activeSection, setActiveSection] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Scroll observation logi
+
   useEffect(() => {
     const observerOptions = {
       root: null,
-      rootMargin: "-20% 0px -75% 0px",
+      // This margin creates a "trigger line" near the top of the screen
+      rootMargin: "-20% 0px -60% 0px",
       threshold: 0,
     };
 
     const observerCallback = (entries) => {
       entries.forEach((entry) => {
+        // When a section crosses our trigger line, update the state!
         if (entry.isIntersecting) {
-          activeSectionRef.current = entry.target.id;
+          setActiveSection(entry.target.id);
         }
       });
     };
@@ -417,13 +416,25 @@ export default function SecurityPage() {
       observerCallback,
       observerOptions,
     );
+
     sections.forEach((section) => {
       const element = document.getElementById(section.id);
       if (element) observer.observe(element);
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [sections]);
+  useEffect(() => {
+    if (!activeSection) return;
+    const activeSidebarItems = document.querySelectorAll(`[data-sidebar-id="${activeSection}"]`);
+    
+    activeSidebarItems.forEach((item) => {
+      item.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    });
+  }, [activeSection]);
 
   const scrollToSection = useCallback((id) => {
     const element = document.getElementById(id);
@@ -442,6 +453,8 @@ export default function SecurityPage() {
     }
   }, []);
 
+
+
   const SidebarContent = () => (
     <div className="flex flex-col h-full py-6 px-2 md:px-4">
       <div className="mb-6 px-2">
@@ -451,22 +464,34 @@ export default function SecurityPage() {
       </div>
       {/* <div className="flex-1 overflow-y-auto scroll-bar-hide space-y-1"> */}
       <div className="flex-1 overflow-y-auto scroll-bar-hide space-y-1 overscroll-contain">
-        {sections.map((section) => (
-          <button
-            key={section.id}
-            onClick={() => scrollToSection(section.id)}
-            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-3 group
-              hover:bg-blue-50 hover:dark:bg-blue-900/30 hover:text-blue-600 hover:dark:text-blue-400 hover:border-l-4 hover:border-blue-600
-              focus:bg-blue-50 focus:dark:bg-blue-900/30 focus:text-blue-600 focus:dark:text-blue-400 focus:border-l-4 focus:border-blue-600`}
-          >
-            <span
-              className={`shrink-0 transition-transform duration-300 group-hover:scale-110 ${activeSectionRef.current === section.id ? "scale-110" : "opacity-70"}`}
+        {sections.map((section) => {
+          // Check if this specific button is the active one
+          const isActive = activeSection === section.id;
+
+          return (
+            <button
+              data-sidebar-id={section.id}
+              key={section.id}
+              onClick={() => scrollToSection(section.id)}
+              className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-3 group
+        hover:bg-blue-50 hover:dark:bg-blue-900/30 hover:text-blue-600 hover:dark:text-blue-400 hover:border-l-4 hover:border-blue-600
+        focus:bg-blue-50 focus:dark:bg-blue-900/30 focus:text-blue-600 focus:dark:text-blue-400 focus:border-l-4 focus:border-blue-600
+        ${
+          isActive
+            ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-l-4 border-blue-600"
+            : "border-l-4 border-transparent text-gray-700 dark:text-gray-300"
+        }`}
             >
-              {React.cloneElement(section.icon)}
-            </span>
-            <span className="truncate">{section.title}</span>
-          </button>
-        ))}
+              <span
+                className={`shrink-0 transition-transform duration-300 group-hover:scale-110 
+          ${isActive ? "scale-110 opacity-100" : "opacity-70"}`}
+              >
+                {React.cloneElement(section.icon)}
+              </span>
+              <span className="truncate">{section.title}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -483,40 +508,29 @@ export default function SecurityPage() {
         <Menu className="w-6 h-6" />
       </button>
 
-      {/* Mobile Sidebar Overlay */}
-      <AnimatePresence>
-        {isSidebarOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsSidebarOpen(false)}
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 lg:hidden"
-            />
-            <motion.div
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{
-                type: "spring",
-                damping: 25,
-                stiffness: 200,
-                duration: 0.3,
-              }}
-              className="rounded-r-2xl fixed top-0 left-0 h-full w-70 bg-white dark:bg-gray-900 z-50 lg:hidden shadow-2xl border-r border-gray-200 dark:border-gray-800"
-            >
-              <button
-                onClick={() => setIsSidebarOpen(false)}
-                className="absolute cursor-pointer top-4 right-4 p-1 text-red-500 dark:text-red-400 border-2 rounded-full hover:scale-105 transition-all duration-300"
-              >
-                <X className="w-6 h-6" />
-              </button>
-              <MemoSideBarContent />
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      {/* Backdrop */}
+      <div
+        onClick={() => setIsSidebarOpen(false)}
+        className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-50 lg:hidden transition-all duration-300 ${
+          isSidebarOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        }`}
+      />
+      {/* Drawer */}
+      <div
+        className={`rounded-r-2xl fixed top-0 left-0 h-full w-70 bg-white dark:bg-gray-900 z-50 lg:hidden shadow-2xl border-r border-gray-200 dark:border-gray-800 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <button
+          onClick={() => setIsSidebarOpen(false)}
+          className="absolute cursor-pointer top-4 right-4 p-1 text-red-500 dark:text-red-400 border-2 rounded-full hover:scale-105 transition-all duration-300"
+        >
+          <X className="w-6 h-6" />
+        </button>
+        <MemoSideBarContent />
+      </div>
 
       <div className="max-w-360 mx-auto flex">
         {/* Desktop Sidebar */}
@@ -527,11 +541,7 @@ export default function SecurityPage() {
         <main className="flex-1 px-6 pt-32 pb-24 max-w-4xl mx-auto lg:mx-0 lg:px-12">
           {/* Header Section */}
 
-          <motion.div
-            initial={{ opacity: 0.5, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-20"
-          >
+          <ScrollReveal direction="up" className="text-center mb-20">
             <BackToHomeBtn />
 
             <h1 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white my-6">
@@ -542,43 +552,39 @@ export default function SecurityPage() {
               Understanding how PKey protects your digital identity through
               advanced encryption and zero-knowledge protocols.
             </p>
-          </motion.div>
+          </ScrollReveal>
 
           <div className="grid gap-6">
             {sections.map((section, index) => (
-              <motion.div
-                key={section.id}
-                id={section.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="group p-6 md:p-8 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-blue-500/20 transition-all duration-300"
-              >
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
-                  <div className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0 border border-gray-100 dark:border-gray-700 group-hover:scale-110 transition-transform duration-300">
-                    {section.icon}
-                  </div>
+              <section id={section.id} key={section.id}>
+                <ScrollReveal
+                  direction="up"
+                  className="group p-6 md:p-8 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-blue-500/20 transition-all duration-300"
+                >
+                  <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+                    <div className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0 border border-gray-100 dark:border-gray-700 group-hover:scale-110 transition-transform duration-300">
+                      {section.icon}
+                    </div>
 
-                  <div className="space-y-3">
-                    <h2 className="text-xl font-extrabold text-gray-900 dark:text-white">
-                      {section.title}
-                    </h2>
+                    <div className="space-y-3">
+                      <h2 className="text-xl font-extrabold text-gray-900 dark:text-white">
+                        {section.title}
+                      </h2>
 
-                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                      {section.content}
-                    </p>
+                      <p className="text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                        {section.content}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
+                </ScrollReveal>
+              </section>
             ))}
           </div>
 
           {/* Footer CTA */}
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+          <ScrollReveal
+            direction="up"
             className="mt-20 p-6 md:p-10 rounded-4xl bg-linear-to-br from-blue-600 to-indigo-700 text-center text-white"
           >
             <ShieldCheck className="w-12 h-12 mx-auto mb-6 opacity-80" />
@@ -596,7 +602,7 @@ export default function SecurityPage() {
             >
               Review GitHub <ChevronRight className="w-5 h-5 shrink-0" />
             </a>
-          </motion.div>
+          </ScrollReveal>
         </main>
       </div>
 

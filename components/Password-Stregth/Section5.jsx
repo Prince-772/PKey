@@ -1,6 +1,7 @@
 "use client";
+import ScrollReveal from '@/components/ScrollReveal';
 import React from "react";
-import { motion } from "framer-motion";
+
 import { Zap, ShieldCheck, Smartphone, Globe } from "lucide-react";
 import { BackToHomeBtn } from "@/components/backToHomeBtn";
 import Link from "next/link";
@@ -23,12 +24,7 @@ export default function Section5() {
       </div>
 
       <div className="max-w-5xl mx-auto relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="bg-linear-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-7 md:p-20 text-center shadow-2xl shadow-blue-500/5"
-        >
+        <ScrollReveal direction="up" className="bg-linear-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-7 md:p-20 text-center shadow-2xl shadow-blue-500/5">
           <h2 className="text-3xl md:text-6xl font-black text-gray-900 dark:text-white mb-8 tracking-tight leading-tight">
             <p>Stop Memorizing.</p>
             <p className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 mt-2">
@@ -74,7 +70,7 @@ export default function Section5() {
           <p className="mt-10 text-sm font-bold text-gray-400 uppercase tracking-widest">
             No Credit Card Required • Open Source
           </p>
-        </motion.div>
+        </ScrollReveal>
       </div>
     </section>
   );

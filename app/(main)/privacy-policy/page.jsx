@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import ScrollReveal from '@/components/ScrollReveal';
 import {
   Inbox, LockKeyhole, HardDrive, Share2, Trash2, Code, Mail
 } from "lucide-react";
@@ -71,7 +71,6 @@ export default function PrivacyPolicyPage() {
       id: "password-storage",
       icon: <HardDrive className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />,
       title: "Password Storage",
-      // Emerald tinted background and border classes
       cardTheme: "bg-emerald-50/30 dark:bg-emerald-900/5 border-emerald-100 dark:border-emerald-800/30 hover:border-emerald-200 dark:hover:border-emerald-800 hover:bg-emerald-50/80 dark:hover:bg-emerald-900/20",
       iconBg: "bg-emerald-100 dark:bg-emerald-900/40 border-emerald-200 dark:border-emerald-800/50",
       content: (
@@ -138,7 +137,6 @@ export default function PrivacyPolicyPage() {
       id: "open-source-transparency",
       icon: <Code className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
       title: "Open Source Transparency",
-      // Sky/Cyan tinted background and border classes
       cardTheme: "bg-sky-50/30 dark:bg-sky-900/5 border-sky-100 dark:border-sky-800/30 hover:border-sky-200 dark:hover:border-sky-800 hover:bg-sky-50/80 dark:hover:bg-sky-900/20",
       iconBg: "bg-sky-100 dark:bg-sky-900/40 border-sky-200 dark:border-sky-800/50",
       content: (
@@ -178,34 +176,11 @@ export default function PrivacyPolicyPage() {
 
   const effectiveDate = "April 18, 2026"; 
 
-  // Framer Motion Animation Variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 30 },
-    show: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } 
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
 
       <main className="max-w-7xl mx-auto px-6 pt-24 pb-24">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="text-center mb-20 flex flex-col items-center"
-        >
+        <ScrollReveal direction="up" className="text-center mb-20 flex flex-col items-center">
           <BackToHomeBtn extClassName="mt-4" />
           <h1 className="text-5xl md:text-7xl font-black font-inter mb-6 bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight tracking-tighter">
             Privacy Policy
@@ -216,17 +191,11 @@ export default function PrivacyPolicyPage() {
           <div className="mt-8 px-5 py-2 rounded-full bg-gray-100 dark:bg-gray-800 text-sm font-bold text-gray-600 dark:text-gray-400 inline-flex items-center gap-2">
              Effective Date: <span className="text-gray-900 dark:text-white">{effectiveDate}</span>
           </div>
-        </motion.div>
+        </ScrollReveal>
 
-        {/* Layout Container with Staggered Animation */}
-        <motion.div 
-          className="max-w-3xl mx-auto space-y-8"
-          variants={containerVariants}
-          initial="hidden"
-          animate="show"
-        >
+        <div className="max-w-3xl mx-auto space-y-8">
             {sections.map((section) => (
-              <motion.div key={section.id} variants={cardVariants}>
+              <ScrollReveal direction="up" key={section.id}>
                 <div className={`group p-6 md:p-8 rounded-3xl border shadow-sm hover:shadow-xl transition-all duration-300 ${section.cardTheme}`}>
                   <div className="flex flex-col sm:flex-row items-start gap-6">
                     
@@ -245,11 +214,11 @@ export default function PrivacyPolicyPage() {
 
                   </div>
                 </div>
-              </motion.div>
+              </ScrollReveal>
             ))}
 
             {/* Bottom Section */}
-            <motion.div variants={cardVariants} className="pt-8 pb-4 md:pt-16 md:pb-6 font-inter">
+            <ScrollReveal direction="up" delayMs={100} className="pt-8 pb-4 md:pt-16 md:pb-6 font-inter">
               <div className="relative overflow-hidden rounded-[2.5rem] bg-linear-to-b from-white to-blue-50/50 dark:from-gray-900 dark:to-blue-900/10 border border-blue-100 dark:border-blue-900/30 p-6 md:p-12 text-center shadow-2xl shadow-blue-500/5 group">
                 
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-500/10 dark:bg-blue-500/20 blur-[80px] rounded-full pointer-events-none transition-opacity duration-500 group-hover:opacity-100 opacity-50" />
@@ -270,8 +239,8 @@ export default function PrivacyPolicyPage() {
                   <BackToHomeBtn extClassName="hover:scale-105 transition-all duration-300" />
                 </div>
               </div>
-            </motion.div>
-        </motion.div>
+            </ScrollReveal>
+        </div>
       </main>
       <Footer />
     </div>

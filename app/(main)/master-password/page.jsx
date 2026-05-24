@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { motion } from "framer-motion";
+import ScrollReveal from "@/components/ScrollReveal";
 import {
   ShieldCheck,
   KeyRound,
@@ -18,25 +18,13 @@ import { BackToHomeBtn } from "@/components/backToHomeBtn";
 import Link from "next/link";
 
 const MasterPasswordGuide = () => {
-  const fadeIn = {
-    initial: { opacity: 0, y: 30 },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, margin: "-100px" },
-    transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] },
-  };
-
-  const imageHover = {
-    whileHover: { scale: 1.02 },
-    transition: { duration: 0.3 },
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300 px-4 md:px-8">
       {/* Hero Section */}
       <section className="relative pt-24 pb-20 px-6 text-center overflow-hidden">
         <div className="absolute inset-0 z-10 bg-linear-to-b from-gray-50/40 via-gray-50/60 to-gray-50 dark:from-gray-950/40 dark:via-gray-950/60 dark:to-gray-950 pointer-events-none transition-colors duration-300" />
 
-        <motion.div {...fadeIn} className="relative z-20 opacity-20">
+        <ScrollReveal direction="up" className="relative z-20">
           <div className="flex flex-col items-center mt-4 gap-4">
             <BackToHomeBtn />
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-200/60 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 md:text-lg font-bold mb-6 border border-blue-200 dark:border-blue-800/50">
@@ -52,13 +40,13 @@ const MasterPasswordGuide = () => {
             In PKey, your data belongs only to you. The Master Password is the
             single key that can unlock your encrypted vault.
           </p>
-        </motion.div>
+        </ScrollReveal>
       </section>
 
       <main className="max-w-5xl rounded-2xl mx-auto pt-10 px-6 md:px-10 space-y-28 pb-28 bg-linear-to-br from-blue-100 to-purple-100 dark:from-blue-900/40 dark:via-indigo-900/30 dark:to-purple-900/40 mb-20 transition-all duration-300">
         {/* Section 1 */}
-        <motion.section
-          {...fadeIn}
+        <ScrollReveal
+          direction="up"
           className="grid md:grid-cols-2 gap-16 items-center"
         >
           <div>
@@ -82,11 +70,7 @@ const MasterPasswordGuide = () => {
             </div>
           </div>
 
-          <motion.div
-            {...fadeIn}
-            {...imageHover}
-            className="bg-white dark:bg-gray-900 p-0 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-2xl shadow-gray-200/50 dark:shadow-black/30 relative group overflow-hidden"
-          >
+          <div className="bg-white dark:bg-gray-900 p-0 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-2xl shadow-gray-200/50 dark:shadow-black/30 relative group overflow-hidden hover:scale-[1.02] transition-transform duration-300">
             <img
               src="\images\A conceptual illustration of a human.webp"
               alt="Master Password Encryption Process Diagram"
@@ -94,12 +78,12 @@ const MasterPasswordGuide = () => {
             />
 
             <div className="absolute -inset-1 bg-linear-to-r from-blue-500/50 to-purple-600/50 rounded-3xl blur-xl opacity-30 group-hover:opacity-60 transition-all duration-300" />
-          </motion.div>
-        </motion.section>
+          </div>
+        </ScrollReveal>
 
         {/* Section 2 */}
-        <motion.section
-          {...fadeIn}
+        <ScrollReveal
+          direction="up"
           className="bg-emerald-600 rounded-3xl px-4 py-8 md:p-16 text-white overflow-hidden relative shadow-2xl shadow-emerald-500/20"
         >
           <div className="absolute top-0 right-0 p-10 opacity-15 rotate-12">
@@ -128,23 +112,20 @@ const MasterPasswordGuide = () => {
               ))}
             </ul>
           </div>
-        </motion.section>
+        </ScrollReveal>
 
         {/* Section 3 */}
-        <motion.section
-          {...fadeIn}
+        <ScrollReveal
+          direction="up"
           className="grid md:grid-cols-2 gap-16 items-center"
         >
-          <motion.div
-            {...imageHover}
-            className="order-2 md:order-1 bg-white dark:bg-gray-900 p-0 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-2xl shadow-gray-200/50 dark:shadow-black/30 overflow-hidden"
-          >
+          <div className="order-2 md:order-1 bg-white dark:bg-gray-900 p-0 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-2xl shadow-gray-200/50 dark:shadow-black/30 overflow-hidden hover:scale-[1.02] transition-transform duration-300">
             <img
               src="\images\A conceptual 3D render of a glass shield protectin.webp"
               alt="Locked Vault with No Recovery Key Illustration"
               className="w-full h-auto rounded-2xl aspect-square object-cover"
             />
-          </motion.div>
+          </div>
 
           <div className="order-1 md:order-2 space-y-6">
             <div className="flex items-start gap-3">
@@ -175,10 +156,10 @@ const MasterPasswordGuide = () => {
               </div>
             </div>
           </div>
-        </motion.section>
+        </ScrollReveal>
 
         {/* Section 4 */}
-        <motion.section {...fadeIn} className="text-center space-y-12">
+        <ScrollReveal direction="up" className="text-center space-y-12">
           <h2 className="text-4xl font-black font-inter bg-linear-to-r from-gray-900 via-gray-700 to-gray-900 dark:from-white dark:via-gray-300 dark:to-white bg-clip-text text-transparent">
             Making it Unbreakable
           </h2>
@@ -260,12 +241,10 @@ const MasterPasswordGuide = () => {
               </div>
             ))}
           </div>
-        </motion.section>
+        </ScrollReveal>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
+        <ScrollReveal
+          direction="down"
           className="mt-16 p-8 rounded-[40px] bg-linear-to-br from-blue-600 to-purple-700 text-white flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 p-10 opacity-10">
@@ -290,7 +269,7 @@ const MasterPasswordGuide = () => {
             Strength Analysis
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
           </Link>
-        </motion.div>
+        </ScrollReveal>
       </main>
       <Footer />
     </div>

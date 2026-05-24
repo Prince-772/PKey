@@ -16,7 +16,6 @@ import { useRouter } from "next/navigation";
 import categorizePassword from "@/lib/passwords/strengthChecker";
 import { encryptV3 } from "@/lib/passwords/encryptPassV3";
 import { capitalize, getPasswordStrength } from "@/lib/helper";
-import { AnimatePresence, motion } from "framer-motion";
 
 const EditModal = ({ onClose, onSave, editingData, noMasterPass }) => {
   const { masterPass, encKey } = useMasterPass();
@@ -27,18 +26,17 @@ const EditModal = ({ onClose, onSave, editingData, noMasterPass }) => {
     formState: { errors, isDirty },
     handleSubmit,
     setValue,
-    watch
+    watch,
   } = useForm({
     defaultValues: editingData,
   });
 
-  
-  const passwordValue = watch("password", ""); 
+  const passwordValue = watch("password", "");
 
   const entryStrength = useMemo(
-      () => getPasswordStrength(passwordValue),
-      [passwordValue],
-    );
+    () => getPasswordStrength(passwordValue),
+    [passwordValue],
+  );
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -223,103 +221,81 @@ const EditModal = ({ onClose, onSave, editingData, noMasterPass }) => {
                 Suggest Strong Password
               </button>
             </div>
-            <AnimatePresence mode="popLayout">
-              {passwordValue && (
-                <motion.div
-                  key="strength-meter-main"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className=""
-                >
-                  <motion.div
-                    layout
-                    className="font-inter p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 space-y-3 overflow-auto scroll-bar-hide mt-3 max-h-60"
-                  >
-                    {/* Header Section */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] md:text-[12px] uppercase font-bold text-gray-800 dark:text-gray-200">
-                        Security Score
-                      </span>
-                      <motion.span
-                        layout
-                        key={entryStrength.category}
-                        className={`text-[10px] md:text-[12px] font-bold px-2 py-0.5 rounded-full transition-colors duration-300 ${
-                          entryStrength.score > 70
-                            ? "bg-emerald-100 dark:bg-emerald-800 text-emerald-800 dark:text-emerald-100"
-                            : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100"
-                        }`}
-                      >
-                        {entryStrength.category}
-                      </motion.span>
-                    </div>
+            <div
+              className={`grid transition-all duration-300 ${passwordValue ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+            >
+              <div className="overflow-hidden">
+                <div className="font-inter p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 space-y-3 overflow-auto scroll-bar-hide mt-3 max-h-60">
+                  {/* Header Section */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] md:text-[12px] uppercase font-bold text-gray-800 dark:text-gray-200">
+                      Security Score
+                    </span>
+                    <span
+                      className={`text-[10px] md:text-[12px] font-bold px-2 py-0.5 rounded-full transition-colors duration-300 ${
+                        entryStrength.score > 70
+                          ? "bg-emerald-100 dark:bg-emerald-800 text-emerald-800 dark:text-emerald-100"
+                          : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100"
+                      }`}
+                    >
+                      {entryStrength.category}
+                    </span>
+                  </div>
 
-                    {/* Progress Bar */}
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
-                      <motion.div
-                        layout
-                        className={`h-1.5 rounded-full ${
-                          entryStrength.score > 75
-                            ? "bg-emerald-500"
-                            : entryStrength.score > 40
-                              ? "bg-orange-500"
-                              : "bg-red-500"
-                        }`}
-                        animate={{ width: `${entryStrength.score}%` }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 300,
-                          damping: 30,
-                        }}
-                      />
-                    </div>
+                  {/* Progress Bar */}
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
+                    <div
+                      className={`h-1.5 rounded-full transition-[width] duration-500 ease-out ${
+                        entryStrength.score > 75
+                          ? "bg-emerald-500"
+                          : entryStrength.score > 40
+                            ? "bg-orange-500"
+                            : "bg-red-500"
+                      }`}
+                      style={{ width: `${entryStrength.score}%` }}
+                    />
+                  </div>
 
-                    {entryStrength.result?.crack_times_display && (
-                      <motion.div
-                        layout
-                        key="crack-time-display"
-                        className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 space-y-2"
-                      >
-                        <p className="text-[10px] md:text-[12px] font-bold text-gray-800 dark:text-gray-100 uppercase flex items-center gap-1">
-                          <Cpu className="w-3 h-3" /> Estimated Time to Crack
-                        </p>
+                  {entryStrength.result?.crack_times_display && (
+                    <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 space-y-2">
+                      <p className="text-[10px] md:text-[12px] font-bold text-gray-800 dark:text-gray-100 uppercase flex items-center gap-1">
+                        <Cpu className="w-3 h-3" /> Estimated Time to Crack
+                      </p>
 
-                        <div className="space-y-1">
-                          {/* Scenario 1: Standard Hacker (Bitwarden Style) */}
-                          <div className="flex items-baseline gap-2">
-                            <span
-                              className={`text-[12px] md:text-sm font-semibold ${entryStrength.score > 70 ? "text-emerald-700 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
-                            >
-                              {capitalize(
-                                entryStrength.result.crack_times_display
-                                  .offline_slow_hashing_1e4_per_second,
-                              )}
-                            </span>
-                            <span className="text-[10px] md:text-[12px] text-gray-700 dark:text-gray-200 italic">
-                              (standard hacker attack, 10k guesses/sec)
-                            </span>
-                          </div>
-
-                          {/* Scenario 2: Supercomputer (Hardcore Reality) */}
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-[12px] md:text-sm font-semibold text-blue-700 dark:text-blue-400">
-                              {capitalize(
-                                entryStrength.result.crack_times_display
-                                  .offline_fast_hashing_1e10_per_second,
-                              )}
-                            </span>
-                            <span className="text-[10px] md:text-[12px] text-gray-700 dark:text-gray-200 italic">
-                              (by a supercomputer, 10B guesses/sec)
-                            </span>
-                          </div>
+                      <div className="space-y-1">
+                        {/* Scenario 1: Standard Hacker (Bitwarden Style) */}
+                        <div className="flex items-baseline gap-2">
+                          <span
+                            className={`text-[12px] md:text-sm font-semibold ${entryStrength.score > 70 ? "text-emerald-700 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
+                          >
+                            {capitalize(
+                              entryStrength.result.crack_times_display
+                                .offline_slow_hashing_1e4_per_second,
+                            )}
+                          </span>
+                          <span className="text-[10px] md:text-[12px] text-gray-700 dark:text-gray-200 italic">
+                            (standard hacker attack, 10k guesses/sec)
+                          </span>
                         </div>
-                      </motion.div>
-                    )}
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+
+                        {/* Scenario 2: Supercomputer (Hardcore Reality) */}
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-[12px] md:text-sm font-semibold text-blue-700 dark:text-blue-400">
+                            {capitalize(
+                              entryStrength.result.crack_times_display
+                                .offline_fast_hashing_1e10_per_second,
+                            )}
+                          </span>
+                          <span className="text-[10px] md:text-[12px] text-gray-700 dark:text-gray-200 italic">
+                            (by a supercomputer, 10B guesses/sec)
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="flex gap-4 mt-5 items-center">

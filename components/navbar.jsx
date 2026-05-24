@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import NavLink from "./NavLink";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   CircleUserRound,
@@ -28,7 +28,6 @@ import { useRouter } from "next/navigation";
 import Logo from "./logo";
 import DeleteAccountModal from "./deleteAccountModel";
 import ResetVaultModal from "./resetVault";
-import { AnimatePresence, motion } from "framer-motion";
 import toast from "react-hot-toast";
 
 const NavBar = () => {
@@ -74,6 +73,17 @@ const NavBar = () => {
   const showToggleTheme = unProtectedRoutes.includes(pathname);
 
   const [isProfileView, setIsProfileView] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsProfileView(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   const [openDeleteAccountModel, setOpenDeleteAccountModel] = useState(false);
   const [openResetVaultModel, setOpenResetVaultModel] = useState(false);
   const HandleLogOut = async () => {
@@ -228,80 +238,79 @@ const NavBar = () => {
                   )}
                 </button>
 
-                <AnimatePresence>
-                  {isProfileView && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                      className="absolute right-[50%] mt-1 bg-white dark:bg-gray-900 rounded-2xl rounded-tr-none shadow-2xl border border-gray-500 overflow-x-hidden z-50 origin-top-right overflow-y-auto max-h-[70vh] overscroll-contain scroll-bar-hide"
+                <div
+                  ref={dropdownRef}
+                  className={`absolute right-[50%] mt-1 bg-white dark:bg-gray-900 rounded-2xl rounded-tr-none shadow-2xl border border-gray-500 overflow-x-hidden z-50 origin-top-right overflow-y-auto max-h-[70vh] overscroll-contain scroll-bar-hide
+                    transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]
+                    ${
+                      isProfileView
+                        ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
+                        : "opacity-0 translate-y-2.5 scale-95 pointer-events-none"
+                    }`}
+                >
+                  <div className="px-4 py-3 bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 text-nowrap">
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                      Account
+                    </p>
+                    <p className="text-sm font-bold truncate dark:text-gray-200">
+                      {session?.user?.name?.split(" ")[0] || "PKey User"}
+                    </p>
+                  </div>
+
+                  <div className="p-1.5 text-nowrap">
+                    <button
+                      onClick={toggleTheme}
+                      className="flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold rounded-xl text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 transition-all duration-300 cursor-pointer"
                     >
-                      <div className="px-4 py-3 bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 text-nowrap">
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                          Account
-                        </p>
-                        <p className="text-sm font-bold truncate dark:text-gray-200">
-                          {session?.user?.name?.split(" ")[0] || "PKey User"}
-                        </p>
-                      </div>
+                      {isDark ? (
+                        <Sun className="w-4 h-4 text-yellow-500" />
+                      ) : (
+                        <Moon className="w-4 h-4 text-blue-500" />
+                      )}
+                      Toggle Theme
+                    </button>
 
-                      <div className="p-1.5 text-nowrap">
-                        <button
-                          onClick={toggleTheme}
-                          className="flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold rounded-xl text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 transition-all duration-300 cursor-pointer"
-                        >
-                          {isDark ? (
-                            <Sun className="w-4 h-4 text-yellow-500" />
-                          ) : (
-                            <Moon className="w-4 h-4 text-blue-500" />
-                          )}
-                          Toggle Theme
-                        </button>
+                    {encKey && (
+                      <button
+                        onClick={lockValut}
+                        className="flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold rounded-xl text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 transition-all duration-300 cursor-pointer"
+                      >
+                        <LockKeyhole className="w-4 h-4 text-emerald-500" />
+                        Lock Vault
+                      </button>
+                    )}
+                    <button
+                      onClick={forwardToForgetPassword}
+                      className="flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold rounded-xl text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 transition-all duration-300 cursor-pointer"
+                    >
+                      <PencilLine className="w-4 h-4 text-blue-500" />
+                      Change Password
+                    </button>
 
-                        {encKey && (
-                          <button
-                            onClick={lockValut}
-                            className="flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold rounded-xl text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 transition-all duration-300 cursor-pointer"
-                          >
-                            <LockKeyhole className="w-4 h-4 text-emerald-500" />
-                            Lock Vault
-                          </button>
-                        )}
-                        <button
-                          onClick={forwardToForgetPassword}
-                          className="flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold rounded-xl text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 transition-all duration-300 cursor-pointer"
-                        >
-                          <PencilLine className="w-4 h-4 text-blue-500" />
-                          Change Password
-                        </button>
+                    <div className="h-px bg-gray-100 dark:bg-gray-800 my-1 mx-2" />
 
-                        <div className="h-px bg-gray-100 dark:bg-gray-800 my-1 mx-2" />
+                    <button
+                      onClick={HandleLogOut}
+                      className="cursor-pointer flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all duration-300"
+                    >
+                      <LogOut className="w-4 h-4" /> Logout
+                    </button>
 
-                        <button
-                          onClick={HandleLogOut}
-                          className="cursor-pointer flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all duration-300"
-                        >
-                          <LogOut className="w-4 h-4" /> Logout
-                        </button>
+                    <button
+                      onClick={handleResetVault}
+                      className="cursor-pointer flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all duration-300"
+                    >
+                      <Eraser className="w-4 h-4" /> Reset Vault
+                    </button>
 
-                        <button
-                          onClick={handleResetVault}
-                          className="cursor-pointer flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all duration-300"
-                        >
-                          <Eraser className="w-4 h-4" /> Reset Vault
-                        </button>
-
-                        <button
-                          onClick={handleDeleteAccount}
-                          className="cursor-pointer flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all duration-300"
-                        >
-                          <UserRoundX className="w-4 h-4" /> Delete Account
-                        </button>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                    <button
+                      onClick={handleDeleteAccount}
+                      className="cursor-pointer flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all duration-300"
+                    >
+                      <UserRoundX className="w-4 h-4" /> Delete Account
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}

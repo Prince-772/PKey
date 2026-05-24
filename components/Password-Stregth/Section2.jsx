@@ -1,6 +1,7 @@
 "use client";
+import ScrollReveal from "@/components/ScrollReveal";
 import React from "react";
-import { motion } from "framer-motion";
+
 import {
   Ruler,
   TextCursorInput,
@@ -64,35 +65,11 @@ export default function Section2() {
     },
   ];
 
-  // Framer Motion Animation Variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.15 },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    show: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
-    },
-  };
-
   return (
     <section className="py-8 md:py-12 px-6 relative">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
-        >
+        <ScrollReveal direction="up" className="text-center mb-16">
           <h2 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">
             Beyond the Score
           </h2>
@@ -100,18 +77,12 @@ export default function Section2() {
             A strong password isn't just about random symbols. Master these
             three golden rules of digital security.
           </p>
-        </motion.div>
+        </ScrollReveal>
 
         {/* The Grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-50px" }}
-          className="grid md:grid-cols-2 gap-8"
-        >
+        <ScrollReveal direction="up" className="grid md:grid-cols-2 gap-8">
           {educationCards.map((card) => (
-            <motion.div key={card.id} variants={itemVariants}>
+            <ScrollReveal key={card.id} direction="up">
               <div
                 className={`relative h-full group p-8 rounded-[2rem] bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden ${card.cardTheme}`}
               >
@@ -136,9 +107,9 @@ export default function Section2() {
                   </p>
                 </div>
               </div>
-            </motion.div>
+            </ScrollReveal>
           ))}
-        </motion.div>
+        </ScrollReveal>
       </div>
     </section>
   );
