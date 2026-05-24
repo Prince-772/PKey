@@ -134,7 +134,7 @@ const PasswordCard = ({
         hover:rotate-12"
                         >
                           <div className="p-1 rounded-full bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors">
-                            <ExternalLink className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+                            <ExternalLink className="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-500 dark:text-blue-400" />
                           </div>
                         </Link>
                       </div>
