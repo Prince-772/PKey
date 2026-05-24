@@ -378,7 +378,7 @@ const Passwords = () => {
                     <div className="absolute inset-y-0 right-0 pr-4 flex items-center">
                       <X
                         onClick={() => setsearchTerms("")}
-                        className="w-5 h-5 text-red-400 transition-colors cursor-pointer hover:text-red-500 active:text-red-500"
+                        className="w-5 h-5 text-gray-400 transition-colors cursor-pointer hover:text-red-500 active:text-red-500 group-focus-within:text-red-500"
                       />
                     </div>
                   </div>

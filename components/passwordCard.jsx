@@ -112,37 +112,38 @@ const PasswordCard = ({
     w-[calc(100%-4rem)] md:w-[calc(100%-6rem)]"
                 >
                   <div className="flex items-center relative cursor-default">
-                    <div className="group flex items-center gap-1.5">
-                      <p
-                        className="inline-block relative
-        bg-clip-text text-transparent bg-linear-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400"
+                    {/* Animated link icon wrapper */}
+                    <div className="group flex items-center">
+                      <div
+                        className="
+    flex items-center justify-center shrink-0 overflow-hidden
+    opacity-100 w-8
+    lg:w-0 lg:opacity-0 lg:mr-0
+    lg:group-hover:w-8 lg:group-hover:opacity-100
+    transition-all duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)]
+  "
                       >
-                        {getDisplayUrl(platform)}
-                        <span
-                          className="absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-blue-500 to-purple-500 
-          group-hover:w-full transition-all duration-500 ease-out rounded-full"
-                        />
-                      </p>
-
-                      {/* Animated link icon */}
-                      <Link
-                        href={getValidUrl(platform)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="inline-flex items-center justify-center shrink-0
-          lg:opacity-0 lg:scale-0 lg:-translate-x-2
-          lg:group-hover:opacity-100 lg:group-hover:scale-100 lg:group-hover:translate-x-0
-          transition-all duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)]
-          hover:rotate-12"
-                      >
-                        <div
-                          className="p-1 rounded-full bg-blue-50 dark:bg-blue-900/30 
-          hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors"
+                        <Link
+                          href={getValidUrl(platform)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="inline-flex items-center justify-center shrink-0 
+        scale-100 lg:scale-50 lg:group-hover:scale-100 
+        transition-transform duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)]
+        hover:rotate-12"
                         >
-                          <ExternalLink className="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-500 dark:text-blue-400" />
-                        </div>
-                      </Link>
+                          <div className="p-1 rounded-full bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors">
+                            <ExternalLink className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+                          </div>
+                        </Link>
+                      </div>
+
+                      {/* Text Section */}
+                      <p className="inline-block relative bg-clip-text text-transparent bg-linear-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
+                        {getDisplayUrl(platform)}
+                        <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-blue-500 to-purple-500 group-hover:w-full transition-all duration-500 ease-out rounded-full" />
+                      </p>
                     </div>
                   </div>
                 </div>
