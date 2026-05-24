@@ -74,11 +74,10 @@ export default function Steps() {
 
   return (
     <>
-      {/* ══════════════════════════════════════════════
-      DESKTOP (>=1024px) — grid with connecting line
-      ══════════════════════════════════════════════ */}
+      {/*
+      DESKTOP (>=1024px) grid with connecting line */}
       <div className="hidden lg:grid lg:grid-cols-5 gap-6 relative z-10">
-        {/* Connecting line — wider, more prominent */}
+        {/* Connecting line wider, more prominent */}
         <div className="absolute top-[40px] left-[8%] right-[8%] h-0.5 bg-linear-to-r from-blue-500 via-red-300  dark:via-red-600 to-violet-500 z-0 pointer-events-none shadow-sm" />
 
         {steps.map((s, i) => (
@@ -136,11 +135,9 @@ export default function Steps() {
         ))}
       </div>
 
-      {/* ══════════════════════════════════════════════
-      TABLET (768-1023px) — horizontal snap scroll with connecting line
-      ══════════════════════════════════════════════ */}
+      {/* TABLET (768-1023px) horizontal snap scroll with connecting line */}
       <div className="hidden md:block lg:hidden relative">
-        {/* Tablet connecting line — visible, positioned behind cards */}
+        {/* Tablet connecting line visible, positioned behind cards */}
         <div className="absolute top-18 left-24 right-24 h-0.5 bg-linear-to-r from-blue-500 via-red-300  dark:via-red-600 to-violet-500 z-0 pointer-events-none shadow-sm" />
         
         <div 
@@ -204,7 +201,7 @@ export default function Steps() {
           ))}
         </div>
 
-        {/* Tablet scroll hint — limited to 3 dots */}
+        {/* Tablet scroll hint- limited to 3 dots */}
         <div className="flex items-center justify-center gap-2 mt-3">
           <div className="flex gap-2">
             {[0,1,2].map((stepIndex) => (
@@ -221,12 +218,11 @@ export default function Steps() {
         </div>
       </div>
 
-      {/* ══════════════════════════════════════════════
-      MOBILE (<768px) — vertical stack with connecting line
-      ══════════════════════════════════════════════ */}
+      {/*
+      MOBILE (<768px) vertical stack with connecting line */}
       <div className="flex flex-col gap-5 md:hidden relative">
-        {/* Mobile connecting line — vertical line along the left side */}
-        <div className="absolute left-[23px] top-10 bottom-10 w-0.5 bg-linear-to-b from-blue-500 via-red-300  dark:via-red-600 to-violet-500 z-0 pointer-events-none shadow-sm" />
+        {/* Mobile connecting line vertical line along the left side */}
+        <div className="absolute left-[23px] top-10 bottom-14 w-0.5 bg-linear-to-b from-blue-500 via-red-300  dark:via-red-600 to-violet-500 z-0 pointer-events-none shadow-sm" />
         
         {steps.map((s, i) => (
           <div key={s.step} className="group flex flex-row gap-4 items-center relative z-10" tabIndex={0}>

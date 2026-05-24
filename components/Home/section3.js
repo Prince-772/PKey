@@ -52,7 +52,7 @@ const testimonials = [
     author: "Aarohi Maurya",
     title: "Cybersecurity Analyst",
     tag: "Zero-Knowledge",
-    img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Aarohi&mouth=smile&top=longButNotTooLong&clothing=blazerAndShirt",
+    img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Aarohi&mouth=smile&top=longButNotTooLong&topColor=4a3728&skinColor=f8d25c&clothing=blazerAndShirt&clothingColor=3c4f5e",
   },
   {
     quote:
