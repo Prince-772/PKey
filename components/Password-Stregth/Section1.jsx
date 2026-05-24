@@ -2,12 +2,7 @@
 
 import React, { useState } from "react";
 import ScrollReveal from "@/components/ScrollReveal";
-import {
-  ShieldCheck,
-  Eye,
-  EyeOff,
-  Cpu,
-} from "lucide-react";
+import { ShieldCheck, Eye, EyeOff, Cpu } from "lucide-react";
 import { BackToHomeBtn } from "@/components/backToHomeBtn";
 import { getPasswordStrength, capitalize } from "@/lib/helper";
 
@@ -92,109 +87,108 @@ export default function Section1() {
             Everything runs in your browser. We never save what you type.
           </p>
         </ScrollReveal>
-
-        <ScrollReveal
-          direction="up"
-          delayMs={100}
-          className={`relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl px-4 py-6 md:p-10 border transition-colors duration-500 ${theme.border}`}
-        >
-          <div className="mb-8 flex items-start gap-3 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 text-emerald-800 dark:text-emerald-300 shadow-sm">
-            <ShieldCheck className="w-5 h-5 shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
-            <p className="text-sm font-medium leading-relaxed">
-              <span className="font-bold">Safe to test:</span> You can type your
-              real passwords! This tool runs{" "}
-              <span className="font-bold underline decoration-emerald-400/50 underline-offset-2">
-                100% locally
-              </span>{" "}
-              on your device. Absolutely nothing is sent to our servers.{" "}
-              <br className="hidden sm:block" />
-              <span className="text-emerald-600/80 dark:text-emerald-400/80 text-xs mt-1 inline-block">
-                (Pro tip: You can even turn off your Wi-Fi right now and this
-                tool will still work!)
-              </span>
-            </p>
-          </div>
-          <div className="relative mb-8">
-            <div className="relative rounded-2xl p-0.5 overflow-hidden group bg-gray-200 dark:bg-gray-800 transition-colors duration-300">
-              <div className="absolute top-1/2 left-1/2 w-[250%] aspect-square -translate-x-1/2 -translate-y-1/2 opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 pointer-events-none z-0">
-                <div className="w-full h-full animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_0deg,#22c55e,#10b981,#14b8a6,#22c55e)] " />
-              </div>
-
-              <input
-                type={isVisible ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Type a password to test..."
-                className="relative z-10 w-full pl-4 pr-12 py-2 bg-gray-50 dark:bg-gray-950 rounded-2xl text-lg md:text-xl font-mono text-gray-900 dark:text-white focus:outline-none placeholder:text-gray-400"
-              />
-            </div>
-            <button
-              onClick={() => setIsVisible(!isVisible)}
-              className="absolute z-10 inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-            >
-              {isVisible ? (
-                <EyeOff className="h-6 w-6" />
-              ) : (
-                <Eye className="h-6 w-6" />
-              )}
-            </button>
-          </div>
-
-          {/* Strength Progress Bar */}
-          <div className="mb-4">
-            <div className="flex justify-between items-end mb-2">
-              <span className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Strength Score
-              </span>
-              <span
-                className={`text-xs sm:text-sm font-black ${theme.text} transition-colors duration-500`}
-              >
-                {password ? strengthData.category : "Awaiting Input"}
-              </span>
-            </div>
-            <div className="h-3 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-              <div
-                className={`h-full ${theme.color} transition-all duration-500 ease-out`}
-                style={{ width: `${password ? strengthData.score : 0}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="font-inter p-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-3 overflow-auto scroll-bar-hide mt-3 max-h-60">
-            <div className="mt-2 border-t border-gray-100 dark:border-gray-800 space-y-2">
-              <p className="text-[12px] font-bold text-gray-800 dark:text-gray-100 uppercase flex items-center gap-1">
-                <Cpu className="w-4 h-4" /> Estimated Time to Crack
+        <ScrollReveal direction="up" delayMs={100}>
+          <div
+            className={`relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl px-4 py-6 md:p-10 border transition-colors duration-500 ${theme.border}`}
+          >
+            <div className="mb-8 flex items-start gap-3 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 text-emerald-800 dark:text-emerald-300 shadow-sm">
+              <ShieldCheck className="w-5 h-5 shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
+              <p className="text-sm font-medium leading-relaxed">
+                <span className="font-bold">Safe to test:</span> You can type
+                your real passwords! This tool runs{" "}
+                <span className="font-bold underline decoration-emerald-400/50 underline-offset-2">
+                  100% locally
+                </span>{" "}
+                on your device. Absolutely nothing is sent to our servers.{" "}
+                <br className="hidden sm:block" />
+                <span className="text-emerald-600/80 dark:text-emerald-400/80 text-xs mt-1 inline-block">
+                  (Pro tip: You can even turn off your Wi-Fi right now and this
+                  tool will still work!)
+                </span>
               </p>
-
-              <div className="space-y-1">
-                <div className="flex items-baseline gap-2">
-                  <span
-                    className={`text-[12px] md:text-sm font-semibold ${strengthData.score > 70 ? "text-emerald-700 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
-                  >
-                    {strengthData?.result
-                      ? capitalize(
-                          strengthData.result.crack_times_display
-                            .offline_slow_hashing_1e4_per_second,
-                        )
-                      : 0}
-                  </span>
-                  <span className="text-[12px] text-gray-700 dark:text-gray-200 italic">
-                    (standard hacker attack, 10k guesses/sec)
-                  </span>
+            </div>
+            <div className="relative mb-8">
+              <div className="relative rounded-2xl p-0.5 overflow-hidden group bg-gray-200 dark:bg-gray-800 transition-colors duration-300">
+                <div className="absolute top-1/2 left-1/2 w-[250%] aspect-square -translate-x-1/2 -translate-y-1/2 opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 pointer-events-none z-0">
+                  <div className="w-full h-full animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_0deg,#22c55e,#10b981,#14b8a6,#22c55e)] " />
                 </div>
 
-                <div className="flex items-baseline gap-2">
-                  <span className="text-[12px] md:text-sm font-semibold text-blue-700 dark:text-blue-400">
-                    {strengthData?.result
-                      ? capitalize(
-                          strengthData.result.crack_times_display
-                            .offline_fast_hashing_1e10_per_second,
-                        )
-                      : 0}
-                  </span>
-                  <span className="text-[12px] text-gray-700 dark:text-gray-200 italic">
-                    (by a supercomputer, 10B guesses/sec)
-                  </span>
+                <input
+                  type={isVisible ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Type a password to test..."
+                  className="relative z-10 w-full pl-4 pr-12 py-2 bg-gray-50 dark:bg-gray-950 rounded-2xl text-lg md:text-xl font-mono text-gray-900 dark:text-white focus:outline-none placeholder:text-gray-400"
+                />
+              </div>
+              <button
+                onClick={() => setIsVisible(!isVisible)}
+                className="absolute z-10 inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+              >
+                {isVisible ? (
+                  <EyeOff className="h-6 w-6" />
+                ) : (
+                  <Eye className="h-6 w-6" />
+                )}
+              </button>
+            </div>
+
+            {/* Strength Progress Bar */}
+            <div className="mb-4">
+              <div className="flex justify-between items-end mb-2">
+                <span className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Strength Score
+                </span>
+                <span
+                  className={`text-xs sm:text-sm font-black ${theme.text} transition-colors duration-500`}
+                >
+                  {password ? strengthData.category : "Awaiting Input"}
+                </span>
+              </div>
+              <div className="h-3 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                <div
+                  className={`h-full ${theme.color} transition-all duration-500 ease-out`}
+                  style={{ width: `${password ? strengthData.score : 0}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="font-inter p-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-3 overflow-auto scroll-bar-hide mt-3 max-h-60">
+              <div className="mt-2 border-t border-gray-100 dark:border-gray-800 space-y-2">
+                <p className="text-[12px] font-bold text-gray-800 dark:text-gray-100 uppercase flex items-center gap-1">
+                  <Cpu className="w-4 h-4" /> Estimated Time to Crack
+                </p>
+
+                <div className="space-y-1">
+                  <div className="flex items-baseline gap-2">
+                    <span
+                      className={`text-[12px] md:text-sm font-semibold ${strengthData.score > 70 ? "text-emerald-700 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
+                    >
+                      {strengthData?.result
+                        ? capitalize(
+                            strengthData.result.crack_times_display
+                              .offline_slow_hashing_1e4_per_second,
+                          )
+                        : 0}
+                    </span>
+                    <span className="text-[12px] text-gray-700 dark:text-gray-200 italic">
+                      (standard hacker attack, 10k guesses/sec)
+                    </span>
+                  </div>
+
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-[12px] md:text-sm font-semibold text-blue-700 dark:text-blue-400">
+                      {strengthData?.result
+                        ? capitalize(
+                            strengthData.result.crack_times_display
+                              .offline_fast_hashing_1e10_per_second,
+                          )
+                        : 0}
+                    </span>
+                    <span className="text-[12px] text-gray-700 dark:text-gray-200 italic">
+                      (by a supercomputer, 10B guesses/sec)
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
