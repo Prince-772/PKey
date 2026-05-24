@@ -170,8 +170,8 @@ export default function SecurityPage() {
             <span className="font-bold text-emerald-500">
               two completely isolated keys
             </span>
-            —one strictly for authentication and one strictly for
-            encryption—ensuring{" "}
+            , one strictly for authentication and one strictly for
+            encryption, ensuring{" "}
             <span className="font-bold text-emerald-500">
               maximum architectural security
             </span>

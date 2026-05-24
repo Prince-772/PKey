@@ -138,7 +138,7 @@ const MasterPasswordGuide = () => {
             <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-base font-medium">
               Most websites store your password, which allows them to reset it.
               We prioritize privacy. A "Forgot Password" option would mean we
-              have access to your key—and we intentionally avoid that so only
+              have access to your key, and we intentionally avoid that so only
               you control your data.
             </p>
 

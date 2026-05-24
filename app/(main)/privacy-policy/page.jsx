@@ -23,15 +23,15 @@ export default function PrivacyPolicyPage() {
           <ul className="space-y-3 mb-6">
             <li className="flex items-start gap-3">
               <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 shrink-0" />
-              <span><span className="font-bold text-gray-900 dark:text-white">Email address</span> — for account identification and alerts.</span>
+              <span><span className="font-bold text-gray-900 dark:text-white">Email address</span>: for account identification and alerts.</span>
             </li>
             <li className="flex items-start gap-3">
               <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-2 shrink-0" />
-              <span><span className="font-bold text-gray-900 dark:text-white">Hashed master password</span> — for authentication (not the actual one).</span>
+              <span><span className="font-bold text-gray-900 dark:text-white">Hashed master password</span>: for authentication (not the actual one).</span>
             </li>
             <li className="flex items-start gap-3">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0" />
-              <span><span className="font-bold text-gray-900 dark:text-white">Encrypted passwords</span> — strictly in cipher text.</span>
+              <span><span className="font-bold text-gray-900 dark:text-white">Encrypted passwords</span>: strictly in cipher text.</span>
             </li>
           </ul>
           <div className="p-4 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 text-blue-800 dark:text-blue-300 font-medium">
@@ -87,7 +87,7 @@ export default function PrivacyPolicyPage() {
             </li>
             <li className="flex items-start gap-3">
               <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
-              <span><span className="font-bold text-red-500">Inaccessible to us</span> — we can't read or decrypt them.</span>
+              <span><span className="font-bold text-red-500">Inaccessible to us</span>: we can't read or decrypt them.</span>
             </li>
           </ul>
           <p className="font-bold text-lg text-emerald-600 dark:text-emerald-400">Only you can access your data.</p>
@@ -186,7 +186,7 @@ export default function PrivacyPolicyPage() {
             Privacy Policy
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 font-medium max-w-2xl mx-auto leading-relaxed">
-            Welcome to PKey — your privacy-focused password manager. Here is exactly how we handle and protect your data.
+            Welcome to PKey, your privacy-focused password manager. Here is exactly how we handle and protect your data.
           </p>
           <div className="mt-8 px-5 py-2 rounded-full bg-gray-100 dark:bg-gray-800 text-sm font-bold text-gray-600 dark:text-gray-400 inline-flex items-center gap-2">
              Effective Date: <span className="text-gray-900 dark:text-white">{effectiveDate}</span>

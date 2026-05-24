@@ -24,7 +24,7 @@ const altFeatures = [
     color: "cyan",
     title: "Entropy Analysis",
     subtitle: "Real-time strength intelligence",
-    desc: "See exactly how long it would take a hacker to crack your password — recalculated with every keystroke. Not just a color bar, but actual time estimates against real attack vectors.",
+    desc: "See exactly how long it would take a hacker to crack your password, recalculated with every keystroke. Not just a color bar, but actual time estimates against real attack vectors.",
     visual: "entropy",
   },
   {
@@ -32,7 +32,7 @@ const altFeatures = [
     color: "purple",
     title: "Strong Password Engine",
     subtitle: "One click. Uncrackable.",
-    desc: "Our generator doesn't just smash random characters together. It builds high-entropy passwords tuned to site rules — length, symbols, ambiguous chars excluded — so they're strong AND usable.",
+    desc: "Our generator doesn't just smash random characters together. It builds high-entropy passwords tuned to site rules - length, symbols, ambiguous chars excluded, so they're strong AND usable.",
     visual: "password",
   },
   {
@@ -40,7 +40,7 @@ const altFeatures = [
     color: "yellow",
     title: "WebAssembly Speed",
     subtitle: "Cryptography at native speed",
-    desc: "Heavy crypto runs in a background Web Worker via WASM — your UI never freezes, never lags. No server round-trips means your data never leaves the device during processing.",
+    desc: "Heavy crypto runs in a background Web Worker via WASM, your UI never freezes, never lags. No server round-trips means your data never leaves the device during processing.",
     visual: "speed",
   },
   {
@@ -48,7 +48,7 @@ const altFeatures = [
     color: "indigo",
     title: "Encrypted Cloud Sync",
     subtitle: "Everywhere. Unreadable to everyone else.",
-    desc: "Your vault syncs across all your devices instantly — but what lands on our servers is pure ciphertext. Without your Master Password, it's mathematically useless to anyone who gets it.",
+    desc: "Your vault syncs across all your devices instantly, but what lands on our servers is pure ciphertext. Without your Master Password, it's mathematically useless to anyone who gets it.",
     visual: "sync",
   },
 ];
@@ -251,7 +251,7 @@ function SpeedVisual() {
         <div className="flex items-center gap-2 p-3 rounded-xl bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-100 dark:border-yellow-800/50">
         <Zap className="w-4 h-4 text-yellow-500 shrink-0" />
         <p className="text-xs font-semibold text-yellow-700 dark:text-yellow-300">
-          UI thread never blocked — zero jank
+          UI thread never blocked, zero jank
         </p>
       </div>
       </ScrollReveal>

@@ -314,7 +314,7 @@ const CreatePassword = () => {
               </ScrollReveal>
             </div>
 
-            {/* Set Master Password CTA — shown when masterPassSet is true */}
+            {/* Set Master Password CTA shown when masterPassSet is true */}
             {masterPassSet && (
               <div className="px-6 pb-6">
                 <button
@@ -470,12 +470,12 @@ const CreatePassword = () => {
                 )}
               </button>
 
-              {/* Strength Meter — collapsible, CSS grid trick */}
+              {/* Strength Meter collapsible, CSS grid trick */}
               <div className={`grid transition-all duration-300 ${passwordValue ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
                 <div className="overflow-hidden">
                   <div className="bg-gray-50 dark:bg-gray-800/60 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
 
-                    {/* Always-visible header row — Score + toggle button */}
+                    {/* Always-visible header row Score + toggle button */}
                     <div className="flex items-center justify-between px-4 py-3">
                       <div className="flex items-center gap-3">
                         <span className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">Security Score</span>
@@ -487,7 +487,7 @@ const CreatePassword = () => {
                           {entryStrength.category}
                         </span>
                       </div>
-                      {/* Toggle button — X to close, ChevronDown to open */}
+                      {/* Toggle button X to close, ChevronDown to open */}
                       <button
                         type="button"
                         onClick={() => setStrengthMeterOpen(prev => !prev)}

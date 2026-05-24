@@ -60,7 +60,7 @@ export default function TermsAndConditionsPage() {
           </li>
           <li className="flex items-start gap-3">
             <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
-            <span>We <span className="font-bold text-red-500">do not store</span> your master password — losing it means your data is permanently locked.</span>
+            <span>We <span className="font-bold text-red-500">do not store</span> your master password, losing it means your data is permanently locked.</span>
           </li>
           <li className="flex items-start gap-3">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0" />
