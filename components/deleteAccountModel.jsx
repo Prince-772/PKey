@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast"; // For notifications
 import { handleDeleteAccountEmailSend } from "@/lib/user/deleteaccount/deleteAccountEmailSend";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import BlockedAccount from "./BlockedAccountToast";
 export default function DeleteAccountModal({
   isOpen,
   onClose,
@@ -26,15 +27,7 @@ export default function DeleteAccountModal({
         setIsDeleting(false);
         if (message === "BLOCKED_ACCOUNT") {
           return (
-            <span>
-              Your account is blocked due to too many invalid attempts.{" "}
-              <Link
-                href="/blocked-accounts-help"
-                className="underline text-blue-500"
-              >
-                Learn what to do
-              </Link>
-            </span>
+           <BlockedAccount />
           );
         } else {
           return message || "Something went wrong";

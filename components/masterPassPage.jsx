@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import { generateAuthData } from "@/lib/masterpassword/mPasscryptoV3";
 import { AutoMigrateToUv2 } from "@/lib/masterpassword/migrationtov2/migrate";
+import BlockedAccount from "./BlockedAccountToast";
 
 export default function MasterPasswordModel({ isOpen, onClose }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -77,15 +78,7 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
 
           if (err.message === "BLOCKED_ACCOUNT") {
             return (
-              <span>
-                Your account is blocked due to too many invalid attempts.{" "}
-                <Link
-                  href="/blocked-accounts-help"
-                  className="underline text-blue-500"
-                >
-                  Learn what to do
-                </Link>
-              </span>
+              <BlockedAccount />
             );
           } else {
             return err.message || "Something went wrong";

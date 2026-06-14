@@ -22,6 +22,7 @@ import { UpdateToDV3 } from "@/lib/passwords/updatetonew/updatetonew";
 import { decryptV3, encryptV3 } from "@/lib/passwords/encryptPassV3";
 import { useSession } from "next-auth/react";
 import ScrollReveal from "@/components/ScrollReveal";
+import BlockedAccount from "@/components/BlockedAccountToast";
 
 const Passwords = () => {
   const [loading, setLoading] = useState(false);
@@ -150,17 +151,7 @@ const Passwords = () => {
           },
           error: ({ message }) => {
             if (message === "BLOCKED_ACCOUNT") {
-              return (
-                <span>
-                  Your account is blocked due to too many invalid attempts.{" "}
-                  <Link
-                    href="/blocked-accounts-help"
-                    className="underline text-blue-500"
-                  >
-                    Learn what to do
-                  </Link>
-                </span>
-              );
+              return <BlockedAccount />;
             } else {
               return message || "Migration Failed, We'll try again later";
             }
@@ -171,15 +162,7 @@ const Passwords = () => {
       toast.error(() => {
         if (err.message === "BLOCKED_ACCOUNT") {
           return (
-            <span>
-              Your account is blocked due to too many invalid attempts.{" "}
-              <Link
-                href="/blocked-accounts-help"
-                className="underline text-blue-500"
-              >
-                Learn what to do
-              </Link>
-            </span>
+            <BlockedAccount />
           );
         } else {
           return err.message || "Something went wrong";
@@ -218,15 +201,7 @@ const Passwords = () => {
           );
           if (message === "BLOCKED_ACCOUNT") {
             return (
-              <span>
-                Your account is blocked due to too many invalid attempts.{" "}
-                <Link
-                  href="/blocked-accounts-help"
-                  className="underline text-blue-500"
-                >
-                  Learn what to do
-                </Link>
-              </span>
+              <BlockedAccount />
             );
           } else {
             return message || "Something went wrong";
@@ -258,15 +233,7 @@ const Passwords = () => {
         error: ({ message }) => {
           if (message === "BLOCKED_ACCOUNT") {
             return (
-              <span>
-                Your account is blocked due to too many invalid attempts.{" "}
-                <Link
-                  href="/blocked-accounts-help"
-                  className="underline text-blue-500"
-                >
-                  Learn what to do
-                </Link>
-              </span>
+              <BlockedAccount />
             );
           } else {
             return message || "Something went wrong";

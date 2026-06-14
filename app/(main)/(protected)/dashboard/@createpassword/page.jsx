@@ -53,6 +53,7 @@ import CreateMasterPasswordModal from "@/components/CreateMasterPassword";
 import { CreateMasterPass } from "@/lib/masterpassword/create";
 import { capitalize, getPasswordStrength, handleCopy } from "@/lib/helper";
 import ScrollReveal from "@/components/ScrollReveal";
+import BlockedAccount from "@/components/BlockedAccountToast";
 
 // ── Reusable Input Field ─────────────────────────────────────────────────────
 function InputField({ label, icon, error, children, action }) {
@@ -164,10 +165,7 @@ const CreatePassword = () => {
         error: ({ message }) => {
           if (message === "BLOCKED_ACCOUNT") {
             return (
-              <span>
-                Your account is blocked.{" "}
-                <Link href="/blocked-accounts-help" className="underline text-blue-500">Learn what to do</Link>
-              </span>
+              <BlockedAccount />
             );
           }
           return message || "Something went wrong";
@@ -192,10 +190,7 @@ const CreatePassword = () => {
           setMasterPassSet(true);
           if (message === "BLOCKED_ACCOUNT") {
             return (
-              <span>
-                Your account is blocked.{" "}
-                <Link href="/blocked-accounts-help" className="underline text-blue-500">Learn what to do</Link>
-              </span>
+              <BlockedAccount />
             );
           }
           return message || "Unable to create master password";
