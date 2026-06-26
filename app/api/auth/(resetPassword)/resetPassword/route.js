@@ -10,14 +10,20 @@ import { sendEmail } from "@/lib/managers/mailManager";
 
 export async function POST(req) {
   try {
-    const { token, newPassword } = await req.json();
+    const { token, newPassword, confirmPassword } = await req.json();
 
-    if (!newPassword) throw new Error("New password is required");
     if (!token) throw new Error("Token is required");
+    if (!newPassword) throw new Error("New password is required");
+    if (!confirmPassword) throw new Error("Confirm password is required");
+    if (confirmPassword !== newPassword)
+      throw new Error("Passwords do not match");
 
     await ConnectToDB();
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-    const user = await UserModel.findOne({ resetPasswordToken: hashedToken });
+    const user = await UserModel.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordTokenExpiry: { $gt: Date.now() },
+    });
     if (!user) throw new Error("Invalid token");
     const { name, email } = user;
 
@@ -46,7 +52,7 @@ export async function POST(req) {
         success: false,
         message: err.message,
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }

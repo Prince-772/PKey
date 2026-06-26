@@ -57,7 +57,7 @@ export default function ResetPasswordPage() {
 
   // Handle password reset form submission
   const onSubmit = async (data) => {
-    await toast.promise(ResetPassword(token, data.newPassword), {
+    await toast.promise(ResetPassword(token, data.newPassword, data.confirmPassword), {
       loading: "Resetting...",
       success: (res) => {
         setTimeout(() => {
