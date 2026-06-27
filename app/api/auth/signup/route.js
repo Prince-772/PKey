@@ -15,7 +15,8 @@ export async function POST(req) {
     if (!name || !email || !password || !confirmPassword) {
       throw new Error("All fields are required");
     }
-    if (password.length < 6) throw new Error("Password must be at least 6 characters long")
+    if (password.length < 6)
+      throw new Error("Password must be at least 6 characters long");
     if (password !== confirmPassword) {
       throw new Error("Confirm Password does not match");
     }
@@ -50,13 +51,17 @@ export async function POST(req) {
       verificationExpiry: Date.now() + 1000 * 60 * 60, // 1 hour
     });
 
-    after(() => {
-      sendEmail({
-        to: email,
-        subject: "Verify your email",
-        text: `Hello ${name}, please verify your email...`,
-        html: verifyEmailHtml(name, verifyToken),
-      }).catch((err) => console.error("Async Email Error:", err));
+    after(async () => {
+      try {
+        await sendEmail({
+          to: email,
+          subject: "Verify your email",
+          text: `Hello ${name}, please verify your email...`,
+          html: verifyEmailHtml(name, verifyToken),
+        });
+      } catch (err) {
+        console.error("Async Email Error:", err);
+      }
     });
 
     return response;
