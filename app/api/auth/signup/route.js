@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server"; // Added NextRequest typing
+import { NextResponse } from "next/server";
+import { waitUntil } from "@vercel/functions"; // Use Vercel's official waitUntil
 import ConnectToDB from "@/lib/dbConnect";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import errorHandler from "@/lib/handlers/errorhandler";
-
 import UserModel from "@/models/User";
 import { sendEmail } from "@/lib/managers/mailManager";
 import { verifyEmailHtml } from "@/lib/html/Emails";
@@ -12,13 +12,13 @@ export async function POST(req) {
   try {
     const { name, email, password, confirmPassword } = await req.json();
 
-    if (!name) throw new Error("Name is required");
-    if (!email) throw new Error("Email is required");
-    if (!password) throw new Error("Password is required");
-    if (!confirmPassword) throw new Error("Confirm Password is required");
-
-    if (password !== confirmPassword)
+    if (!name || !email || !password || !confirmPassword) {
+      throw new Error("All fields are required");
+    }
+    if (password.length < 6) throw new Error("Password must be at least 6 characters long")
+    if (password !== confirmPassword) {
       throw new Error("Confirm Password does not match");
+    }
 
     await ConnectToDB();
 
@@ -58,9 +58,7 @@ export async function POST(req) {
       html: verifyEmailHtml(name, verifyToken),
     }).catch((err) => console.error("Async Email Error:", err));
 
-    if (req.waitUntil) {
-      req.waitUntil(emailPromise);
-    }
+    waitUntil(emailPromise);
 
     return response;
   } catch (err) {
