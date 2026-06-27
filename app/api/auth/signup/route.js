@@ -30,7 +30,7 @@ export async function POST(req) {
     const isAlreadyExist = await UserModel.findOne({ email });
 
     if (isAlreadyExist) {
-      // dummy hash
+      // Dummy hash
       await bcrypt.hash(password, 10);
       return response;
     }
