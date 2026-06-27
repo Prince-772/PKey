@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { waitUntil } from "@vercel/functions"; // Use Vercel's official waitUntil
+import { after } from "next/server"; // Next.js ki native API import karein
 import ConnectToDB from "@/lib/dbConnect";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
@@ -47,18 +47,17 @@ export async function POST(req) {
       email,
       password: hashedPassword,
       verificationToken: hashedToken,
-      verificationExpiry: Date.now() + 1000 * 60 * 60,
+      verificationExpiry: Date.now() + 1000 * 60 * 60, // 1 hour
     });
 
-    // SERVERLESS PROMISE TRACKING
-    const emailPromise = sendEmail({
-      to: email,
-      subject: "Verify your email",
-      text: `Hello ${name}, please verify your email...`,
-      html: verifyEmailHtml(name, verifyToken),
-    }).catch((err) => console.error("Async Email Error:", err));
-
-    waitUntil(emailPromise);
+    after(() => {
+      sendEmail({
+        to: email,
+        subject: "Verify your email",
+        text: `Hello ${name}, please verify your email...`,
+        html: verifyEmailHtml(name, verifyToken),
+      }).catch((err) => console.error("Async Email Error:", err));
+    });
 
     return response;
   } catch (err) {
