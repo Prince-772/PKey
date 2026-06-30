@@ -14,11 +14,15 @@ export async function POST(req) {
     await ConnectToDB();
 
     const user = await UserModel.findOne({ email });
-    if (!user) throw new Error("User not found");
-    if (!user.password)
-      throw new Error(
-        "This account was registered using a different login method."
-      );
+
+    const response = NextResponse.json({
+        success: true,
+        message: "If that email exists in our system, a reset link has been sent.",
+      });
+    if (!user || !user.password) {
+      return response
+    }
+
     const verifyToken = crypto.randomBytes(32).toString("hex");
     const hashedToken = crypto
       .createHash("sha256")
@@ -40,10 +44,9 @@ export async function POST(req) {
       html: forgotPasswordHtml(user?.name, verifyToken),
     });
 
-    return NextResponse.json({
-      success: true,
-      message: "Reset link sent to your email!",
-    });
+
+    return response;
+
   } catch (err) {
     return errorHandler(err);
   }
