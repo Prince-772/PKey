@@ -15,16 +15,21 @@ export default function ForgotPasswordPage() {
   } = useForm();
 
 
-  const onSubmit = async (data) => {
-    try {
-      await toast.promise(SendResetLink(data.email), {
-        loading: "Sending...",
-        success: "Reset link sent to yout email, and is valid only for 10 minutes",
-        error: (err) => err.message || "Failed to send link"
-      })
-      reset();
-    } catch (err) { }
-  };
+const onSubmit = async (data) => {
+  try {
+    await toast.promise(SendResetLink(data.email), {
+      loading: "Processing your request...",
+      success: "If the email is registered, a password reset link has been sent. Please check your inbox (and spam folder).",
+      error: (err) => {
+        // console.error(err);
+        return "Something went wrong. Please try again later.";
+      }
+    });
+
+    reset();
+  } catch (err) { }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
