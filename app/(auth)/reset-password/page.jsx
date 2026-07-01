@@ -14,22 +14,29 @@ export default function ForgotPasswordPage() {
     reset,
   } = useForm();
 
+  const onSubmit = async (data) => {
+    try {
+      await toast.promise(
+        SendResetLink(data.email),
+        {
+          loading: "Processing your request...",
+          success:
+            "If the email is registered, a password reset link has been sent. Please check your inbox (and spam folder).",
+          error: (err) => {
+            // console.error(err);
+            return "Something went wrong. Please try again later.";
+          },
+        },
+        {
+          success: {
+            duration: 10000, // 6 seconds
+          },
+        },
+      );
 
-const onSubmit = async (data) => {
-  try {
-    await toast.promise(SendResetLink(data.email), {
-      loading: "Processing your request...",
-      success: "If the email is registered, a password reset link has been sent. Please check your inbox (and spam folder).",
-      error: (err) => {
-        // console.error(err);
-        return "Something went wrong. Please try again later.";
-      }
-    });
-
-    reset();
-  } catch (err) { }
-};
-
+      reset();
+    } catch (err) {}
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -42,11 +49,15 @@ const onSubmit = async (data) => {
             Reset Your Password
           </h2>
           <p className="mt-2 font-inter text-center text-sm text-gray-600 dark:text-gray-400">
-            Enter your email address below and we'll send you a link to reset your password.
+            Enter your email address below and we'll send you a link to reset
+            your password.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-6">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-6 mt-6"
+        >
           {/* Email Field */}
           <div className="group">
             <label
@@ -54,7 +65,8 @@ const onSubmit = async (data) => {
               className="px-2 text-sm font-medium
                          text-gray-700 dark:text-gray-300
                          transform transition-all duration-300 ease-in-out
-                         group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400">
+                         group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400"
+            >
               Email Address
             </label>
             <div className="relative">
@@ -66,7 +78,6 @@ const onSubmit = async (data) => {
                     message: "Enter a valid email address",
                   },
                 })}
-
                 id="email"
                 type="email"
                 className="peer w-full px-4 py-2.5 border-2 rounded-lg
@@ -83,10 +94,10 @@ const onSubmit = async (data) => {
           </div>
           {errors.email && (
             <p className="text-red-600 dark:text-red-400 text-sm -mt-3 flex items-center gap-1">
-              <TriangleAlert className="w-4 h-4" />{errors.email.message}
+              <TriangleAlert className="w-4 h-4" />
+              {errors.email.message}
             </p>
           )}
-
 
           {/* Send Reset Link Button */}
           <button
@@ -101,7 +112,8 @@ const onSubmit = async (data) => {
           >
             {isSubmitting ? (
               <>
-                <LoaderCircle className="w-5 h-5 mr-2 animate-spin" /> Sending...
+                <LoaderCircle className="w-5 h-5 mr-2 animate-spin" />{" "}
+                Sending...
               </>
             ) : (
               <>
@@ -112,8 +124,11 @@ const onSubmit = async (data) => {
         </form>
 
         <p className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
-          Remember your password?{' '}
-          <Link href="/sign-in" className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+          Remember your password?{" "}
+          <Link
+            href="/sign-in"
+            className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+          >
             Sign In
           </Link>
         </p>

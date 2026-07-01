@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { after } from "next/server"; // Next.js ki native API import karein
+import { after } from "next/server";
 import ConnectToDB from "@/lib/dbConnect";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import errorHandler from "@/lib/handlers/errorhandler";
 import UserModel from "@/models/User";
 import { sendEmail } from "@/lib/managers/mailManager";
-import { verifyEmailHtml } from "@/lib/html/Emails";
+import { accountExistsHtml, verifyEmailHtml } from "@/lib/html/Emails";
 
 export async function POST(req) {
   try {
@@ -33,6 +33,20 @@ export async function POST(req) {
     if (isAlreadyExist) {
       // Dummy hash
       await bcrypt.hash(password, 10);
+
+      after(async () => {
+        try {
+          await sendEmail({
+            to: email,
+            subject: "PKey - Account Already Exists",
+            text: `Hello ${isAlreadyExist.name || name}, you already have a PKey account. Please log in instead of signing up again.`,
+            html: accountExistsHtml(isAlreadyExist.name || name),
+          });
+        } catch (err) {
+          console.error("Async Email Error (Account Exists):", err);
+        }
+      });
+
       return response;
     }
 

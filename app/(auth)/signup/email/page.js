@@ -8,6 +8,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { HandleSignUp } from "@/lib/auth/handleSign-up";
+import { getPasswordStrength } from "@/lib/helper";
 
 import toast from "react-hot-toast";
 import Logo from "@/components/logo";
@@ -18,16 +19,42 @@ const schema = z
     password: z.string().min(6, "Password must be at least 6 characters long"),
     confirmPassword: z.string(),
   })
+  .refine((data) => {
+    const {realScore} = getPasswordStrength(data.password);
+    return realScore >= 2;
+  }, {
+    message: "Password is too weak.",
+    path: ["password"],
+  })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
+
+const getStrengthColor = (score) => {
+  if (score === 0) return "bg-red-500";
+  if (score === 1) return "bg-orange-500";
+  if (score === 2) return "bg-yellow-500";
+  if (score === 3) return "bg-blue-500";
+  if (score === 4) return "bg-green-500";
+  return "bg-gray-200";
+};
+
+const getTextColor = (score) => {
+  if (score === 0) return "text-red-500";
+  if (score === 1) return "text-orange-500";
+  if (score === 2) return "text-yellow-500";
+  if (score === 3) return "text-blue-500";
+  if (score === 4) return "text-green-500";
+  return "text-gray-500";
+};
 
 export default function SignupPage() {
   const {
     register,
     formState: { errors },
     handleSubmit,
+    watch,
     reset,
   } = useForm({
     resolver: zodResolver(schema),
@@ -42,6 +69,9 @@ export default function SignupPage() {
   const toggleConfirmPasswordVisibility = () =>
     setConfirmPasswordVisible(!confirmPasswordVisible);
 
+  const passwordValue = watch("password", "");
+  const strength = getPasswordStrength(passwordValue);
+
   const onSubmitHandler = handleSubmit(async (data) => {
     try {
       await toast.promise(HandleSignUp(data), {
@@ -49,21 +79,20 @@ export default function SignupPage() {
         success: <b>Signed up successfully!</b>,
         error: (err) => <b>{err.message || "Sign-up failed"}</b>,
       });
-  
+
       // Only runs if sign-up was successful
       toast.success("Verification email sent! Please check your inbox.", {
         style: {
-          border: '1px solid #4ade80',
-          padding: '10px',
-          color: '#166534',
+          border: "1px solid #4ade80",
+          padding: "10px",
+          color: "#166534",
         },
-        icon: '📧',
+        icon: "📧",
       });
-      reset()
-      router.push("/sign-in")
+      reset();
+      router.push("/sign-in");
     } catch (error) {}
   });
-  
 
   return (
     <div className="min-h-screen flex py-4 items-center justify-center bg-gray-100 dark:bg-gray-900 px-3 md:px-4">
@@ -146,6 +175,32 @@ export default function SignupPage() {
                 )}
               </div>
             </div>
+            {passwordValue && passwordValue.length > 0 && (
+              <div className="mt-2">
+                {/* Thin Progress Bar */}
+                <div className="h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full ${getStrengthColor(
+                      strength.realScore,
+                    )} transition-all duration-300`}
+                    style={{ width: `${Math.max(strength.score, 2)}%` }} // Minimum 2% width so it's visible when typing starts
+                  ></div>
+                </div>
+                {/* Score Text & Category */}
+                <div className="flex justify-between items-center mt-1 text-xs">
+                  <span
+                    className={`font-medium ${getTextColor(
+                      strength.realScore,
+                    )}`}
+                  >
+                    {strength.category}
+                  </span>
+                  <span className="text-gray-500 dark:text-gray-400">
+                    {strength.score}%
+                  </span>
+                </div>
+              </div>
+            )}
             {errors.password && (
               <p className="text-red-500 text-sm mt-1">
                 {errors.password.message}

@@ -70,16 +70,32 @@ export default function LoginPage() {
 
   const onResend = async () => {
     const email = getValues("emailOrUsername");
+    if (!email.trim()) {
+      toast.error(
+        "Please enter your registered email address to resend the link.",
+      );
+      return;
+    }
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!isEmail) {
+      toast.error(
+        "Invalid Email Address.",
+      );
+      return;
+    }
     await toast.promise(
       axios.post(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/resend-verification`,
-        { email }
+        { email },
       ),
       {
         loading: "Sending...",
-        success: `Verification link sent to ${email}!`,
-        error: (err) => err.message || "Failed to send verification link",
-      }
+        success: () => {
+          setShowResendBtn(false)
+          return `Verification link sent to ${email}!`
+        },
+        error: (err) => err.response?.data?.message || "Failed to send verification link",
+      },
     );
   };
 
