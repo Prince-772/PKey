@@ -7,6 +7,7 @@ import errorHandler from "@/lib/handlers/errorhandler";
 import UserModel from "@/models/User";
 import { sendEmail } from "@/lib/managers/mailManager";
 import { accountExistsHtml, verifyEmailHtml } from "@/lib/html/Emails";
+import { getPasswordStrength } from "@/lib/helper";
 
 export async function POST(req) {
   try {
@@ -17,6 +18,7 @@ export async function POST(req) {
     }
     if (password.length < 6)
       throw new Error("Password must be at least 6 characters long");
+    if (getPasswordStrength(password).realScore < 2) throw new Error("Password is too weak.");
     if (password !== confirmPassword) {
       throw new Error("Confirm Password does not match");
     }

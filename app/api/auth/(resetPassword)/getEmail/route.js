@@ -28,7 +28,7 @@ export async function POST(req) {
         data: { email: user.email },
       },
       { status: 200 },
-    );
+    );j
   } catch (err) {
     return NextResponse.json(
       {
