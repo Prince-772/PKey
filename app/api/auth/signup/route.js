@@ -63,6 +63,7 @@ export async function POST(req) {
       name,
       email,
       password: hashedPassword,
+      provider: "credentials",
       verificationToken: hashedToken,
       verificationExpiry: Date.now() + 1000 * 60 * 60, // 1 hour
     });

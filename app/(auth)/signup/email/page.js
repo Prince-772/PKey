@@ -77,7 +77,7 @@ export default function SignupPage() {
       await toast.promise(HandleSignUp(data), {
         loading: "Signing up...",
         success: <b>Signed up successfully!</b>,
-        error: (err) => <b>{err.message || "Sign-up failed"}</b>,
+        error: (err) => {console.log(err, "dfdafd"); return <b>{err.message || "Sign-up failed"}</b>},
       });
 
       // Only runs if sign-up was successful
@@ -89,8 +89,8 @@ export default function SignupPage() {
         },
         icon: "📧",
       });
-      reset();
-      router.push("/sign-in");
+      // reset();
+      // router.push("/sign-in");
     } catch (error) {}
   });
 

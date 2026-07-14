@@ -17,6 +17,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    provider: {
+      type: String,
+      enum: ["credentials", "google", "github"],
+      required: true,
+    },
     // only saves the hashed authHash (not master Password)
     masPass: {
       type: String,

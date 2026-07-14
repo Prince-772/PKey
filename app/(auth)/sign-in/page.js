@@ -60,6 +60,10 @@ export default function LoginPage() {
             return (
               <b>Email not verified. Please verify your email to continue.</b>
             );
+          } else if (err.message.endsWith("OTHER_PROVIDER_ACCOUNT_EXISTS")) {
+            return (
+              <b>Please login with correct method.</b>
+            );
           }
           return <b>{err.message || "Sign-in failed"}</b>;
         },
@@ -78,9 +82,7 @@ export default function LoginPage() {
     }
     const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     if (!isEmail) {
-      toast.error(
-        "Invalid Email Address.",
-      );
+      toast.error("Invalid Email Address.");
       return;
     }
     await toast.promise(
@@ -91,10 +93,11 @@ export default function LoginPage() {
       {
         loading: "Sending...",
         success: () => {
-          setShowResendBtn(false)
-          return `Verification link sent to ${email}!`
+          setShowResendBtn(false);
+          return `Verification link sent to ${email}!`;
         },
-        error: (err) => err.response?.data?.message || "Failed to send verification link",
+        error: (err) =>
+          err.response?.data?.message || "Failed to send verification link",
       },
     );
   };
