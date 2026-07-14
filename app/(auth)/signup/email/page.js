@@ -89,8 +89,8 @@ export default function SignupPage() {
         },
         icon: "📧",
       });
-      // reset();
-      // router.push("/sign-in");
+      reset();
+      router.push("/sign-in");
     } catch (error) {}
   });
 

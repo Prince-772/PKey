@@ -34,7 +34,6 @@ export async function middleware(req) {
   const isOAuthRoute =
     pathname.startsWith("/api/auth/signin") ||
     pathname.startsWith("/api/auth/callback");
-  console.log(pathname, "*************************************");
 
   if (pathname.startsWith("/api/auth/signup")) {
     const { success } = await signupRateLimit.limit(ip);
