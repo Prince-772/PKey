@@ -165,7 +165,7 @@ const Passwords = () => {
             <BlockedAccount />
           );
         } else {
-          return err.message || "Something went wrong";
+          return err?.response?.data?.message || err.message || "Something went wrong";
         }
       });
     } finally {

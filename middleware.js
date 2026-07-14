@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { authRateLimit, apiRateLimit, signupRateLimit } from "./lib/rateLimit";
+import { authRateLimit, apiRateLimit, signupRateLimit, editFavoriteRateLimit } from "./lib/rateLimit";
 
 export async function middleware(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
@@ -31,6 +31,7 @@ export async function middleware(req) {
     "/api/auth/resend-verification",
   ];
   const isResetPassword = pathname.startsWith("/api/auth/resetPassword");
+  const isEditFavorite = pathname.startsWith("/api/protected/passwords/editfavorite");
   const isOAuthRoute =
     pathname.startsWith("/api/auth/signin") ||
     pathname.startsWith("/api/auth/callback");
@@ -40,6 +41,13 @@ export async function middleware(req) {
     if (!success)
       return NextResponse.json(
         { message: "Too many signup attempts." },
+        { status: 429 },
+      );
+  } else if (isEditFavorite) {
+    const { success } = await editFavoriteRateLimit.limit(ip);
+    if (!success)
+      return NextResponse.json(
+        { message: "Too many attempts. Please wait for a while." },
         { status: 429 },
       );
   } else if (
@@ -77,7 +85,7 @@ export async function middleware(req) {
         );
       }
       return NextResponse.json(
-        { message: "Too many requests." },
+        { message: "Too many requests. Please wait for a while." },
         { status: 429 },
       );
     }
