@@ -30,7 +30,7 @@ export const authOptions = {
           if (!email) throw new Error("Email is required");
           if (!password) throw new Error("Password is required");
           if (password.length < 6)
-            throw new Error("Invalid email or password1");
+            throw new Error("Invalid email or password");
 
           await ConnectToDB();
 
@@ -44,7 +44,7 @@ export const authOptions = {
               password,
               "$2b$10$DummyHashForTimingConsistencyOnly",
             );
-            throw new Error("Invalid email or password2");
+            throw new Error("Invalid email or password");
           }
 
           // OAuth account
@@ -53,7 +53,7 @@ export const authOptions = {
               password,
               "$2b$10$DummyHashForTimingConsistencyOnly",
             );
-            throw new Error("Invalid email or password3");
+            throw new Error("Invalid email or password");
           }
 
           if (user.loginLockUntil && user.loginLockUntil < new Date()) {
@@ -67,7 +67,7 @@ export const authOptions = {
               password,
               "$2b$10$DummyHashForTimingConsistencyOnly",
             );
-            throw new Error("Invalid email or password4");
+            throw new Error("Invalid email or password");
           }
 
           // Compare password
@@ -102,7 +102,7 @@ export const authOptions = {
                 });
               }
             }
-            throw new Error("Invalid email or password5");
+            throw new Error("Invalid email or password");
           }
 
           if (!user.isVerified) {
