@@ -86,7 +86,7 @@ const CreatePassword = () => {
   const [isPassCopied, setIsPassCopied] = useState(false);
   const [isUserNameCopied, setIsUserNameCopied] = useState(false);
   const [strengthMeterOpen, setStrengthMeterOpen] = useState(true);
-  const { encKey, resetTimer, masterPassSet, setMasterPassSet, masterPass } =
+  const { encKey, resetTimer, toCreateMasterPass, setToCreateMasterPass, masterPass } =
     useMasterPass();
   const [showMasterPassModel, setshowMasterPassModel] = useState(false);
   const [showCreateMasterModel, setShowCreateMasterModel] = useState(false);
@@ -148,7 +148,7 @@ const CreatePassword = () => {
 
   const handleOnSubmit = async (formData) => {
     if (!encKey) {
-      masterPassSet ? setShowCreateMasterModel(true) : setshowMasterPassModel(true);
+      toCreateMasterPass ? setShowCreateMasterModel(true) : setshowMasterPassModel(true);
       return;
     }
     const strength = categorizePassword(formData.password);
@@ -177,7 +177,7 @@ const CreatePassword = () => {
 
   const onCreateMasterPass = useCallback(
     async (masterPass) => {
-      setMasterPassSet(false);
+      setToCreateMasterPass(false);
       setShowCreateMasterModel(false);
       const { authHash, salt } = await generateAuthData(masterPass);
       await toast.promise(CreateMasterPass(authHash, salt), {
@@ -187,7 +187,7 @@ const CreatePassword = () => {
           return res.message || "Master Password created!";
         },
         error: ({ message }) => {
-          setMasterPassSet(true);
+          setToCreateMasterPass(true);
           if (message === "BLOCKED_ACCOUNT") {
             return (
               <BlockedAccount />
@@ -203,13 +203,13 @@ const CreatePassword = () => {
   // Vault status derived values
   const vaultStatus = encKey
     ? { label: "Vault Unlocked", icon: <LockOpen className="w-3.5 h-3.5" />, cls: "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700/50" }
-    : !masterPassSet
+    : !toCreateMasterPass
       ? { label: "Vault Locked", icon: <Lock className="w-3.5 h-3.5" />, cls: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-700/50" }
       : { label: "Setup Required", icon: <AlertCircle className="w-3.5 h-3.5" />, cls: "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700/50" };
 
   const vaultSubtext = encKey
     ? "Ready to secure a new account."
-    : !masterPassSet
+    : !toCreateMasterPass
       ? "Enter your Master Password to proceed."
       : "Setup your vault to start saving entries.";
 
@@ -309,8 +309,8 @@ const CreatePassword = () => {
               </ScrollReveal>
             </div>
 
-            {/* Set Master Password CTA shown when masterPassSet is true */}
-            {masterPassSet && (
+            {/* Set Master Password CTA shown when toCreateMasterPass is true */}
+            {toCreateMasterPass && (
               <div className="px-6 pb-6">
                 <button
                   type="button"

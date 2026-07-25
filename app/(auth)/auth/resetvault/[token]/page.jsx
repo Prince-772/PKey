@@ -18,7 +18,7 @@ export default function ResetVaultPage() {
   const [isTokenValid, setIsTokenValid] = useState(false); // State to track if token is valid
   const [isSubmitting, setIsSubmitting] = useState(false); // For form submission loading
   const {data: session, update} = useSession()
-  const { setEncKey, setMasterPass, setMasterPassSet } = useMasterPass()
+  const { setEncKey, setMasterPass, setToCreateMasterPass } = useMasterPass()
   const params = useParams();
   const router = useRouter();
   const { token } = params; // Extract token from URL params
@@ -59,7 +59,7 @@ export default function ResetVaultPage() {
           }, 3000);
           setMasterPass(null)
           setEncKey(null)
-          setMasterPassSet(true)
+          setToCreateMasterPass(true)
           if (session) {
             await update({
                   ...session,

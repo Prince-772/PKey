@@ -18,7 +18,7 @@ export default function MasterPassProvider({ children }) {
   const [masterPass, setMasterPass] = useState(null);
   const [encKey, setEncKey] = useState(null);
   const { status } = useSession();
-  const [masterPassSet, setMasterPassSet] = useState(false);
+  const [toCreateMasterPass, setToCreateMasterPass] = useState(false);
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export default function MasterPassProvider({ children }) {
       (async () => {
         try {
           const res = await hasMasterPass();
-          if (!res) setMasterPassSet(true);
+          if (!res) setToCreateMasterPass(true);
         } catch (err) {}
       })();
     }
@@ -85,10 +85,10 @@ export default function MasterPassProvider({ children }) {
       encKey,
       setEncKey,
       resetTimer,
-      masterPassSet,
-      setMasterPassSet,
+      toCreateMasterPass,
+      setToCreateMasterPass,
     }),
-    [masterPass, encKey, resetTimer, masterPassSet],
+    [masterPass, encKey, resetTimer, toCreateMasterPass],
   );
 
   return (

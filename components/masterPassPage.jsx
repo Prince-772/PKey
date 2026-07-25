@@ -9,6 +9,7 @@ import { useSession } from "next-auth/react";
 import { generateAuthData } from "@/lib/masterpassword/mPasscryptoV3";
 import { AutoMigrateToUv2 } from "@/lib/masterpassword/migrationtov2/migrate";
 import BlockedAccount from "./BlockedAccountToast";
+import { createPortal } from "react-dom";
 
 export default function MasterPasswordModel({ isOpen, onClose }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -91,7 +92,7 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex justify-center bg-gray-950/70 dark:bg-black/80 backdrop-blur-md overflow-auto scroll-bar-hide">
       <div className="relative bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-2xl w-[95%] max-w-md max-h-[95vh] animate-scale-in border-3 border-gray-200 dark:border-gray-700 overflow-auto scroll-bar-hide my-auto">
         <X
@@ -170,6 +171,6 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
           </button>
         </form>
       </div>
-    </div>
+    </div>, document.body
   );
 }

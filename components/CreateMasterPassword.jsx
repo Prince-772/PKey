@@ -9,6 +9,7 @@ import {
   Cpu,
 } from "lucide-react";
 import { capitalize, getPasswordStrength } from "@/lib/helper";
+import { createPortal } from "react-dom";
 
 export default function CreateMasterPasswordModal({
   isOpen,
@@ -49,7 +50,7 @@ export default function CreateMasterPasswordModal({
     return score < 90 ? "bg-blue-500" : "bg-emerald-500";
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex justify-center bg-gray-950/70 dark:bg-black/80 backdrop-blur-md overflow-auto scroll-bar-hide ">
       <div className="relative bg-white dark:bg-gray-800 p-4 md:p-8 rounded-2xl shadow-2xl w-[95%] max-w-md max-h-[95vh] animate-scale-in border-3 border-gray-200 dark:border-gray-700 overflow-auto scroll-bar-hide my-auto">
         <X
@@ -221,6 +222,6 @@ export default function CreateMasterPasswordModal({
           </button>
         </form>
       </div>
-    </div>
+    </div>, document.body
   );
 }
