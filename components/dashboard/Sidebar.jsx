@@ -103,7 +103,7 @@ export default function Sidebar({
             </p>
           </div>
 
-          <div className="pt-2 md:pt-4 flex justify-between md:block">
+          <div className="pt-2 md:pt-4 flex justify-around md:block">
             {tabs.map((tab, i) => {
               const active = pathname === tab.href;
               return (

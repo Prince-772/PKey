@@ -3,6 +3,7 @@ import "./globals.css";
 import AuthProvider from "@/context/AuthProvider";
 import MasterPassProvider from "@/context/MasterPassword";
 import { Toaster } from "react-hot-toast";
+import PasswordsProvider from "@/context/PasswordsProvider";
 // import NavBar from "@/components/navbar";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -93,7 +94,9 @@ export default function RootLayout({ children }) {
         className={`${inter.variable} ${roboto.variable} bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300`}
       >
         <AuthProvider>
-          <MasterPassProvider>{children}</MasterPassProvider>
+          <MasterPassProvider>
+            <PasswordsProvider>{children}</PasswordsProvider>
+          </MasterPassProvider>
         </AuthProvider>
         <Toaster />
       </body>

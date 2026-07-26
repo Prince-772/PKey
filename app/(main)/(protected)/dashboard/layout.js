@@ -27,7 +27,7 @@ export default function DashboardLayout({ children, createpassword, user }) {
   return (
     <div className="mt-20">
       <main className="flex gap-4">
-        <div className="fixed left-0 top-0 pt-16 z-5 flex h-screen">
+        <div className="fixed md:left-0 md:top-0 md:pt-16 z-5 flex md:h-screen">
           <Sidebar
             expanded={sidebarExpanded}
             onExpandChange={setSidebarExpanded}
@@ -39,8 +39,8 @@ export default function DashboardLayout({ children, createpassword, user }) {
         {/* <div className="fixed right-0 top-0 mt-16 z-10 flex h-screen"> */}
         <div
           key={pathname}
-          className={`fixed top-18 right-0 bottom-0 px-6 lg:px-12 overflow-y-auto transition-all duration-300 ease-in-out scroll-bar-hide pb-15 md:pb-0
-        ${sidebarExpanded ? "md:left-18 lg:left-64" : "md:left-18"}`}
+          className={`fixed top-18 right-0 bottom-0 px-4 md:px-6 lg:px-12 overflow-y-auto transition-all duration-300 ease-in-out scroll-bar-hide pb-15 md:pb-0
+        ${sidebarExpanded ? "left-0 md:left-18 lg:left-64" : "left-0 md:left-18"}`}
         >
           {children}
         </div>

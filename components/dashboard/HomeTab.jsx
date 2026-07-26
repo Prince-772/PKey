@@ -73,7 +73,7 @@ export default function HomeTab() {
     [session, update],
   );
 
-  const vaultStatus = encKey
+  const vaultStatus = isUnlocked
     ? {
         label: "Vault Unlocked",
         icon: <LockOpen className="w-3.5 h-3.5" />,
@@ -100,7 +100,7 @@ export default function HomeTab() {
   const firstName = session?.user?.name?.split(" ")[0] || "there";
 
   return (
-    <div className="w-full transition-all duration-300 ease-in-out mx-auto space-y-8 scroll-bar-hide py-5">
+    <div className="w-full transition-all duration-300 ease-in-out mx-auto space-y-6 md:space-y-8 scroll-bar-hide py-3 md:py-5">
       {/* Modals */}
       {showMasterPassModel && (
         <MasterPasswordModel
@@ -118,9 +118,9 @@ export default function HomeTab() {
 
       <div className="space-y-8">
         {/* ── 1. Greeting Header ── */}
-        <ScrollReveal className="sticky top-0 z-10 w-[104%] -translate-x-[2%] mx-auto pl-12 border-b border-gray-200/50 dark:border-gray-800/50 py-4 bg-gray-50 dark:bg-gray-950">
-          <div className="">
-            <h2 className="text-3xl font-bold font-inter text-gray-900 dark:text-white">
+        <ScrollReveal className="sticky top-0 z-10 w-[104%] -translate-x-[2%] mx-auto pl-4 md:pl-12 border-b border-gray-200/50 dark:border-gray-800/50 py-3 md:py-4 bg-gray-50 dark:bg-gray-950">
+          <div>
+            <h2 className="text-xl md:text-3xl font-bold font-inter text-gray-900 dark:text-white">
               Welcome back, {firstName} 👋
             </h2>
             <p className="font-roboto text-gray-600 dark:text-gray-400 mt-1 font-medium text-sm">
@@ -144,12 +144,12 @@ export default function HomeTab() {
         {toCreateMasterPass && (
           <div className="space-y-6 pb-1">
             {/* Hero CTA card */}
-            <ScrollReveal className="relative overflow-hidden rounded-[2rem] bg-linear-to-br from-blue-600 via-indigo-600 to-purple-700 p-8 md:p-12 text-white shadow-2xl shadow-blue-500/20">
+            <ScrollReveal className="relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] bg-linear-to-br from-blue-600 via-indigo-600 to-purple-700 p-6 sm:p-8 md:p-12 text-white shadow-2xl shadow-blue-500/20">
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-[80px] pointer-events-none" />
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-400/10 rounded-full blur-[60px] pointer-events-none" />
 
-              <div className="relative flex flex-col md:flex-row items-start md:items-center gap-8 justify-between">
-                <div className="space-y-4 max-w-lg space-x-3">
+              <div className="relative flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-8 justify-between flex-wrap">
+                <div className="space-y-4 space-x-3">
                   <ScrollReveal
                     delayMs={50}
                     className={`font-inter inline-flex items-center gap-2 px-3 py-2 rounded-full border-[0.5px] text-xs font-semibold bg-blue-900/40 border-green-200 dark:border-green-500/50`}
@@ -180,13 +180,13 @@ export default function HomeTab() {
                       style={{ animationDelay: "0.8s" }}
                     />
                   </ScrollReveal>
-                  <h3 className="text-2xl md:text-3xl font-black tracking-tight leading-tight">
+                  <h3 className="text-xl md:text-3xl font-black tracking-tight leading-tight">
                     Secure Your Vault with a Master Password
                   </h3>
                   <p className="text-blue-100 font-medium text-sm md:text-base leading-relaxed">
                     Your Master Password is the only key to your vault. It never
                     leaves your device. We use it locally to encrypt everything
-                    with AES-256-GCM.
+                    with <strong className="text-nowrap font-inter text-white">AES-256-GCM</strong>.
                   </p>
                   <div className="flex items-center gap-2">
                     <p className="text-white font-bold font-roboto">
@@ -199,7 +199,7 @@ export default function HomeTab() {
                 <ScrollReveal direction="right">
                   <button
                     onClick={() => setShowCreateMasterModel(true)}
-                    className="shrink-0 group flex items-center gap-2.5 px-8 py-4 bg-white text-blue-700 font-black rounded-xl shadow-xl hover:bg-blue-50 hover:scale-105 active:scale-95 transition-all duration-300 text-sm md:text-base whitespace-nowrap"
+                    className="w-full md:w-auto shrink-0 group flex items-center justify-center gap-2.5 px-6 md:px-8 py-3 md:py-4 bg-white text-blue-700 font-black rounded-xl shadow-xl hover:bg-blue-50 hover:scale-105 active:scale-95 transition-all duration-300 text-sm md:text-base"
                   >
                     <KeyRound className="w-5 h-5 shrink-0" />
                     Set Master Password
@@ -302,17 +302,17 @@ export default function HomeTab() {
             {/* Unlock CTA card */}
             <ScrollReveal
               direction="right"
-              className="relative overflow-hidden rounded-4xl bg-gray-100/50 dark:bg-gray-900 border border-amber-200 dark:border-amber-800/50 p-8 md:p-12 shadow-sm"
+              className="relative overflow-hidden rounded-[1.5rem] md:rounded-4xl bg-gray-100/50 dark:bg-gray-900 border border-amber-200 dark:border-amber-800/50 p-5 md:p-12 shadow-sm"
             >
               <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 dark:bg-amber-500/10 rounded-full blur-[80px] pointer-events-none" />
 
               <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-8 justify-between">
                 <div className="space-y-4 max-w-lg">
-                  <div className="w-16 h-16 rounded-2xl bg-amber-50 dark:bg-amber-900/30 border border-amber-100 dark:border-amber-800/50 flex items-center justify-center text-amber-600 dark:text-amber-400">
-                    <Lock className="w-8 h-8" />
+                  <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-amber-50 dark:bg-amber-900/30 border border-amber-100 dark:border-amber-800/50 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                    <Lock className="w-6 h-6 md:w-8 md:h-8" />
                   </div>
                   <div>
-                    <h3 className="text-2xl md:text-3xl font-extrabold font-inter text-gray-900 dark:text-white tracking-tight">
+                    <h3 className="text-xl md:text-3xl font-extrabold font-inter text-gray-900 dark:text-white tracking-tight">
                       Your Vault is Locked
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400 font-medium text-sm md:text-base leading-relaxed mt-2">
@@ -348,7 +348,7 @@ export default function HomeTab() {
                 <ScrollReveal>
                   <button
                     onClick={() => setshowMasterPassModel(true)}
-                    className="shrink-0 group flex items-center gap-2.5 px-8 py-4 rounded-full bg-linear-to-r from-amber-500 to-orange-500 text-white font-black shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 active:scale-95 transition-all duration-300 text-sm md:text-base whitespace-nowrap"
+                    className="w-full md:w-auto shrink-0 group flex items-center justify-center gap-2.5 px-6 md:px-8 py-3 md:py-4 rounded-full bg-linear-to-r from-amber-500 to-orange-500 text-white font-black shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 active:scale-95 transition-all duration-300 text-sm md:text-base"
                   >
                     <LockOpen className="w-5 h-5 shrink-0" />
                     Unlock Vault
@@ -359,18 +359,44 @@ export default function HomeTab() {
             </ScrollReveal>
 
             {/* Blurred score card hint */}
-            <ScrollReveal rootMargin = "0px 0px -5% 0px" direction="right" className="relative overflow-hidden rounded-4xl bg-gray-300 dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 p-8 opacity-30 select-none pointer-events-none">
-              <div className="flex items-center gap-8">
-                <div className="w-32 h-32 rounded-full border-8 border-gray-400 dark:border-gray-700 flex items-center justify-center">
+            <ScrollReveal
+              rootMargin="0px 0px -5% 0px"
+              direction="right"
+              className="block relative overflow-hidden rounded-4xl bg-gray-300 dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 p-6 md:p-8 opacity-30 select-none pointer-events-none"
+            >
+              <div className="flex items-center gap-4 md:gap-8 flex-wrap">
+                <ScrollReveal
+                  direction="right"
+                  className="shrink-0 w-24 md:w-32 aspect-square rounded-full border-8 border-gray-400 dark:border-gray-700 flex items-center justify-center"
+                >
                   <div className="text-center">
-                    <div className="h-8 w-12 bg-gray-500/50 dark:bg-gray-600 rounded animate-pulse mx-auto" />
-                    <div className="h-2 w-10 bg-gray-500/50 dark:bg-gray-600 rounded animate-pulse mt-1 mx-auto" />
+                    <ScrollReveal
+                      delayMs={50 * 1}
+                      className="h-6 md:h-8 w-9 md:w-12 bg-gray-500/50 dark:bg-gray-600 rounded animate-pulse mx-auto"
+                    />
+                    <ScrollReveal
+                      delayMs={50 * 2}
+                      className="h-1 md:h-2 w-7.5 md:w-10 bg-gray-500/50 dark:bg-gray-600 rounded animate-pulse mt-1 mx-auto"
+                    />
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="h-3 w-24 bg-gray-400/50 dark:bg-gray-700 rounded animate-pulse" />
-                  <div className="h-6 w-48 bg-gray-500/50 dark:bg-gray-600 rounded animate-pulse" />
-                  <div className="h-3 w-64 bg-gray-400/50 dark:bg-gray-700 rounded animate-pulse" />
+                </ScrollReveal>
+
+                <div className="space-y-2 shrink-0 w-[min(100%,300px)]">
+                  <ScrollReveal
+                    direction="right"
+                    delayMs={50 * 1}
+                    className="h-3 w-[min(37.5%,96px)] bg-gray-400/50 dark:bg-gray-700 rounded animate-pulse"
+                  />
+                  <ScrollReveal
+                    direction="right"
+                    delayMs={50 * 2}
+                    className="h-6 w-[min(75%,192px)] bg-gray-500/50 dark:bg-gray-600 rounded animate-pulse"
+                  />
+                  <ScrollReveal
+                    direction="right"
+                    delayMs={50 * 3}
+                    className="h-3 w-[min(100%,256px)] bg-gray-400/50 dark:bg-gray-700 rounded animate-pulse"
+                  />
                 </div>
               </div>
             </ScrollReveal>
@@ -378,7 +404,7 @@ export default function HomeTab() {
             {/* Skeleton stats — blurred hint of what's underneath */}
             <ScrollReveal
               rootMargin="0px 0px -5% 0px"
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 select-none pointer-events-none"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 select-none pointer-events-none"
             >
               {[
                 { color: "blue", label: "Saved Entries" },
@@ -420,54 +446,63 @@ export default function HomeTab() {
         {isUnlocked && (
           <>
             {/* 2. Security Score Card */}
-            <ScrollReveal className="relative overflow-hidden p-6 md:p-8 rounded-[2rem] bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 shadow-sm transition-all duration-300">
+            <ScrollReveal className="relative overflow-hidden p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 shadow-sm transition-all duration-300">
               <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
-              <div className="overflow-hidden relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-12">
+              <div className="overflow-hidden relative z-10 flex items-center gap-4 md:gap-8 flex-wrap">
                 {/* Circular Score */}
-                <div className="relative flex items-center justify-center shrink-0">
-                  <svg className="w-32 h-32 transform -rotate-90">
-                    <circle
-                      cx="64"
-                      cy="64"
-                      r={circleRadius}
-                      stroke="currentColor"
-                      strokeWidth="10"
-                      fill="transparent"
-                      className="text-gray-100 dark:text-gray-800"
-                    />
-                    <circle
-                      cx="64"
-                      cy="64"
-                      r={circleRadius}
-                      stroke="currentColor"
-                      strokeWidth="10"
-                      fill="transparent"
-                      strokeDasharray={circumference}
-                      strokeDashoffset={strokeDashoffset}
-                      strokeLinecap="round"
-                      className="text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)] transition-all duration-1000 ease-out"
-                    />
-                  </svg>
-                  <div className="absolute flex flex-col items-center justify-center text-center">
-                    <span className="text-3xl font-black text-gray-900 dark:text-white">
-                      {healthScore}
-                    </span>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                      Score
-                    </span>
+                <div>
+                  <div className="relative flex items-center justify-center shrink-0">
+                    <svg
+                      viewBox="0 0 128 128"
+                      className="w-24 h-24 md:w-32 md:h-32 transform -rotate-90 overflow-visible"
+                    >
+                      {/* overflow-visible — glow clip nahi hoga */}
+                      <circle
+                        cx="64"
+                        cy="64"
+                        r="45"
+                        stroke="currentColor"
+                        strokeWidth="10"
+                        fill="transparent"
+                        className="text-gray-100 dark:text-gray-800"
+                      />
+                      <circle
+                        cx="64"
+                        cy="64"
+                        r="45"
+                        stroke="currentColor"
+                        strokeWidth="10"
+                        fill="transparent"
+                        strokeDasharray={circumference}
+                        strokeDashoffset={strokeDashoffset}
+                        strokeLinecap="round"
+                        className="text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)] transition-all duration-1000 ease-out"
+                      />
+                    </svg>
+
+                    {/* Score text — absolute center, SVG ke upar */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center rotate-0">
+                      <span className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white leading-none">
+                        {healthScore}
+                      </span>
+                      <span className="text-[9px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
+                        Score
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 md:py-2 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs font-inter font-extrabold tracking-widest uppercase">
+                    <ShieldCheck className="w-3.5 h-3.5" /> Looking Good
                   </div>
                 </div>
 
                 {/* Score Details */}
-                <div className="flex-1 text-center md:text-left space-y-4">
+                <div className="flex flex-col items-start justify-center gap-4 md:gap-8 flex-wrap space-y-2 shrink-0 max-w-[min(100%,600px)]">
                   <div>
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 mb-3 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs font-black tracking-widest uppercase">
-                      <ShieldCheck className="w-3.5 h-3.5" /> Looking Good
-                    </div>
-                    <h3 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+                    <h3 className="text-lg md:text-2xl font-black text-gray-900 dark:text-white tracking-tight">
                       Your Vault Health is Strong
                     </h3>
-                    <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 font-medium mt-2 max-w-lg">
+                    <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 font-medium mt-1">
                       We analyzed your passwords locally. You have a few weak
                       spots, but overall your security hygiene is excellent.
                     </p>
@@ -480,67 +515,62 @@ export default function HomeTab() {
             </ScrollReveal>
 
             {/* 3. Quick Stats Grid */}
-            <ScrollReveal className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <ScrollReveal
-                delayMs={1 * 1}
-                className="p-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 shadow-sm group hover:-translate-y-1 transition-all duration-300"
-              >
-                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4">
-                  <KeyRound className="w-5 h-5" />
-                </div>
-                <p className="text-3xl font-black text-gray-900 dark:text-white mb-1">
-                  {stats.total}
-                </p>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
-                  Saved Entries
-                </p>
-              </ScrollReveal>
-
-              <ScrollReveal
-                delayMs={1 * 2}
-                className="p-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 shadow-sm group hover:-translate-y-1 transition-all duration-300"
-              >
-                <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 flex items-center justify-center mb-4">
-                  <AlertTriangle className="w-5 h-5" />
-                </div>
-                <p className="text-3xl font-black text-gray-900 dark:text-white mb-1">
-                  {stats.weak}
-                </p>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
-                  Weak Passwords
-                </p>
-              </ScrollReveal>
-
-              <ScrollReveal
-                delayMs={1 * 3}
-                className="p-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 shadow-sm group hover:-translate-y-1 transition-all duration-300"
-              >
-                <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-4">
-                  <Copy className="w-5 h-5" />
-                </div>
-                <p className="text-3xl font-black text-gray-900 dark:text-white mb-1">
-                  {stats.reused}
-                </p>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
-                  Reused Passwords
-                </p>
-              </ScrollReveal>
-
-              <ScrollReveal
-                delayMs={1 * 4}
-                className="p-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 shadow-sm group hover:-translate-y-1 transition-all duration-300"
-              >
-                <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-4">
-                  <Clock className="w-5 h-5" />
-                </div>
-                <p className="text-lg font-black text-gray-900 dark:text-white mb-1 leading-tight">
-                  {stats.lastLogin}
-                </p>
-                <div className="flex items-center gap-1.5 mt-2">
-                  <Activity className="w-3.5 h-3.5 text-emerald-500" />
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
-                    Last Decrypted
+            <ScrollReveal className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+              <ScrollReveal delayMs={100 * 1}>
+                <div className="p-4 md:p-5 h-full rounded-xl md:rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 shadow-sm group hover:-translate-y-1 transition-all duration-300">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-2 md:mb-4">
+                    <KeyRound className="w-4 h-4 md:w-5 md:h-5" />
+                  </div>
+                  <p className="text-lg md:text-3xl font-black text-gray-900 dark:text-white mb-1">
+                    {stats.total}
                   </p>
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                    Saved Entries
+                  </p>
+                </div>
+              </ScrollReveal>
+
+              <ScrollReveal delayMs={100 * 2}>
+                <div className="p-4 md:p-5 h-full rounded-xl md:rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 shadow-sm group hover:-translate-y-1 transition-all duration-300">
+                  <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 flex items-center justify-center mb-2 md:mb-4">
+                    <AlertTriangle className="w-4 h-4 md:w-5 md:h-5" />
+                  </div>
+                  <p className="text-lg md:text-3xl font-black text-gray-900 dark:text-white mb-1">
+                    {stats.weak}
+                  </p>
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                    Weak Passwords
+                  </p>
+                </div>
+              </ScrollReveal>
+
+              <ScrollReveal delayMs={100 * 3}>
+                <div className="p-4 md:p-5 h-full rounded-xl md:rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 shadow-sm group hover:-translate-y-1 transition-all duration-300">
+                  <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-2 md:mb-4">
+                    <Copy className="w-4 h-4 md:w-5 md:h-5" />
+                  </div>
+                  <p className="text-lg md:text-3xl font-black text-gray-900 dark:text-white mb-1">
+                    {stats.reused}
+                  </p>
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                    Reused Passwords
+                  </p>
+                </div>
+              </ScrollReveal>
+
+              <ScrollReveal delayMs={100 * 4}>
+                <div className="p-4 md:p-5 h-full rounded-xl md:rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 shadow-sm group hover:-translate-y-1 transition-all duration-300">
+                  <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-2 md:mb-4">
+                    <Clock className="w-4 h-4 md:w-5 md:h-5" />
+                  </div>
+                  <p className="text-base md:text-lg font-black text-gray-900 dark:text-white mb-1 leading-tight">
+                    {stats.lastLogin}
+                  </p>
+                  <div className="flex items-center gap-1.5 mt-2">
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                      Last Decrypted
+                    </p>
+                  </div>
                 </div>
               </ScrollReveal>
             </ScrollReveal>
