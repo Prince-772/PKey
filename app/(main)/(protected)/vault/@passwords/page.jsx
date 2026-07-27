@@ -12,7 +12,7 @@ import {
 import toast from "react-hot-toast";
 import { useMasterPass } from "@/context/MasterPassword";
 import { decrypt } from "@/lib/passwords/oldencryptPassword"; // It is being imported only for old user to updgrade their account
-import MasterPasswordModel from "@/components/masterPassPage";
+import MasterPasswordModel from "@/components/MasterPasswordModal";
 import EmptyVault from "@/components/emptyVaultMsg";
 import VaultIsLocked from "@/components/lockVaultMessage";
 import DeleteEntryModal from "@/components/confirmDeleteEntryModel";
@@ -23,25 +23,25 @@ import { decryptV3, encryptV3 } from "@/lib/passwords/encryptPassV3";
 import { useSession } from "next-auth/react";
 import ScrollReveal from "@/components/ScrollReveal";
 import BlockedAccount from "@/components/BlockedAccountToast";
+import { usePasswords } from "@/context/PasswordsProvider";
 
 const Passwords = () => {
-  const [loading, setLoading] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editingData, setEditingData] = useState({
-    username: "",
+    usernames: [""],
     platform: "",
     password: "",
     id: "",
     version: 0,
   });
 
-  const [passwords, setPasswords] = useState([]);
-  const { masterPass, setMasterPass, encKey, resetTimer } = useMasterPass();
+  const { masterPass, encKey, resetTimer } = useMasterPass();
+  const { loading, passwords, fetchPasswords } = usePasswords();
   const [showMasterPassModel, setShowMasterPassModel] = useState(false);
   const [showConfirmDeleteEntryModel, setshowConfirmDeleteEntryModel] =
     useState(false);
-  const [deleteEntryId, setdeleteEntryId] = useState(null);
-  const { data: session, update } = useSession();
+  const [deleteEntryData, setDeleteEntryData] = useState({id:null, siteName:"", usernames:[]});
+  // const { data: session, update } = useSession();
 
   const handleEdit = useCallback(
     (data) => {
@@ -53,140 +53,10 @@ const Passwords = () => {
     [masterPass, encKey, resetTimer],
   );
 
-  const fetchPasswords = useCallback(async () => {
-    if (!encKey) {
-      if (passwords.length > 0) setPasswords([]);
-      return;
-    }
-    try {
-      setLoading(true);
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/protected/passwords/getallpasswords`,
-      );
-      const getPasswords = res.data.data;
-
-      const oldDocs = []; // To store the new encrypted data of Dv1 or Dv2
-      // decrypting in client side
-      const deCryptedData = await Promise.all(
-        getPasswords.map(async (p) => {
-          // For Old Entries, Updaing to new
-          if (p.version === 1) {
-            let { userName, siteName, strength } = p;
-            const userNameV3 = await encryptV3(userName, encKey);
-            const siteNameV3 = await encryptV3(siteName, encKey);
-            const strengthV3 = await encryptV3(strength, encKey);
-            const password = decrypt(p.password, masterPass); // Getting raw password
-            const passwordV3 = await encryptV3(password, encKey); // Encrypting raw password to dv3 version
-            const newData = {
-              ...p,
-              password: passwordV3,
-              userName: userNameV3,
-              siteName: siteNameV3,
-              strength: strengthV3,
-              version: 3,
-            };
-            oldDocs.push(newData);
-            return { ...p, password };
-          }
-          //For Dv2 Entries
-          else if (p.version === 2) {
-            // Extracting raw data from old algo
-            const siteName = decrypt(p.siteName, masterPass);
-            const userName = decrypt(p.userName, masterPass);
-            const strength = decrypt(p.strength, masterPass);
-            const password = decrypt(p.password, masterPass);
-            const siteNameV3 = await encryptV3(siteName, encKey);
-            const userNameV3 = await encryptV3(userName, encKey);
-            const strengthV3 = await encryptV3(strength, encKey);
-            const passwordV3 = await encryptV3(password, encKey);
-
-            const newData = {
-              ...p,
-              password: passwordV3,
-              userName: userNameV3,
-              siteName: siteNameV3,
-              strength: strengthV3,
-              version: 3,
-            };
-
-            oldDocs.push(newData);
-
-            return {
-              ...p,
-              siteName,
-              userName,
-              strength,
-              password,
-            };
-          }
-          // For dv3 Entries
-          else {
-            return {
-              ...p,
-              siteName: await decryptV3(p.siteName, encKey),
-              userName: await decryptV3(p.userName, encKey),
-              password: await decryptV3(p.password, encKey),
-              strength: await decryptV3(p.strength, encKey),
-            };
-          }
-        }),
-      );
-      setPasswords(deCryptedData);
-      // To updated the stored old entries to new
-      if (oldDocs.length > 0) {
-        toast.promise(UpdateToDV3(oldDocs), {
-          loading: "Securing Your Entries...",
-          success: async (res) => {
-            if (res.isAllUpdated && session) {
-              await update({
-                ...session,
-                user: {
-                  ...session.user,
-                  version: 3,
-                },
-              });
-            }
-            setMasterPass(null); // No need of mPass as user is migrated to Uv3
-            return res.message || "Secured!";
-          },
-          error: ({ message }) => {
-            if (message === "BLOCKED_ACCOUNT") {
-              return <BlockedAccount />;
-            } else {
-              return message || "Migration Failed, We'll try again later";
-            }
-          },
-        });
-      }
-    } catch (err) {
-      toast.error(() => {
-        if (err.message === "BLOCKED_ACCOUNT") {
-          return (
-            <BlockedAccount />
-          );
-        } else {
-          return err?.response?.data?.message || err.message || "Something went wrong";
-        }
-      });
-    } finally {
-      setLoading(false);
-      resetTimer();
-    }
-  }, [masterPass, encKey]);
-
   const onToggleFavorite = useCallback(
-    async (idToToggle, value) => {
+    async ({idToToggle, value, onError}) => {
       if (!encKey) return setShowMasterPassModel(true);
-      const passIndex = passwords.findIndex((p) => p._id === idToToggle);
-      if (passIndex === -1) return;
-
-      const originalPassword = passwords[passIndex];
       const newFavStatus = value;
-      setPasswords((prevPasswords) =>
-        prevPasswords.map((p) =>
-          p._id === idToToggle ? { ...p, isFavorite: newFavStatus } : p,
-        ),
-      );
       await toast.promise(handleToggleFavorite(idToToggle, newFavStatus), {
         loading: "Please wait...",
         success: (res) => {
@@ -194,15 +64,9 @@ const Passwords = () => {
           return res.message || "Changes saved!";
         },
         error: ({ message }) => {
-          setPasswords((prevPasswords) =>
-            prevPasswords.map((p) =>
-              p._id === idToToggle ? { ...originalPassword } : p,
-            ),
-          );
+          onError(!value)
           if (message === "BLOCKED_ACCOUNT") {
-            return (
-              <BlockedAccount />
-            );
+            return <BlockedAccount />;
           } else {
             return message || "Something went wrong";
           }
@@ -213,9 +77,9 @@ const Passwords = () => {
   );
 
   const handleDelete = useCallback(
-    async (id) => {
+    async (data) => {
       if (!encKey) return setShowMasterPassModel(true);
-      setdeleteEntryId(id);
+      setDeleteEntryData(data);
       setshowConfirmDeleteEntryModel(true);
     },
     [masterPass, encKey],
@@ -232,9 +96,7 @@ const Passwords = () => {
         },
         error: ({ message }) => {
           if (message === "BLOCKED_ACCOUNT") {
-            return (
-              <BlockedAccount />
-            );
+            return <BlockedAccount />;
           } else {
             return message || "Something went wrong";
           }
@@ -244,10 +106,10 @@ const Passwords = () => {
     [masterPass, encKey],
   );
 
-  useEffect(() => {
-    fetchPasswords();
-    return () => setShowMasterPassModel(false);
-  }, [masterPass, encKey]);
+  // useEffect(() => {
+  //   fetchPasswords();
+  //   return () => setShowMasterPassModel(false);
+  // }, [masterPass, encKey]);
 
   const [selectedOpt, setSelectedOpt] = useState(["all"]);
   const [searchTerms, setsearchTerms] = useState("");
@@ -269,7 +131,9 @@ const Passwords = () => {
       newPasswords = newPasswords.filter(
         (pas) =>
           pas.siteName.toLowerCase().includes(lowerSearch) ||
-          pas.userName.toLowerCase().includes(lowerSearch),
+          pas.userNames.some((username) =>
+            username.toLowerCase().includes(lowerSearch),
+          ),
       );
     }
     if (!selectedOpt.includes("all"))
@@ -447,7 +311,7 @@ const Passwords = () => {
                     <PasswordCard
                       id={item._id}
                       platform={item.siteName}
-                      username={item.userName}
+                      usernames={item.userNames}
                       password={item.password}
                       isFav={item.isFavorite}
                       onEdit={handleEdit}
@@ -468,8 +332,8 @@ const Passwords = () => {
           {...{
             onClose: () => setshowConfirmDeleteEntryModel(false),
             callback: fetchPasswords,
-            id: deleteEntryId,
-            resetID: () => setdeleteEntryId(null),
+            data: deleteEntryData,
+            resetID: () => setDeleteEntryData({id:null, siteName:"", usernames:[]}),
           }}
         />
       )}
