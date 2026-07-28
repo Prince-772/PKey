@@ -7,6 +7,8 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Database,
+  Vault,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -77,7 +79,7 @@ export default function Sidebar({
       }`}
     >
       <aside className="relative flex flex-col h-full bg-white dark:bg-gray-900 border-r border-gray-200/50 dark:border-gray-800/50 shadow-sm dark:shadow-gray-900 transition-colors duration-300 overflow-hidden">
-      {/* Top Gradient Border */}
+        {/* Top Gradient Border */}
         <div className="md:hidden absolute top-0 left-0 right-0 h-[0.5px] bg-linear-to-r from-blue-600 via-indigo-500 to-purple-600" />
         {/* ── Toggle button ── */}
         <button
@@ -116,7 +118,7 @@ export default function Sidebar({
                   <Link
                     key={tab.href}
                     href={tab.href}
-                    className={`group relative w-full flex flex-col md:flex-row items-center justify-center md:justify-start md:gap-3 px-3 pb-1 md:py-3 rounded-xl transition-all duration-200 overflow-hidden
+                    className={`group relative w-full flex flex-col md:flex-row items-center justify-center md:justify-start md:mb-1 md:gap-3 px-3 pb-1 md:py-3 rounded-xl transition-all duration-200 overflow-hidden
                   ${
                     active
                       ? "md:bg-blue-50 md:dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
@@ -166,6 +168,32 @@ export default function Sidebar({
 
         {/* ── Bottom section ── */}
         <div className="hidden md:block shrink-0 p-3 border-t border-gray-100 dark:border-gray-800 space-y-1">
+          <Link
+            href="/vault"
+            className={`group relative w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 overflow-hidden cursor-pointer text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20`}
+          >
+            <span
+              className={`absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 bg-linear-to-r from-emerald-500/5 to-green-500/5 transition-opacity duration-300`}
+            />
+
+            <Vault className="w-5 h-5 shrink-0 relative z-5 transition-transform duration-200 group-hover:scale-110" />
+
+            <span
+              className={`relative z-5 text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
+                expanded
+                  ? "opacity-100 w-auto"
+                  : "opacity-0 w-0 pointer-events-none"
+              }`}
+            >
+              Open Vault
+            </span>
+
+            {!expanded && (
+              <span className="absolute left-full ml-3 px-2.5 py-1.5 rounded-lg bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs font-semibold whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 translate-x-1 group-hover:translate-x-0 shadow-lg z-5">
+                Open Vault
+              </span>
+            )}
+          </Link>
           {actionButtons.map(({ label, icon: Icon, onClick, color }) => {
             const c = colorClasses[color];
 

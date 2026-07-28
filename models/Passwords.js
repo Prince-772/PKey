@@ -10,12 +10,9 @@ const passwordsSchema = new mongoose.Schema(
     },
     siteName: {
       type: String,
-      required:[true,"Site name is required"]
+      required: [true, "Site name is required"],
     },
-    userName: {
-      type: String,
-      required: [true, "Username is required"],
-    },
+    userNames: { type: [String], required: true, default: [] },
     password: {
       type: String,
       required: [true, "Password is required"],
@@ -25,18 +22,19 @@ const passwordsSchema = new mongoose.Schema(
     },
     isFavorite: {
       type: Boolean,
-      default:false
+      default: false,
     },
-    version : {
-      type : Number,
-      default : 3
-    }
+    version: {
+      type: Number,
+      default: 3,
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-const PasswordsModel = mongoose.models.passwords || mongoose.model("passwords", passwordsSchema)
+const PasswordsModel =
+  mongoose.models.passwords || mongoose.model("passwords", passwordsSchema);
 
-module.exports = PasswordsModel
+module.exports = PasswordsModel;

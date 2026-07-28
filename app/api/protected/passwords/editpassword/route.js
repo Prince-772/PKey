@@ -8,37 +8,28 @@ import { NextResponse } from "next/server";
 export async function PATCH(req) {
   try {
     const session = await getServerSession(authOptions);
-    const { site, username, password, id, strength, version } = await req.json();
+    const { site, usernames, password, id, strength, version } =
+      await req.json();
 
-    if (!site) throw new Error("Site is required");
-    if (!username) throw new Error("Username is required");
-    if (!password) throw new Error("Password is required");
-    if (!id) throw new Error("ID is required");
-    if (!strength) throw new Error("Password strength is required!")
+    const required = { site, password, id, strength };
+    for (const [key, val] of Object.entries(required)) {
+      if (!val?.trim()) throw new Error(`${key} is required`);
+    }
+    if (!Array.isArray(usernames) || usernames.every((u) => !u?.trim())) {
+      throw new Error("At least one username is required");
+    }
     await ConnectToDB();
     const user = await UserModel.findOne({ email: session.user.email }).select(
-      "_id remainingMasPassAtempts"
+      "_id remainingMasPassAtempts",
     );
     if (!user) throw new Error("User not found");
     if (user.remainingMasPassAtempts <= 0) throw new Error("BLOCKED_ACCOUNT");
-    
-    // const isDuplicate =
-    //   (await PasswordsModel.findOne({
-    //     userID: user._id,
-    //     _id: { $ne: id },
-    //     siteName: site,
-    //     userName: username,
-    //   })) && true;
-    // if (isDuplicate)
-    //   throw new Error(
-    //     "A password with these credentials already exists."
-    //   );
 
     const oldDoc = await PasswordsModel.findOne({ userID: user._id, _id: id });
     if (!oldDoc) throw new Error("Entry not found in your account");
     oldDoc.set({
       siteName: site,
-      userName: username,
+      userNames: usernames,
       password,
       strength,
       version,
@@ -49,7 +40,7 @@ export async function PATCH(req) {
         success: true,
         message: "Entry updated successfully!",
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     return NextResponse.json(
@@ -57,7 +48,7 @@ export async function PATCH(req) {
         success: false,
         message: error.message || "Failed to update",
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }

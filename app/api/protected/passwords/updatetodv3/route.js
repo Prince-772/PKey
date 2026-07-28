@@ -27,7 +27,7 @@ export async function PATCH(req) {
         (doc) =>
           doc._id &&
           doc.siteName &&
-          doc.userName &&
+          doc.userNames &&
           doc.password &&
           doc.version,
       ) // Basic validation
@@ -37,7 +37,7 @@ export async function PATCH(req) {
           update: {
             $set: {
               siteName: doc.siteName,
-              userName: doc.userName,
+              userNames: doc.userNames,
               password: doc.password,
               strength: doc.strength,
               version: doc.version,

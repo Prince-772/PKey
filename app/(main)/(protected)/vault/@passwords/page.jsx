@@ -162,7 +162,7 @@ const Passwords = () => {
   }, []);
 
   return (
-    <div className="w-full p-3 md:px-6">
+    <div className="w-full px-3 md:px-6 pt-4 pb-20 md:pb-6">
       {showMasterPassModel && (
         <MasterPasswordModel
           isOpen={showMasterPassModel}
@@ -175,120 +175,81 @@ const Passwords = () => {
       )}
       {passwords.length !== 0 && (
         <>
-          <div className="w-full flex flex-col items-center justify-center relative">
-            <div className="w-full flex flex-col items-center justify-center pb-6 bg-gray-50 dark:bg-gray-950">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80vw] h-60 md:h-75 bg-blue-500/5 dark:bg-blue-500/10 blur-[100px] rounded-full pointer-events-none" />
-              <ScrollReveal>
-                <div className="flex flex-col items-center mb-5 relative z-10">
-                  <div className="p-3 mb-2 md:mb-4 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-md shadow-blue-500/5 text-blue-600 dark:text-blue-400">
-                    <ShieldCheck className="w-5 h-5 md:w-8 md:h-8" />
-                  </div>
-                  <h1 className="text-2xl md:text-5xl font-black text-center text-gray-900 dark:text-white tracking-tight mb-3">
-                    Your Secure Vault
-                  </h1>
-                  <p className="text-gray-500 dark:text-gray-400 font-medium text-xs md:text-sm text-center">
-                    All your digital keys, encrypted and organized.
-                  </p>
+          <div className="w-full flex flex-col gap-3 items-center">
+            <div className="z-20 bg-gray-50 dark:bg-gray-950 pb-3 pt-1 space-y-3 w-[min(672px,100%)] mx-auto">
+
+              {/* Title row */}
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm text-blue-600 dark:text-blue-400">
+                  <ShieldCheck className="w-4 h-4" />
                 </div>
-              </ScrollReveal>
+                <h1 className="text-lg md:text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+                  Your Vault
+                </h1>
+                <span className="ml-auto text-xs font-bold text-gray-400 dark:text-gray-600">
+                  {filteredPasswords.length} / {passwords.length}
+                </span>
+              </div>
 
-              <ScrollReveal className="w-full max-w-3xl">
-                <div className="rounded-[2rem] shadow-xl shadow-gray-200/40 dark:shadow-none relative z-10">
-                  {/* Search Bar */}
-                  <div className="relative group mb-6">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <Search className="w-5 h-5 text-blue-400 group-focus-within:text-blue-500 transition-colors" />
-                    </div>
-                    <input
-                      type="text"
-                      value={searchTerms}
-                      onChange={(e) => setsearchTerms(e.target.value)}
-                      placeholder="Search platforms, usernames..."
-                      className="w-full pl-12 pr-10 py-3.5 bg-gray-50 dark:bg-gray-950 border-2 border-transparent focus:bg-white dark:focus:bg-gray-900 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-600 outline-none focus:border-blue-500 dark:focus:border-blue-500/50 hover:border-gray-200 dark:hover:border-gray-800 transition-all duration-300 text-base md:text-lg shadow-inner focus:shadow-blue-500/10"
-                    />
-                    <div className="absolute inset-y-0 right-0 pr-4 flex items-center">
-                      <X
-                        onClick={() => setsearchTerms("")}
-                        className="w-5 h-5 text-gray-400 transition-colors cursor-pointer hover:text-red-500 active:text-red-500 group-focus-within:text-red-500"
-                      />
-                    </div>
-                  </div>
+              {/* Search bar */}
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                  <Search className="w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                 </div>
-              </ScrollReveal>
+                <input
+                  type="text"
+                  value={searchTerms}
+                  onChange={(e) => setsearchTerms(e.target.value)}
+                  placeholder="Search sites, usernames..."
+                  className="w-full pl-10 pr-9 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-600 outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200 text-sm md:text-base"
+                />
+                {searchTerms && (
+                  <button
+                    onClick={() => setsearchTerms("")}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
 
-              <div className="w-full max-w-2xl flex flex-col gap-4">
-                {/* Filter Options */}
-                <ScrollReveal>
-                  <div className="filter">
-                    <div className="scroll-bar-hide flex gap-2 sm:gap-4 overflow-x-auto pb-1 px-1 justify-evenly">
-                      {filterOptArray.map((opt, index) => (
-                        <ScrollReveal
-                          key={index}
-                          direction="down"
-                          delayMs={index * 100}
-                        >
-                          <button
-                            onClick={() => {
-                              const lowerCaseOpt = opt.toLowerCase();
-
-                              if (lowerCaseOpt === "all") {
-                                // Selecting "all" clears other filters
-                                setSelectedOpt(["all"]);
-                              } else {
-                                // Selecting other filters removes "all"
-                                let newSelection = selectedOpt.filter(
-                                  (option) => option !== "all",
-                                );
-                                if (
-                                  lowerCaseOpt === "favorite" &&
-                                  newSelection.includes("not favorite")
-                                )
-                                  newSelection = newSelection.filter(
-                                    (opt) => opt !== "not favorite",
-                                  );
-                                if (
-                                  lowerCaseOpt === "not favorite" &&
-                                  newSelection.includes("favorite")
-                                )
-                                  newSelection = newSelection.filter(
-                                    (opt) => opt !== "favorite",
-                                  );
-                                if (selectedOpt.includes(lowerCaseOpt)) {
-                                  // Deselect if not the last option
-                                  if (newSelection.length > 1) {
-                                    newSelection = newSelection.filter(
-                                      (option) => option !== lowerCaseOpt,
-                                    );
-                                  }
-                                } else {
-                                  newSelection = [
-                                    ...newSelection,
-                                    lowerCaseOpt,
-                                  ];
-                                }
-
-                                setSelectedOpt(newSelection);
-                              }
-                            }}
-                            className={`shrink-0 px-5 sm:px-7 py-1 rounded-full font-medium text-sm md:text-base whitespace-nowrap
-                        ${
-                          selectedOpt.includes(opt.toLowerCase())
-                            ? "bg-linear-to-r from-blue-600 to-purple-600 text-white shadow-md shadow-blue-500/30 dark:shadow-blue-700/50"
-                            : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+              {/* Filter pills — horizontal scroll */}
+              <div className="flex gap-2 overflow-x-auto scroll-bar-hide justify-around">
+                {filterOptArray.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => {
+                      const lowerCaseOpt = opt.toLowerCase();
+                      if (lowerCaseOpt === "all") {
+                        setSelectedOpt(["all"]);
+                      } else {
+                        let newSelection = selectedOpt.filter(o => o !== "all");
+                        if (lowerCaseOpt === "favorite")
+                          newSelection = newSelection.filter(o => o !== "not favorite");
+                        if (lowerCaseOpt === "not favorite")
+                          newSelection = newSelection.filter(o => o !== "favorite");
+                        if (selectedOpt.includes(lowerCaseOpt)) {
+                          if (newSelection.length > 1)
+                            newSelection = newSelection.filter(o => o !== lowerCaseOpt);
+                        } else {
+                          newSelection = [...newSelection, lowerCaseOpt];
                         }
-                        transition-all duration-300 ease-in-out cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
-                          >
-                            {opt}
-                          </button>
-                        </ScrollReveal>
-                      ))}
-                    </div>
-                  </div>
-                </ScrollReveal>
+                        setSelectedOpt(newSelection);
+                      }
+                    }}
+                    className={`shrink-0 px-3.5 py-1 rounded-full font-semibold text-xs whitespace-nowrap transition-all duration-200 cursor-pointer
+                      ${selectedOpt.includes(opt.toLowerCase())
+                        ? "bg-linear-to-r from-blue-600 to-purple-600 text-white shadow-sm shadow-blue-500/25"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                      }`}
+                  >
+                    {opt}
+                  </button>
+                ))}
               </div>
             </div>
 
-            <div className="flex flex-col gap-4 mb-10 w-full">
+            <div className="flex flex-col gap-3 w-[min(672px,100%)]">
               {isEditOpen && (
                 <EditModal
                   {...{
@@ -306,8 +267,8 @@ const Passwords = () => {
               {filteredPasswords.length === 0 ? (
                 <NoMatchFound ClearFilters={clearFilters} />
               ) : (
-                filteredPasswords.map((item) => (
-                  <ScrollReveal direction="up" key={item._id} delayMs={100}>
+                filteredPasswords.map((item, i) => (
+                  <ScrollReveal direction="up" key={item._id} delayMs={Math.min(i * 50, 300)}>
                     <PasswordCard
                       id={item._id}
                       platform={item.siteName}

@@ -6,6 +6,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   CircleUserRound,
+  Database,
   Eraser,
   LayoutDashboard,
   Loader,
@@ -21,6 +22,7 @@ import {
   Sun,
   Undo2,
   UserRoundX,
+  Vault,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useMasterPass } from "@/context/MasterPassword";
@@ -65,8 +67,8 @@ const NavBar = () => {
   const showLoading = status === "loading";
   const showSignIn =
     status === "unauthenticated" && unProtectedRoutes.includes(pathname);
-  const showVault = status === "authenticated" && pathname === "/dashboard";
-  const showDashboard = status === "authenticated" && pathname !== "/dashboard";
+  const showVault = status === "authenticated" && (["/dashboard","/dashboard/add","/dashboard/security"].includes(pathname));
+  const showDashboard = status === "authenticated" && !pathname.startsWith("/dashboard");
   const showGithub = unProtectedRoutes.includes(pathname);
   const showProfile =
     status === "authenticated" && !unProtectedRoutes.includes(pathname);
@@ -189,7 +191,7 @@ const NavBar = () => {
               {showVault && (
                 <NavLink
                   href="/vault"
-                  icon={<LockKeyhole className="w-6 h-6" />}
+                  icon={<Vault className="w-6 h-6" />}
                   label="Vault"
                 />
               )}

@@ -13,80 +13,85 @@ import { createPortal } from "react-dom";
 
 export default function MasterPasswordModel({ isOpen, onClose }) {
   const [isLoading, setIsLoading] = useState(false);
-  const { setMasterPass, setEncKey } = useMasterPass();
+  const { setMasterPass, setEncKey, setDecryptedAt } = useMasterPass();
   const mPass = useRef(null);
   const { data: session, update } = useSession();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const mPassValue = mPass.current?.value;
-    mPass.current.value = "";
-    if (mPassValue) {
-      setIsLoading(true);
-      const version = session?.user?.version;
+    try {
+      e.preventDefault();
+      const mPassValue = mPass.current?.value;
+      mPass.current.value = "";
+      if (mPassValue) {
+        setIsLoading(true);
+        const version = session?.user?.version;
 
-      let authHash, encryptionKey, salt;
-      if (version > 1) {
-        salt = session?.user?.salt;
-        ({ authHash, encryptionKey } = await generateAuthData(
-          mPassValue,
-          salt,
-        ));
-      } else if (version === 1) {
-        authHash = mPassValue;
-        ({ salt, encryptionKey } = await generateAuthData(mPassValue));
-      }
+        let authHash, encryptionKey, salt;
+        if (version > 1) {
+          salt = session?.user?.salt;
+          ({ authHash, encryptionKey } = await generateAuthData(
+            mPassValue,
+            salt,
+          ));
+        } else if (version === 1) {
+          authHash = mPassValue;
+          ({ salt, encryptionKey } = await generateAuthData(mPassValue));
+        }
 
-      await toast.promise(VerifyMasterPass(authHash), {
-        loading: "Verifying...",
-        success: async () => {
-          setIsLoading(false);
-          setEncKey(encryptionKey);
+        await toast.promise(VerifyMasterPass(authHash), {
+          loading: "Verifying...",
+          success: async () => {
+            setIsLoading(false);
+            setEncKey(encryptionKey);
+            setDecryptedAt(new Date())
 
-          if (version === 1) {
-            setMasterPass(mPassValue); // raw mPass is still required for Uv1 users
-            // generate New Zero-Knowldege Data
-            const { authHash: newHash } = await generateAuthData(
-              mPassValue,
-              salt,
-            );
-            try {
-              const response = await AutoMigrateToUv2(newHash, salt);
-              if (response.success) {
-                await update({
-                  ...session,
-                  user: {
-                    ...session.user,
-                    version: 2,
-                    salt,
-                  },
-                });
+            if (version === 1) {
+              setMasterPass(mPassValue); // raw mPass is still required for Uv1 users
+              // generate New Zero-Knowldege Data
+              const { authHash: newHash } = await generateAuthData(
+                mPassValue,
+                salt,
+              );
+              try {
+                const response = await AutoMigrateToUv2(newHash, salt);
+                if (response.success) {
+                  await update({
+                    ...session,
+                    user: {
+                      ...session.user,
+                      version: 2,
+                      salt,
+                    },
+                  });
+                }
+                return "Security Upgraded & Vault Unlocked!";
+              } catch (err) {
+                return "Vault Unlocked (Security upgrade failed)";
               }
-              return "Security Upgraded & Vault Unlocked!";
-            } catch (err) {
-              return "Vault Unlocked (Security upgrade failed)";
+            } else if (version === 2) {
+              setMasterPass(mPassValue); // raw mPass is still required for Uv2 users as we don't know if all the entries are migrated or not.
             }
-          } else if (version === 2) {
-            setMasterPass(mPassValue); // raw mPass is still required for Uv2 users as we don't know if all the entries are migrated or not.
-          }
-          // No need of raw mPass value for Uv3 users as Uv3 ensures each entry is migrated to Dv3.
-          return "Vault Unlocked!";
-        },
-        error: (err) => {
-          setMasterPass(null);
-          setEncKey(null);
-          setIsLoading(false);
+            // No need of raw mPass value for Uv3 users as Uv3 ensures each entry is migrated to Dv3.
+            return "Vault Unlocked!";
+          },
+          error: (err) => {
+            setMasterPass(null);
+            setEncKey(null);
+            setIsLoading(false);
 
-          if (err.message === "BLOCKED_ACCOUNT") {
-            return (
-              <BlockedAccount />
-            );
-          } else {
-            return err.message || "Something went wrong";
-          }
-        },
-      });
-      onClose();
+            if (err.message === "BLOCKED_ACCOUNT") {
+              return <BlockedAccount />;
+            } else {
+              return err.message || "Something went wrong";
+            }
+          },
+        });
+        onClose();
+      }
+    } catch({message}) {
+      toast.error(message || "An unexpected error occurred");
+    } finally {
+      setIsLoading(false)
     }
   };
 
@@ -171,6 +176,7 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
           </button>
         </form>
       </div>
-    </div>, document.body
+    </div>,
+    document.body,
   );
 }

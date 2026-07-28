@@ -20,20 +20,10 @@ export async function POST(request) {
     );
     if (user.remainingMasPassAtempts <= 0) throw new Error("BLOCKED_ACCOUNT");
 
-    // const isDuplicate =
-    //   (await PasswordsModel.findOne({
-    //     userID: user._id,
-    //     siteName: site,
-    //     userName: username,
-    //   })) && true;
-
-    // if (isDuplicate)
-    //   throw new Error("A password with these credentials already exists.");
-
     await PasswordsModel.create({
       userID: user._id,
       siteName: site,
-      userName: username,
+      userNames: username,
       password,
       strength,
     });

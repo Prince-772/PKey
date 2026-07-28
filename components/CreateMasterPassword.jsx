@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import {
   X,
@@ -10,12 +10,11 @@ import {
 } from "lucide-react";
 import { capitalize, getPasswordStrength } from "@/lib/helper";
 import { createPortal } from "react-dom";
+import { generateAuthData } from "@/lib/masterpassword/mPasscryptoV3";
+import { CreateMasterPass } from "@/lib/masterpassword/create";
+import BlockedAccount from "./BlockedAccountToast";
 
-export default function CreateMasterPasswordModal({
-  isOpen,
-  onClose,
-  onSetMasterPassword,
-}) {
+export default function CreateMasterPasswordModal({ isOpen, onClose }) {
   const {
     handleSubmit,
     register,
@@ -37,11 +36,33 @@ export default function CreateMasterPasswordModal({
 
   if (!isOpen) return null;
 
-  const onSubmit = (data) => {
-    onSetMasterPassword(data.masterPassword);
-    reset();
-    onClose();
-  };
+  const onCreateMasterPass = useCallback(
+    async ({ masterPassword: masterPass }) => {
+      try {
+        const { authHash, salt } = await generateAuthData(masterPass);
+        await toast.promise(CreateMasterPass(authHash, salt), {
+          loading: "Processing Securely...",
+          success: async (res) => {
+            if (session)
+              await update({ ...session, user: { ...session.user, salt } });
+            return res.message || "Master Password created!";
+          },
+          error: ({ message }) => {
+            if (message === "BLOCKED_ACCOUNT") {
+              return <BlockedAccount />;
+            }
+            return message || "Unable to create master password";
+          },
+        });
+        onClose();
+      } catch ({ message }) {
+        toast.error(message || "An unexpected error occurred");
+      } finally {
+        reset();
+      }
+    },
+    [session, update],
+  );
 
   const getBarColor = (score) => {
     if (score < 25) return "bg-red-500";
@@ -84,7 +105,7 @@ export default function CreateMasterPasswordModal({
           </div>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+        <form onSubmit={handleSubmit(onCreateMasterPass)} className="flex flex-col gap-5">
           <div className="w-full">
             <input
               type="password"
@@ -222,6 +243,7 @@ export default function CreateMasterPasswordModal({
           </button>
         </form>
       </div>
-    </div>, document.body
+    </div>,
+    document.body,
   );
 }

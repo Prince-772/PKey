@@ -30,7 +30,7 @@ import { generateAuthData } from "@/lib/masterpassword/mPasscryptoV3";
 import categorizePassword from "@/lib/passwords/strengthChecker";
 
 // Components
-import MasterPasswordModel from "@/components/masterPassPage";
+import MasterPasswordModel from "@/components/MasterPasswordModal";
 import CreateMasterPasswordModal from "@/components/CreateMasterPassword";
 import { CreateMasterPass } from "@/lib/masterpassword/create";
 import { capitalize, getPasswordStrength, handleCopy } from "@/lib/helper";
@@ -69,11 +69,13 @@ const LoginForm = () => {
   const [isPassCopied, setIsPassCopied] = useState(false);
   const [isUserNameCopied, setIsUserNameCopied] = useState(false);
   const [strengthMeterOpen, setStrengthMeterOpen] = useState(true);
-  const { encKey, resetTimer, toCreateMasterPass, setToCreateMasterPass, masterPass } =
-    useMasterPass();
-  const [showMasterPassModel, setshowMasterPassModel] = useState(false);
-  const [showCreateMasterModel, setShowCreateMasterModel] = useState(false);
-  const { data: session, update } = useSession();
+  const {
+    encKey,
+    resetTimer,
+    toCreateMasterPass,
+  } = useMasterPass();
+  const [setshowMasterPassModel] = useState(false);
+  const [setShowCreateMasterModel] = useState(false);
 
   const {
     register,
@@ -101,39 +103,44 @@ const LoginForm = () => {
   };
 
   const handleOnSubmit = async (formData) => {
-    if (!encKey) {
-      toCreateMasterPass
-        ? setShowCreateMasterModel(true)
-        : setshowMasterPassModel(true);
-      return;
+    try {
+      if (!encKey) {
+        toCreateMasterPass
+          ? setShowCreateMasterModel(true)
+          : setshowMasterPassModel(true);
+        return;
+      }
+      const strength = categorizePassword(formData.password);
+      await toast.promise(
+        handleSavePassword({
+          site: await encryptV3(formData.site, encKey),
+          username: await encryptV3(formData.username, encKey),
+          password: await encryptV3(formData.password, encKey),
+          strength: await encryptV3(strength, encKey),
+        }),
+        {
+          loading: "Saving...",
+          success: ({ message }) => {
+            resetTimer();
+            return message || "Saved Successfully!";
+          },
+          error: ({ message }) => {
+            if (message === "BLOCKED_ACCOUNT") {
+              return <BlockedAccount />;
+            }
+            return message || "Something went wrong";
+          },
+        },
+      );
+      reset();
+    } catch ({message}) {
+      toast.error(message??"Something went wrong, Try again.")
+    } finally {
     }
-    const strength = categorizePassword(formData.password);
-    await toast.promise(
-      handleSavePassword({
-        site: await encryptV3(formData.site, encKey),
-        username: await encryptV3(formData.username, encKey),
-        password: await encryptV3(formData.password, encKey),
-        strength: await encryptV3(strength, encKey),
-      }),
-      {
-        loading: "Saving...",
-        success: ({ message }) => {
-          resetTimer();
-          return message || "Saved Successfully!";
-        },
-        error: ({ message }) => {
-          if (message === "BLOCKED_ACCOUNT") {
-            return <BlockedAccount />;
-          }
-          return message || "Something went wrong";
-        },
-      },
-    );
-    reset();
   };
 
   return (
-    <div className="max-w-360 flex flex-col items-center px-4 bg-gray-50 dark:bg-gray-950 transition-colors duration-300 ">
+    <div className="flex flex-col items-center md:px-4 bg-gray-50 dark:bg-gray-950 transition-colors duration-300 ">
       <div className="w-full grid grid-cols-1 gap-6 items-start pb-10">
         {/* ── RIGHT FORM ───────────────────────────────────────────────── */}
         <ScrollReveal
@@ -174,7 +181,7 @@ const LoginForm = () => {
                 style={{ display: "none" }}
               />
 
-              <div className="grid grid-cols-2 px-8 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 px-4 md:px-8 gap-4">
                 <div className="py-7 flex flex-col gap-6">
                   {/* Site Name */}
                   <InputField

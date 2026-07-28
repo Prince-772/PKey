@@ -20,6 +20,7 @@ export default function MasterPassProvider({ children }) {
   const { status } = useSession();
   const [toCreateMasterPass, setToCreateMasterPass] = useState(false);
   const timerRef = useRef(null);
+  const [decryptedAt, setDecryptedAt] = useState(null);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -59,7 +60,7 @@ export default function MasterPassProvider({ children }) {
   const resetTimer = useCallback(() => {
     if (!encKey) {
       if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = null
+      timerRef.current = null;
       return;
     }
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -68,7 +69,8 @@ export default function MasterPassProvider({ children }) {
       () => {
         clearMasterPass();
       },
-      5 * 60 * 1000, // 5 mins
+      1000 * 60 * 60, // 1 Hr
+      // 5 * 60 * 1000, // 5 mins
       // 10000, // 10 seconds
     );
   }, [clearMasterPass, masterPass, encKey]);
@@ -87,8 +89,10 @@ export default function MasterPassProvider({ children }) {
       resetTimer,
       toCreateMasterPass,
       setToCreateMasterPass,
+      decryptedAt,
+      setDecryptedAt,
     }),
-    [masterPass, encKey, resetTimer, toCreateMasterPass],
+    [masterPass, encKey, resetTimer, toCreateMasterPass, decryptedAt],
   );
 
   return (

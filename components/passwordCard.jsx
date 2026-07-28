@@ -7,6 +7,7 @@ import {
   Eye,
   EyeOff,
   Heart,
+  Info,
   Pencil,
   ShieldCheck,
   ShieldOff,
@@ -16,12 +17,13 @@ import Image from "next/image";
 import React, { memo, useState } from "react";
 import { useSwipeable } from "react-swipeable";
 import ScrollReveal from "./ScrollReveal";
+import PasswordDetailModal from "@/components/PasswordDetailModal";
 import Link from "next/link";
 
 const PasswordCard = ({
   id,
   platform,
-  username,
+  usernames,
   password,
   isFav,
   onEdit,
@@ -31,11 +33,12 @@ const PasswordCard = ({
 }) => {
   const [isPassVisible, setIsPassVisible] = useState(false);
   const [isPassCopied, setIsPassCopied] = useState(false);
-  const [isUserNameCopied, setIsUserNameCopied] = useState(false);
+  const [copiedUsernameIndex, setCopiedUsernameIndex] = useState(null);
   const [isSlided, setIsSlided] = useState(false);
-  const [imgSrc, setImgSrc] = useState(
-    `https://icons.duckduckgo.com/ip3/${platform}.ico`,
-  );
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(true);
+  const [newFavState, setNewFavState] = useState(isFav);
+  const imgSrc = `https://icons.duckduckgo.com/ip3/${platform}.ico`;
   const handlers = useSwipeable({
     onSwipedLeft: () => setIsSlided(true),
     onSwipedRight: () => setIsSlided(false),
@@ -70,18 +73,27 @@ const PasswordCard = ({
       className=" w-full backdrop-blur-md max-w-2xl mx-auto overflow-hidden"
     >
       <div
-        className={`flex transition-transform  duration-300 ease-in-out ${isSlided ? "-translate-x-24 md:translate-x-0" : "translate-x-0"}`}
+        className={`flex transition-transform  duration-300 ease-in-out ${isSlided ? "-translate-x-32 md:translate-x-0" : "translate-x-0"}`}
       >
         <button
           className={`absolute top-2 left-2 cursor-pointer z-2`}
-          onClick={() => onToggleFavorite(id, !isFav)}
-          aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
+          onClick={() => {
+            onToggleFavorite({
+              idToToggle: id,
+              value: !newFavState,
+              onError: setNewFavState,
+            });
+            setNewFavState((state) => !state);
+          }}
+          aria-label={
+            newFavState ? "Remove from favorites" : "Add to favorites"
+          }
         >
           <ScrollReveal direction="right">
             <Heart
               className="w-5 h-5 transition-all duration-300"
-              fill={isFav ? "red" : "none"}
-              stroke={isFav ? "red" : "currentColor"}
+              fill={newFavState ? "red" : "none"}
+              stroke={newFavState ? "red" : "currentColor"}
             />
           </ScrollReveal>
         </button>
@@ -94,15 +106,22 @@ const PasswordCard = ({
         >
           <div className="flex items-center max-w-full gap-4 flex-1">
             {/* Logo */}
-            <div className="relative w-12 md:w-16 aspect-square rounded-full overflow-hidden bg-linear-to-r to-blue-600/20 from-purple-600/20 shadow-inner border border-purple-600">
-              <Image
-                src={imgSrc}
-                alt="Logo"
-                fill
-                className="object-contain scale-80"
-                sizes="100%"
-                onError={() => setImgSrc("/images/fallback_logo.webp")}
-              />
+            <div className="relative flex w-12 md:w-16 aspect-square rounded-full overflow-hidden bg-linear-to-r to-blue-600/20 from-purple-600/20 shadow-inner border border-purple-600">
+              {imgLoaded && (
+                <Image
+                  src={imgSrc}
+                  alt="Logo"
+                  fill
+                  className="object-contain scale-80"
+                  sizes="100%"
+                  onError={() => setImgLoaded(false)}
+                />
+              )}
+              {!imgLoaded && (
+                <div className="shrink-0 h-full w-full  rounded-full bg-linear-to-br from-blue-100 to-purple-100 dark:from-blue-900/40 dark:to-purple-900/40 border border-blue-200/50 dark:border-blue-800/30 flex items-center justify-center text-3xl font-black text-blue-600 dark:text-blue-400 uppercase">
+                  {platform?.[0] ?? "?"}
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col justify-center overflow-hidden w-full">
@@ -149,35 +168,61 @@ const PasswordCard = ({
                 </div>
               </div>
 
-              <div className="flex items-center gap-1 md:gap-2 mt-2">
-                {!isUserNameCopied ? (
-                  <Copy
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCopy(username, setIsUserNameCopied);
-                    }}
-                    className="w-4 h-4 shrink-0
+              <div className="flex flex-col gap-1 mt-2">
+                {usernames.slice(0, 2).map((username, i) => (
+                  <div key={i} className="flex items-center gap-1 md:gap-2">
+                    {copiedUsernameIndex !== i ? (
+                      <Copy
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCopy(username, (val) =>
+                            setCopiedUsernameIndex(val ? i : null),
+                          );
+                        }}
+                        className="w-4 h-4 shrink-0
                text-gray-500 dark:text-gray-400
                hover:text-blue-600 dark:hover:text-blue-300
                cursor-pointer transform hover:scale-110
                transition-all duration-300"
-                    role="button"
-                    aria-label="Copy username"
-                  />
-                ) : (
-                  <CopyCheck
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-4 h-4 shrink-0
+                        role="button"
+                        aria-label={`Copy username ${i + 1}`}
+                      />
+                    ) : (
+                      <CopyCheck
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-4 h-4 shrink-0
                text-emerald-500 dark:text-emerald-400
                transition-colors duration-300"
-                    role="status"
-                    aria-label="Username copied"
-                  />
+                        role="status"
+                        aria-label={`Username ${i + 1} copied`}
+                      />
+                    )}
+                    <span className="text-sm md:text-base font-medium text-gray-700 dark:text-gray-300 truncate">
+                      {username}
+                    </span>
+                  </div>
+                ))}
+                {usernames.length > 2 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDetailOpen(true);
+                    }}
+                    className="mt-1 mx-1 text-xs md:text-sm font-medium 
+                               text-blue-600 dark:text-blue-400
+                               bg-blue-50 dark:bg-blue-900/30
+                               hover:bg-blue-100 dark:hover:bg-blue-800/50
+                               hover:text-blue-700 dark:hover:text-blue-300
+                               px-2 py-[1px] rounded-full 
+                               transition-all duration-300 ease-out
+                               hover:scale-105 active:scale-95
+                               w-fit cursor-pointer
+                               border border-blue-200/50 dark:border-blue-700/30"
+                    aria-label={`View all ${usernames.length} usernames`}
+                  >
+                    +{usernames.length - 2} more
+                  </button>
                 )}
-
-                <span className="text-sm md:text-base font-medium text-gray-700 dark:text-gray-300 truncate">
-                  {username}
-                </span>
               </div>
 
               <div className="mt-2 flex items-center justify-between relative">
@@ -246,7 +291,7 @@ const PasswordCard = ({
           </div>
 
           <div className="flex absolute top-3 right-3 items-center gap-2">
-            <ScrollReveal direction="down" delayMs={200}>
+            <ScrollReveal direction="down" delayMs={300}>
               <div
                 tabIndex={0}
                 onClick={(e) => {
@@ -271,6 +316,23 @@ const PasswordCard = ({
                 </p>
               </div>
             </ScrollReveal>
+
+            <ScrollReveal
+              direction="down"
+              delayMs={200}
+              className="hidden md:block"
+            >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDetailOpen(true);
+                }}
+                className="p-2 rounded-full bg-gray-600 hover:bg-gray-700 transition-colors duration-300 cursor-pointer text-white"
+              >
+                <Info className="w-4 h-4" />
+              </button>
+            </ScrollReveal>
+
             <ScrollReveal
               direction="down"
               delayMs={100}
@@ -279,13 +341,14 @@ const PasswordCard = ({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  onEdit({ username, password, platform, id });
+                  onEdit({ usernames, password, platform, id });
                 }}
                 className="p-2 rounded-full bg-blue-600 hover:bg-blue-700 transition-colors duration-300 cursor-pointer text-white"
               >
                 <Pencil className="w-4 h-4" />
               </button>
             </ScrollReveal>
+
             <ScrollReveal
               direction="down"
               delayMs={0}
@@ -294,7 +357,7 @@ const PasswordCard = ({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  onDelete(id);
+                  onDelete({ id, siteName: platform, usernames });
                 }}
                 className="p-2 rounded-full bg-red-600 hover:bg-red-700 transition-colors duration-300 cursor-pointer text-white"
               >
@@ -304,27 +367,62 @@ const PasswordCard = ({
           </div>
         </div>
 
-        <div className="flex md:hidden w-0 items-center gap-2">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit({ username, password, platform, id });
-            }}
-            className="p-2 ml-4 rounded-full bg-blue-600 hover:bg-blue-700 transition-colors duration-300 text-white"
-          >
-            <Pencil className="w-4 h-4" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(id);
-            }}
-            className="p-2 mr-4 rounded-full bg-red-600 hover:bg-red-700 transition-colors duration-300 text-white"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
+        <div className="flex md:hidden w-0 items-center">
+          <ScrollReveal direction="down">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setDetailOpen(true);
+              }}
+              className="p-2 ml-3 rounded-full bg-gray-600 hover:bg-gray-700 transition-colors duration-300 cursor-pointer text-white"
+            >
+              <Info className="w-4 h-4" />
+            </button>
+          </ScrollReveal>
+
+          <ScrollReveal direction="down">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit({ usernames, password, platform, id });
+              }}
+              className="p-2 ml-2 rounded-full bg-blue-600 hover:bg-blue-700 transition-colors duration-300 cursor-pointer text-white"
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+          </ScrollReveal>
+
+          <ScrollReveal direction="down">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete({ id, siteName: platform, usernames });
+              }}
+              className="p-2 ml-2 rounded-full bg-red-600 hover:bg-red-700 transition-colors duration-300 cursor-pointer text-white"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </ScrollReveal>
         </div>
       </div>
+      {detailOpen && (
+        <PasswordDetailModal
+          isOpen={detailOpen}
+          onClose={() => setDetailOpen(false)}
+          data={{
+            siteName: platform,
+            usernames,
+            password,
+            isFavorite: newFavState,
+            strength,
+            id,
+          }}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onToggleFavorite={onToggleFavorite}
+          setNewFavState={setNewFavState}
+        />
+      )}
     </div>
   );
 };

@@ -25,126 +25,25 @@ import {
 } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
 import { useMasterPass } from "@/context/MasterPassword";
-import MasterPasswordModel from "../masterPassPage";
+import MasterPasswordModel from "../MasterPasswordModal";
 import CreateMasterPasswordModal from "../CreateMasterPassword";
-import { generateAuthData } from "@/lib/masterpassword/mPasscryptoV3";
-import { CreateMasterPass } from "@/lib/masterpassword/create";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
-import BlockedAccount from "../BlockedAccountToast";
 import Link from "next/link";
 import { useCallback } from "react";
-
-// ── Dummy Data ────────────────────────────────────────────────────────────────
-const DUMMY_PASSWORDS = [
-  {
-    id: 1,
-    site: "Google",
-    username: "prince@gmail.com",
-    password: "MyP@ssw0rd123",
-    strength: 62,
-  },
-  {
-    id: 2,
-    site: "GitHub",
-    username: "prince-772",
-    password: "Tr0ub4dor&3",
-    strength: 88,
-  },
-  {
-    id: 3,
-    site: "Netflix",
-    username: "prince@gmail.com",
-    password: "pass123",
-    strength: 18,
-  },
-  {
-    id: 4,
-    site: "Amazon",
-    username: "prince@gmail.com",
-    password: "pass123",
-    strength: 18,
-  },
-  {
-    id: 5,
-    site: "Twitter",
-    username: "prince_dev",
-    password: "qwerty2024",
-    strength: 12,
-  },
-  {
-    id: 6,
-    site: "LinkedIn",
-    username: "prince@gmail.com",
-    password: "LinkedIn@123",
-    strength: 55,
-  },
-  {
-    id: 7,
-    site: "Hotstar",
-    username: "prince@gmail.com",
-    password: "pass123",
-    strength: 18,
-  },
-  {
-    id: 8,
-    site: "Figma",
-    username: "prince@gmail.com",
-    password: "K#9mP!xQ@2vL$n",
-    strength: 97,
-  },
-  {
-    id: 9,
-    site: "Vercel",
-    username: "prince-772",
-    password: "Tr0ub4dor&3",
-    strength: 88,
-  },
-  {
-    id: 10,
-    site: "Notion",
-    username: "prince@gmail.com",
-    password: "Notion@secure1",
-    strength: 72,
-  },
-];
-
-// ── Analysis helper ───────────────────────────────────────────────────────────
-function analyzePasswords(passwords) {
-  const weak = passwords.filter((p) => p.strength < 50);
-  const medium = passwords.filter((p) => p.strength >= 50 && p.strength < 75);
-  const strong = passwords.filter((p) => p.strength >= 75);
-
-  // Find reused — group by password value
-  const passMap = {};
-  passwords.forEach((p) => {
-    if (!passMap[p.password]) passMap[p.password] = [];
-    passMap[p.password].push(p);
-  });
-  const reusedGroups = Object.values(passMap).filter((g) => g.length > 1);
-  const reusedIds = new Set(reusedGroups.flat().map((p) => p.id));
-
-  // Health score
-  const weakPenalty = weak.length * 8;
-  const reusedPenalty = reusedIds.size * 5;
-  const base = passwords.length > 0 ? 100 : 0;
-  const healthScore = Math.max(
-    0,
-    Math.min(100, base - weakPenalty - reusedPenalty),
-  );
-
-  return { weak, medium, strong, reusedGroups, reusedIds, healthScore };
-}
+import { analyzePasswords } from "@/lib/helper";
+import { usePasswords } from "@/context/PasswordsProvider";
+import Image from "next/image";
 
 // ── Strength Badge ─────────────────────────────────────────────────────────────
 function StrengthBadge({ score }) {
   const cfg =
-    score >= 75
+    score === "strong"
       ? {
           label: "Strong",
           cls: "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300",
         }
-      : score >= 50
+      : score === "moderate"
         ? {
             label: "Medium",
             cls: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300",
@@ -165,6 +64,8 @@ function StrengthBadge({ score }) {
 // ── Password Row ───────────────────────────────────────────────────────────────
 function PasswordRow({ entry, isReused, delay }) {
   const [visible, setVisible] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(true);
+   const imgSrc = `https://icons.duckduckgo.com/ip3/${entry.siteName}.ico`; 
   return (
     <ScrollReveal direction="right" delayMs={delay}>
       <div
@@ -176,15 +77,29 @@ function PasswordRow({ entry, isReused, delay }) {
       }`}
       >
         {/* Site icon placeholder */}
-        <div className="shrink-0 w-8 h-8 md:w-9 md:h-9 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xs font-black text-gray-500 dark:text-gray-400 uppercase">
-          {entry.site[0]}
+        <div className="shrink-0 relative flex w-8 md:w-9 aspect-square rounded-full overflow-hidden bg-linear-to-r to-blue-600/20 from-purple-600/20 shadow-inner border border-purple-600">
+          {imgLoaded && (
+            <Image
+              src={imgSrc}
+              alt="Logo"
+              fill
+              className="object-contain scale-80"
+              sizes="100%"
+              onError={() => setImgLoaded(false)}
+            />
+          )}
+          {!imgLoaded && (
+            <div className="shrink-0 h-full w-full rounded-full bg-linear-to-br from-blue-100 to-purple-100 dark:from-blue-900/40 dark:to-purple-900/40 border border-blue-200/50 dark:border-blue-800/30 flex items-center justify-center text-xl font-black text-blue-600 dark:text-blue-400 uppercase">
+              {entry.siteName?.[0] ?? "?"}
+            </div>
+          )}
         </div>
 
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <p className="text-sm font-bold text-gray-900 dark:text-white truncate">
-              {entry.site}
+              {entry.siteName}
             </p>
             <StrengthBadge score={entry.strength} />
             {isReused && (
@@ -194,9 +109,7 @@ function PasswordRow({ entry, isReused, delay }) {
             )}
           </div>
           <p className="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5 font-mono">
-            {visible
-              ? entry.password
-              : "•".repeat(Math.min(entry.password.length, 14))}
+            {visible ? entry.password : "•".repeat(12)}
           </p>
         </div>
 
@@ -247,7 +160,10 @@ function Section({ title, icon, count, countCls, children, delay = 0 }) {
       delayMs={delay}
       className="space-y-3"
     >
-      <div className="flex items-center gap-2" id={`${title.replaceAll(" ","")}`}>
+      <div
+        className="flex items-center gap-2"
+        id={`${title.replaceAll(" ", "")}`}
+      >
         {icon}
         <h3 className="text-sm font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">
           {title}
@@ -267,41 +183,16 @@ function Section({ title, icon, count, countCls, children, delay = 0 }) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 export default function SecurityTab() {
-  const { encKey, toCreateMasterPass, setToCreateMasterPass } = useMasterPass();
-  const { data: session, update } = useSession();
-
+  const { encKey, toCreateMasterPass } = useMasterPass();
   const [showMasterPassModel, setShowMasterPassModel] = useState(false);
   const [showCreateMasterModel, setShowCreateMasterModel] = useState(false);
 
   const isUnlocked = Boolean(encKey);
 
-  // Use dummy data for now
-  const passwords = DUMMY_PASSWORDS;
+  const { passwords, loading } = usePasswords();
   const isEmpty = passwords.length === 0;
 
   const analysis = useMemo(() => analyzePasswords(passwords), [passwords]);
-
-  const onCreateMasterPass = useCallback(
-    async (masterPass) => {
-      setToCreateMasterPass(false);
-      setShowCreateMasterModel(false);
-      const { authHash, salt } = await generateAuthData(masterPass);
-      await toast.promise(CreateMasterPass(authHash, salt), {
-        loading: "Processing Securely...",
-        success: async (res) => {
-          if (session)
-            await update({ ...session, user: { ...session.user, salt } });
-          return res.message || "Master Password created!";
-        },
-        error: ({ message }) => {
-          setToCreateMasterPass(true);
-          if (message === "BLOCKED_ACCOUNT") return <BlockedAccount />;
-          return message || "Unable to create master password";
-        },
-      });
-    },
-    [session, update],
-  );
 
   // Score ring
   const circleRadius = 45;
@@ -353,52 +244,49 @@ export default function SecurityTab() {
       {/* Modals */}
       {showMasterPassModel && (
         <MasterPasswordModel
-          isOpen
+          isOpen={showMasterPassModel}
           onClose={() => setShowMasterPassModel(false)}
         />
       )}
       {showCreateMasterModel && (
         <CreateMasterPasswordModal
-          isOpen
+          isOpen={showCreateMasterModel}
           onClose={() => setShowCreateMasterModel(false)}
-          onSetMasterPassword={onCreateMasterPass}
         />
       )}
 
       <div className="space-y-6 md:space-y-8">
         {/* ── Sticky Header ── */}
-        <ScrollReveal className="sticky top-0 z-10 w-[104%] -translate-x-[2%] mx-auto pl-4 md:pl-12 border-b border-gray-200/50 dark:border-gray-800/50 py-3 md:py-4 bg-gray-50 dark:bg-gray-950">
-          <div>
-            <h2 className="text-xl md:text-3xl font-bold font-inter text-gray-900 dark:text-white">
-              Security Audit
-            </h2>
-            <p className="font-roboto text-gray-600 dark:text-gray-400 mt-1 font-medium text-sm">
-              {isUnlocked
-                ? isEmpty
-                  ? "Add some entries to get your security report."
-                  : "Your vault analyzed locally. Nothing leaves your device."
-                : toCreateMasterPass
-                  ? "Set up your vault to get a full security report."
-                  : "Unlock your vault to view your security analysis."}
-            </p>
-            <ScrollReveal className="pt-3" direction="right" delayMs={100}>
-              <div
-                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-black ${vaultStatus.cls}`}
-              >
-                {vaultStatus.icon}
-                {vaultStatus.label}
-              </div>
-            </ScrollReveal>
-          </div>
+        <ScrollReveal className="md:sticky top-0 z-10 w-[104%] -translate-x-[2%] mx-auto pl-4 md:pl-12 border-b border-gray-200/50 dark:border-gray-800/50 py-2 md:py-4 bg-gray-50 dark:bg-gray-950">
+          <h2 className="text-xl md:text-2xl font-bold font-inter text-gray-900 dark:text-white">
+            Security Audit
+          </h2>
+          <p className="font-roboto text-gray-600 dark:text-gray-400 mt-1 font-medium text-sm">
+            {isUnlocked
+              ? isEmpty
+                ? "Add some entries to get your security report."
+                : "Your vault analyzed locally. Nothing leaves your device."
+              : toCreateMasterPass
+                ? "Set up your vault to get a full security report."
+                : "Unlock your vault to view your security analysis."}
+          </p>
+          <ScrollReveal className="pt-3" direction="right" delayMs={100}>
+            <div
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-black ${vaultStatus.cls}`}
+            >
+              {vaultStatus.icon}
+              {vaultStatus.label}
+            </div>
+          </ScrollReveal>
         </ScrollReveal>
 
         {/* ══════════════════════════════════════════════════
               CASE 1 — Vault locked or not created
           ══════════════════════════════════════════════════ */}
-        {isUnlocked && (
+        {(!isUnlocked || loading) && (
           <ScrollReveal direction="up" className="space-y-6">
             {/* CTA card */}
-            <div
+            {!loading && (<div
               className={`relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] p-5 md:p-10 border shadow-sm
                 ${
                   toCreateMasterPass
@@ -462,7 +350,7 @@ export default function SecurityTab() {
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                 </button>
               </div>
-            </div>
+            </div>)}
 
             {/* Skeleton score card */}
             <div className="relative overflow-hidden p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 opacity-40 select-none pointer-events-none">
@@ -550,6 +438,7 @@ export default function SecurityTab() {
               title="Security Tips"
               icon={<Lightbulb className="w-4 h-4 text-yellow-500" />}
               delay={100}
+              key="SecurityTips"
             >
               {[
                 {
@@ -592,7 +481,7 @@ export default function SecurityTab() {
         {/* ══════════════════════════════════════════════════
               CASE 3 — Unlocked + has data = full audit
           ══════════════════════════════════════════════════ */}
-        {!isUnlocked && !isEmpty && (
+        {isUnlocked && !isEmpty && (
           <>
             {/* ── Score card ── */}
             <ScrollReveal
@@ -604,7 +493,7 @@ export default function SecurityTab() {
                   ${analysis.healthScore >= 75 ? "bg-emerald-500" : analysis.healthScore >= 50 ? "bg-amber-500" : "bg-red-500"}`}
               />
               <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-">
-                <div>
+                <div className="flex flex-col items-center">
                   {/* Ring */}
                   <div className="relative flex items-center justify-center shrink-0">
                     <svg
@@ -643,16 +532,16 @@ export default function SecurityTab() {
                     </div>
                   </div>
                   <div
-                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black tracking-widest uppercase ${scoreLabel.cls}`}
+                    className={`inline-flex border items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black tracking-widest uppercase ${scoreLabel.cls}`}
                   >
                     <ShieldCheck className="w-3.5 h-3.5" /> {scoreLabel.text}
                   </div>
                 </div>
 
                 {/* Details */}
-                <div className="flex-1 text-left space-y-3">
+                <div className="flex-1 text-left space-y-3 font-inter">
                   <div>
-                    <h3 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+                    <h3 className="text-xl md:text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">
                       {analysis.healthScore >= 75
                         ? "Your Vault is Well Protected"
                         : analysis.healthScore >= 50
@@ -662,8 +551,8 @@ export default function SecurityTab() {
                     <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 font-medium mt-2 max-w-lg">
                       {analysis.weak.length} weak ·{" "}
                       {analysis.reusedGroups.length} reused groups ·{" "}
-                      {analysis.strong.length} strong — analyzed locally,
-                      nothing sent to server.
+                      {analysis.strong.length} strong. Analyzed locally, nothing
+                      sent to server.
                     </p>
                   </div>
                 </div>
@@ -732,12 +621,13 @@ export default function SecurityTab() {
                 count={analysis.weak.length}
                 countCls="bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300"
                 delay={80}
+                key="WeakPasswords"
               >
                 {analysis.weak.map((entry, i) => (
                   <PasswordRow
-                    key={entry.id}
+                    key={entry._id}
                     entry={entry}
-                    isReused={analysis.reusedIds.has(entry.id)}
+                    isReused={analysis.reusedIds.has(entry._id)}
                     delay={50 * i}
                   />
                 ))}
@@ -748,6 +638,7 @@ export default function SecurityTab() {
             {analysis.reusedGroups.length > 0 && (
               <Section
                 title="Reused Passwords"
+                key="ReusedPasswords"
                 icon={<Copy className="w-4 h-4 text-rose-500" />}
                 count={analysis.reusedGroups.reduce(
                   (acc, g) => acc + g.length,
@@ -757,13 +648,13 @@ export default function SecurityTab() {
                 delay={120}
               >
                 {analysis.reusedGroups.map((group, gi) => (
-                  <div key={gi} className="space-y-1.5">
+                  <div key={group[0]._id} className="space-y-1.5">
                     <p className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest px-1">
                       Same password on {group.length} sites
                     </p>
                     {group.map((entry, i) => (
                       <PasswordRow
-                        key={entry.id}
+                        key={entry._id}
                         entry={entry}
                         isReused
                         delay={50 * i}
@@ -777,6 +668,7 @@ export default function SecurityTab() {
             {/* ── What's good ── */}
             <Section
               title="What's Good"
+              key="WhatsGood"
               icon={<CheckCircle2 className="w-4 h-4 text-emerald-500" />}
               delay={160}
             >
@@ -806,6 +698,7 @@ export default function SecurityTab() {
             {/* ── Security tips ── */}
             <Section
               title="Tips to Improve"
+              key="TipsToImprove"
               icon={<Lightbulb className="w-4 h-4 text-yellow-500" />}
               delay={200}
             >

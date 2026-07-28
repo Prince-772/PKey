@@ -5,12 +5,10 @@ import {
   useState,
   useMemo,
   useCallback,
-  useRef,
   useEffect,
 } from "react";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
-import { hasMasterPass } from "@/lib/masterpassword/hasMasterPassword";
 import { useMasterPass } from "./MasterPassword";
 import axios from "axios";
 import { decryptV3, encryptV3 } from "@/lib/passwords/encryptPassV3";
@@ -23,21 +21,9 @@ const PasswordsContext = createContext(undefined);
 export default function PasswordsProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const [passwords, setPasswords] = useState([]);
-  const { masterPass, setMasterPass, encKey, setEncKey, resetTimer } = useMasterPass();
+  const { masterPass, setMasterPass, encKey, setEncKey, resetTimer } =
+    useMasterPass();
   const { data: session, update, status } = useSession();
-  const [toCreateMasterPass, setToCreateMasterPass] = useState(false);
-  const timerRef = useRef(null);
-
-  useEffect(() => {
-    if (status === "authenticated") {
-      (async () => {
-        try {
-          const res = await hasMasterPass();
-          if (!res) setToCreateMasterPass(true);
-        } catch (err) {}
-      })();
-    }
-  }, [status]);
 
   const fetchPasswords = useCallback(async () => {
     if (status !== "authenticated") return;
@@ -58,8 +44,13 @@ export default function PasswordsProvider({ children }) {
         getPasswords.map(async (p) => {
           // For Old Entries, Updaing to new
           if (p.version === 1) {
-            let { userName, siteName, strength } = p;
-            const userNameV3 = await encryptV3(userName, encKey);
+            let { userNames, siteName, strength } = p;
+            // const userNamesV3 = await encryptV3(userName, encKey);
+            const userNamesV3 = await Promise.all(
+              userNames.map((username) => {
+                return encryptV3(username, encKey);
+              }),
+            );
             const siteNameV3 = await encryptV3(siteName, encKey);
             const strengthV3 = await encryptV3(strength, encKey);
             const password = decrypt(p.password, masterPass); // Getting raw password
@@ -67,7 +58,7 @@ export default function PasswordsProvider({ children }) {
             const newData = {
               ...p,
               password: passwordV3,
-              userName: userNameV3,
+              userNames: userNamesV3,
               siteName: siteNameV3,
               strength: strengthV3,
               version: 3,
@@ -79,18 +70,28 @@ export default function PasswordsProvider({ children }) {
           else if (p.version === 2) {
             // Extracting raw data from old algo
             const siteName = decrypt(p.siteName, masterPass);
-            const userName = decrypt(p.userName, masterPass);
+            // const userName = decrypt(p.userName, masterPass);
+            const userNames = await Promise.all(
+              p.userNames.map((username) => {
+                return decrypt(username, masterPass);
+              }),
+            );
             const strength = decrypt(p.strength, masterPass);
             const password = decrypt(p.password, masterPass);
             const siteNameV3 = await encryptV3(siteName, encKey);
-            const userNameV3 = await encryptV3(userName, encKey);
+            // const userNameV3 = await encryptV3(userName, encKey);
+            const userNamesV3 = await Promise.all(
+              userNames.map((username) => {
+                return encryptV3(username, encKey);
+              }),
+            );
             const strengthV3 = await encryptV3(strength, encKey);
             const passwordV3 = await encryptV3(password, encKey);
 
             const newData = {
               ...p,
               password: passwordV3,
-              userName: userNameV3,
+              userNames: userNamesV3,
               siteName: siteNameV3,
               strength: strengthV3,
               version: 3,
@@ -101,7 +102,7 @@ export default function PasswordsProvider({ children }) {
             return {
               ...p,
               siteName,
-              userName,
+              userNames,
               strength,
               password,
             };
@@ -111,7 +112,10 @@ export default function PasswordsProvider({ children }) {
             return {
               ...p,
               siteName: await decryptV3(p.siteName, encKey),
-              userName: await decryptV3(p.userName, encKey),
+              // userName: await decryptV3(p.userName, encKey),
+              userNames: await Promise.all(
+                p.userNames.map((username) => decryptV3(username, encKey)),
+              ),
               password: await decryptV3(p.password, encKey),
               strength: await decryptV3(p.strength, encKey),
             };
@@ -163,17 +167,21 @@ export default function PasswordsProvider({ children }) {
     }
   }, [masterPass, encKey, status]);
 
-    // useEffect(() => {
-    //   fetchPasswords();
-    //   return () => setEncKey(null);
-    // }, [masterPass, encKey]);
+  useEffect(() => {
+    fetchPasswords();
+  }, [fetchPasswords]);
 
+  useEffect(() => {
+    return () => {
+      setEncKey(null);
+    };
+  }, []);
 
   const value = useMemo(
     () => ({
       loading,
       passwords,
-      fetchPasswords
+      fetchPasswords,
     }),
     [passwords, loading, fetchPasswords],
   );
@@ -188,7 +196,7 @@ export default function PasswordsProvider({ children }) {
 export function usePasswords() {
   const context = useContext(PasswordsContext);
   if (context === undefined) {
-    throw new Error("usePasswords must be used within a PasswordsProvider");
+    throw new Error("usePasswords must be used within a PasswordsProvider.");
   }
   return context;
 }

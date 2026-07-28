@@ -95,9 +95,9 @@ export default function AddEntryTab({ expanded }) {
       {/* STATE 1: CATEGORY GRID */}
       {!selectedCategory && (
         <ScrollReveal className="space-y-8">
-          <div className="sticky top-0 z-10 flex items-center w-[104%] -translate-x-[2%] gap-4 border-b border-gray-200/50 dark:border-gray-800/50 pl-12 py-4 bg-gray-50 dark:bg-gray-950">
+          <div className="md:sticky top-0 z-10 flex items-center w-[104%] -translate-x-[2%] gap-2 md:gap-4 border-b border-gray-200/50 dark:border-gray-800/50 pl-4 md:pl-12 py-2 md:py-4 bg-gray-50 dark:bg-gray-950">
             <div>
-              <h2 className="text-xl md:text-3xl font-bold font-inter text-gray-900 dark:text-white">
+              <h2 className="text-xl md:text-2xl font-bold font-inter text-gray-900 dark:text-white">
                 Add New Entry
               </h2>
               <p className="font-roboto text-gray-600 dark:text-gray-400 mt-1 font-medium text-sm">
@@ -173,7 +173,7 @@ export default function AddEntryTab({ expanded }) {
             ))}
           </div>
 
-          {/* Zero-Knowledge Disclaimer � premium */}
+          {/* Zero-Knowledge Disclaimer premium */}
           <ScrollReveal
             direction="up"
             delayMs={250}
@@ -205,7 +205,7 @@ export default function AddEntryTab({ expanded }) {
       {selectedCategory && (
         <div className="space-y-6 duration-300">
           {/* Back Button & Header */}
-          <div className="sticky top-0 z-50 flex items-center gap-4 border-b border-gray-200/50 dark:border-gray-800/50 pl-12 py-4 bg-gray-50 dark:bg-gray-950">
+          <div className="sticky top-0 z-50 flex items-center gap-2 md:gap-4 border-b border-gray-200/50 dark:border-gray-800/50 pl-4 md:pl-12 py-2 md:py-4 bg-gray-50 dark:bg-gray-950">
             <button
               onClick={() => setSelectedCategory(null)}
               className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors cursor-pointer"
@@ -213,7 +213,7 @@ export default function AddEntryTab({ expanded }) {
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h2 className="text-2xl font-bold font-inter text-gray-900 dark:text-white">
+              <h2 className="text-lg md:text-xl font-bold font-inter text-gray-900 dark:text-white">
                 {categories.find((c) => c.id === selectedCategory)?.title}
               </h2>
             </div>
