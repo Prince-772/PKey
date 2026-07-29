@@ -1,23 +1,35 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
+﻿import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
   X,
   Eye,
   EyeOff,
-  ShieldCheck,
-  Shield,
   TriangleAlert,
   AlertCircle,
   Cpu,
   Plus,
   Trash2,
+  Info,
 } from "lucide-react";
 import { useForm, useFieldArray } from "react-hook-form";
-import SuggestPassword from "@/lib/passwords/suggestPassword";
 import { useMasterPass } from "@/context/MasterPassword";
 import { useRouter } from "next/navigation";
 import categorizePassword from "@/lib/passwords/strengthChecker";
 import { encryptV3 } from "@/lib/passwords/encryptPassV3";
 import { capitalize, getPasswordStrength } from "@/lib/helper";
+import PasswordGeneratorControls from "@/components/PasswordGeneratorControls";
+import toast from "react-hot-toast";
+import { createPortal } from "react-dom";
+
+const normalizeUsernames = (usernames = []) =>
+  usernames
+    .map((username) =>
+      typeof username === "string" ? username.trim() : username.value?.trim(),
+    )
+    .filter(Boolean);
+
+const areSameUsernames = (current, original) =>
+  current.length === original.length &&
+  current.every((username, index) => username === original[index]);
 
 const EditModal = ({ onClose, onSave, editingData, noMasterPass }) => {
   const { masterPass, encKey } = useMasterPass();
@@ -63,13 +75,17 @@ const EditModal = ({ onClose, onSave, editingData, noMasterPass }) => {
   const handleSave = useCallback(
     async (data) => {
       if (!encKey) return noMasterPass();
-      const strength = categorizePassword(data.password);
-      if (isDirty) {
+      const currentUsernames = normalizeUsernames(data.usernames);
+      const originalUsernames = normalizeUsernames(editingData.usernames);
+      const hasActualChanges =
+        data.platform !== editingData.platform ||
+        data.password !== editingData.password ||
+        !areSameUsernames(currentUsernames, originalUsernames);
+
+      if (isDirty && hasActualChanges) {
+        const strength = categorizePassword(data.password);
         const encryptedUsernames = await Promise.all(
-          data.usernames
-            .map((u) => u.value.trim())
-            .filter(Boolean)
-            .map((u) => encryptV3(u, encKey)),
+          currentUsernames.map((u) => encryptV3(u, encKey)),
         );
         onSave({
           site: await encryptV3(data.platform, encKey),
@@ -79,25 +95,31 @@ const EditModal = ({ onClose, onSave, editingData, noMasterPass }) => {
           strength: await encryptV3(strength, encKey),
           version: 3,
         });
+      } else {
+        toast("No changes were made.", {
+          icon: <Info className="w-5 h-5 text-gray-500" />,
+        });
       }
       onClose();
     },
-    [onSave, onClose, isDirty, masterPass, encKey, router],
+    [onSave, onClose, isDirty, masterPass, encKey, router, editingData],
   );
 
-  const HandleSuggestStrongPassword = useCallback(() => {
-    const password = SuggestPassword();
-    if (password) {
-      setValue("password", password, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-      setIsPassSuggested(true);
-      setTimeout(() => {
-        setIsPassSuggested(false);
-      }, 2000);
-    }
-  }, [setValue]);
+  const HandleSuggestStrongPassword = useCallback(
+    (password) => {
+      if (password) {
+        setValue("password", password, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+        setIsPassSuggested(true);
+        setTimeout(() => {
+          setIsPassSuggested(false);
+        }, 2000);
+      }
+    },
+    [setValue],
+  );
 
   const PasswordField = (
     <div className="group flex flex-col gap-2 items-start">
@@ -146,34 +168,16 @@ const EditModal = ({ onClose, onSave, editingData, noMasterPass }) => {
         )}
       </div>
 
-      <button
-        type="button"
-        onClick={HandleSuggestStrongPassword}
-        disabled={isPassSuggested}
-        className={`inline-flex items-center gap-2 px-2 md:px-4 py-2 rounded-md shadow-md text-nowrap
-                              ${
-                                isPassSuggested
-                                  ? "bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300 cursor-not-allowed"
-                                  : "bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600"
-                              }
-                              transition-all duration-300 ease-in-out text-sm md:text-base font-semibold
-                              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
-      >
-        {isPassSuggested ? (
-          <ShieldCheck
-            className={`w-5 h-5 ${
-              isPassSuggested ? "text-gray-500 dark:text-gray-400" : ""
-            }`}
-          />
-        ) : (
-          <Shield className="w-5 h-5" />
-        )}
-        Suggest Strong Password
-      </button>
+      <PasswordGeneratorControls
+        isGenerated={isPassSuggested}
+        onPassword={HandleSuggestStrongPassword}
+        buttonClassName="w-full inline-flex items-center justify-center gap-2 px-2 md:px-4 py-2 rounded-md shadow-md text-nowrap bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600 transition-all duration-300 ease-in-out text-sm md:text-base font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        generatedButtonClassName="w-full inline-flex items-center justify-center gap-2 px-2 md:px-4 py-2 rounded-md shadow-md text-nowrap bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300 cursor-not-allowed transition-all duration-300 ease-in-out text-sm md:text-base font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+      />
     </div>
   );
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex justify-center bg-gray-950/70 dark:bg-black/80 backdrop-blur-md transition-opacity duration-300 ease-in-out">
       {/* Backdrop click */}
       <div className="absolute inset-0" onClick={onClose} />
@@ -222,7 +226,7 @@ const EditModal = ({ onClose, onSave, editingData, noMasterPass }) => {
                 )}
               </div>
 
-              {/* Usernames — dynamic array */}
+              {/* Usernames â€” dynamic array */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between px-1">
                   <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">
@@ -378,7 +382,7 @@ const EditModal = ({ onClose, onSave, editingData, noMasterPass }) => {
         </form>
       </div>
     </div>
-  );
+  ,document.body);
 };
 
 export default memo(EditModal);
