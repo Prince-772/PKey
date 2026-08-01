@@ -9,12 +9,14 @@ import {
   Fingerprint,
   Lock,
   ShieldCheck,
+  Hash,
 } from "lucide-react";
 import LoginForm from "@/components/dashboard/forms/LoginForm";
+import PinForm from "@/components/dashboard/forms/PinForm.jsx";
+import ComingSoonForm from "@/components/dashboard/forms/ComingSoonForm";
 import ScrollReveal from "@/components/ScrollReveal";
 
 export default function AddEntryTab({ expanded }) {
-  // State to track which form is currently open (null = show grid)
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   // List of categories
@@ -33,6 +35,21 @@ export default function AddEntryTab({ expanded }) {
       badge: "AES-256",
       badgeCls:
         "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400",
+    },
+    {
+      id: "passcodes",
+      title: "PINs & Passcodes",
+      description: "Device PINs, mPINs, and short numeric codes.",
+      icon: <Hash className="w-5 h-5 md:w-6 md:h-6" />,
+      color: "cyan",
+      bgColor: "bg-cyan-50 dark:bg-cyan-900/30",
+      textColor: "text-cyan-600 dark:text-cyan-400",
+      hoverBorder: "hover:border-cyan-500/50 dark:hover:border-cyan-500/50",
+      accentBar: "bg-cyan-500",
+      hoverGlow: "group-hover:shadow-cyan-500/10",
+      badge: "AES-256",
+      badgeCls:
+        "bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400",
     },
     {
       id: "card",
@@ -95,7 +112,7 @@ export default function AddEntryTab({ expanded }) {
       {/* STATE 1: CATEGORY GRID */}
       {!selectedCategory && (
         <ScrollReveal className="space-y-8">
-          <div className="md:sticky top-0 z-10 flex items-center w-[104%] -translate-x-[2%] gap-2 md:gap-4 border-b border-gray-200/50 dark:border-gray-800/50 pl-4 md:pl-12 py-2 md:py-4 bg-gray-50 dark:bg-gray-950">
+          <div className="md:sticky -top-1 z-10 flex items-center w-[104%] -translate-x-[2%] gap-2 md:gap-4 border-b border-gray-200/50 dark:border-gray-800/50 pl-4 md:pl-12 py-2 md:py-4 bg-gray-50 dark:bg-gray-950">
             <div>
               <h2 className="text-xl md:text-2xl font-bold font-inter text-gray-900 dark:text-white">
                 Add New Entry
@@ -119,7 +136,7 @@ export default function AddEntryTab({ expanded }) {
               <ScrollReveal key={cat.id} delayMs={50 * i} direction="right">
                 <button
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`group w-full relative text-left p-4 md:p-6 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${cat.hoverBorder} ${cat.hoverGlow} overflow-hidden cursor-pointer`}
+                  className={`group w-full h-full relative text-left p-4 md:p-6 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${cat.hoverBorder} ${cat.hoverGlow} overflow-hidden cursor-pointer`}
                 >
                   {/* Left accent bar */}
                   <div
@@ -201,11 +218,11 @@ export default function AddEntryTab({ expanded }) {
         </ScrollReveal>
       )}
 
-      {/* STATE 2: THE ACTUAL FORMS (Placeholders for now) */}
+      {/* STATE 2: THE ACTUAL FORMS */}
       {selectedCategory && (
         <div className="space-y-6 duration-300">
           {/* Back Button & Header */}
-          <div className="sticky top-0 z-50 flex items-center gap-2 md:gap-4 border-b border-gray-200/50 dark:border-gray-800/50 pl-4 md:pl-12 py-2 md:py-4 bg-gray-50 dark:bg-gray-950">
+          <div className="sticky -top-1 z-50 flex items-center gap-2 w-[104%] -translate-x-[2%] md:gap-4 border-b border-gray-200/50 dark:border-gray-800/50 pl-4 md:pl-12 py-2 md:py-4 bg-gray-50 dark:bg-gray-950">
             <button
               onClick={() => setSelectedCategory(null)}
               className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors cursor-pointer"
@@ -219,21 +236,16 @@ export default function AddEntryTab({ expanded }) {
             </div>
           </div>
 
-          {/* Form Area - Switch case banakar forms render karenge */}
-          <div className="rounded-[2rem] shadow-sm pb-4">
-            {selectedCategory === "login" && (
-              <div className="text-gray-500">
-                <LoginForm />
-              </div>
-            )}
-            {selectedCategory === "card" && (
-              <p className="text-gray-500">Comming Soon...</p>
-            )}
-            {selectedCategory === "note" && (
-              <p className="text-gray-500">Comming Soon...</p>
-            )}
-            {selectedCategory === "identity" && (
-              <p className="text-gray-500">Comming Soon...</p>
+          {/* Form Area - Switch case */}
+          <div className="rounded-[2rem] pb-4">
+            {selectedCategory === "login" && <LoginForm />}
+            {selectedCategory === "passcodes" && <PinForm />}
+            {selectedCategory !== "login" && selectedCategory !== "passcodes" && (
+              <ComingSoonForm
+                {...categories.find(
+                  (category) => category.id === selectedCategory
+                )}
+              />
             )}
           </div>
         </div>

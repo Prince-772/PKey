@@ -13,7 +13,7 @@ import { createPortal } from "react-dom";
 
 export default function MasterPasswordModel({ isOpen, onClose }) {
   const [isLoading, setIsLoading] = useState(false);
-  const { setMasterPass, setEncKey, setDecryptedAt } = useMasterPass();
+  const { setMasterPass, setEncKey, setDecryptedAt, sessionVersion, sessionSalt } = useMasterPass();
   const mPass = useRef(null);
   const { data: session, update } = useSession();
 
@@ -21,29 +21,37 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
     try {
       e.preventDefault();
       const mPassValue = mPass.current?.value;
+      if (!mPassValue) return;
+
+      setIsLoading(true);
       mPass.current.value = "";
-      if (mPassValue) {
-        setIsLoading(true);
-        const version = session?.user?.version;
 
-        let authHash, encryptionKey, salt;
-        if (version > 1) {
-          salt = session?.user?.salt;
-          ({ authHash, encryptionKey } = await generateAuthData(
-            mPassValue,
-            salt,
-          ));
-        } else if (version === 1) {
-          authHash = mPassValue;
-          ({ salt, encryptionKey } = await generateAuthData(mPassValue));
-        }
+      const version = sessionVersion;
+      let authHash, encryptionKey, salt;
 
-        await toast.promise(VerifyMasterPass(authHash), {
+      if (version > 1) {
+        salt = sessionSalt;
+        ({ authHash, encryptionKey } = await generateAuthData(
+          mPassValue,
+          salt,
+        ));
+      } else if (version === 1) {
+        authHash = mPassValue;
+        ({ salt, encryptionKey } = await generateAuthData(mPassValue));
+      }
+
+      if (!authHash) {
+        setIsLoading(false);
+        toast.error("Could not derive credentials. Please ensure you have a master password set up");
+        return;
+      }
+      await toast
+        .promise(VerifyMasterPass(authHash), {
           loading: "Verifying...",
           success: async () => {
             setIsLoading(false);
             setEncKey(encryptionKey);
-            setDecryptedAt(new Date())
+            setDecryptedAt(new Date());
 
             if (version === 1) {
               setMasterPass(mPassValue); // raw mPass is still required for Uv1 users
@@ -85,13 +93,13 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
               return err.message || "Something went wrong";
             }
           },
-        });
-        onClose();
-      }
-    } catch({message}) {
+        })
+        .catch(() => {});
+      onClose();
+    } catch ({ message }) {
       toast.error(message || "An unexpected error occurred");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   };
 
@@ -114,17 +122,6 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
           </h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
             Enter your master password to unlock your saved credentials.
-          </p>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Or{" "}
-            <Link
-              onClick={onClose}
-              href="/dashboard"
-              className="text-blue-500 underline"
-            >
-              create one
-            </Link>{" "}
-            if you haven't done so yet.
           </p>
         </div>
 

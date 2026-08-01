@@ -1,7 +1,6 @@
 "use client";
 import React, { useCallback, useEffect, useState, useMemo } from "react";
-import { useForm } from "react-hook-form";
-import { useSession } from "next-auth/react";
+import { useForm, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
 import {
   Eye,
@@ -16,28 +15,25 @@ import {
   Cpu,
   Copy,
   CopyCheck,
-  Sparkles,
   X,
   ChevronDown,
+  Plus,
+  Trash2,
 } from "lucide-react";
 
 // Context & Libs
 import { useMasterPass } from "@/context/MasterPassword";
-import SuggestPassword from "@/lib/passwords/suggestPassword";
 import { handleSavePassword } from "@/lib/passwords/submitPasswords";
 import { encryptV3 } from "@/lib/passwords/encryptPassV3";
-import { generateAuthData } from "@/lib/masterpassword/mPasscryptoV3";
 import categorizePassword from "@/lib/passwords/strengthChecker";
 
 // Components
-import MasterPasswordModel from "@/components/MasterPasswordModal";
-import CreateMasterPasswordModal from "@/components/CreateMasterPassword";
-import { CreateMasterPass } from "@/lib/masterpassword/create";
 import { capitalize, getPasswordStrength, handleCopy } from "@/lib/helper";
 import ScrollReveal from "@/components/ScrollReveal";
 import BlockedAccount from "@/components/BlockedAccountToast";
+import PasswordGeneratorControls from "@/components/PasswordGeneratorControls";
 
-// ── Reusable Input Field ─────────────────────────────────────────────────────
+// Reusable Input Field
 function InputField({ label, icon, error, children, action }) {
   return (
     <div className="group space-y-1.5">
@@ -59,7 +55,7 @@ function InputField({ label, icon, error, children, action }) {
   );
 }
 
-// ── Input base classes ───────────────────────────────────────────────────────
+// Input base classes
 const inputCls =
   "w-full h-12 px-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-400/10 transition-all duration-200 text-base placeholder:text-gray-300 dark:placeholder:text-gray-600";
 
@@ -67,15 +63,15 @@ const LoginForm = () => {
   const [seePassword, setseePassword] = useState(false);
   const [isPassSuggested, setIsPassSuggested] = useState(false);
   const [isPassCopied, setIsPassCopied] = useState(false);
-  const [isUserNameCopied, setIsUserNameCopied] = useState(false);
+  const [copiedUsernameIndex, setCopiedUsernameIndex] = useState(null);
   const [strengthMeterOpen, setStrengthMeterOpen] = useState(true);
   const {
     encKey,
     resetTimer,
     toCreateMasterPass,
+    setShowMasterPassModel,
+    setShowCreateMasterModel,
   } = useMasterPass();
-  const [setshowMasterPassModel] = useState(false);
-  const [setShowCreateMasterModel] = useState(false);
 
   const {
     register,
@@ -84,17 +80,29 @@ const LoginForm = () => {
     setValue,
     reset,
     watch,
-  } = useForm();
+    control,
+  } = useForm({
+    defaultValues: {
+      usernames: [{ value: "" }],
+    },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "usernames",
+    rules: { minLength: 1 },
+  });
 
   const passwordValue = watch("password", "");
-  const usernameValue = watch("username", "");
+  const usernameValues = watch("usernames", []);
+  const canAddMore =
+    (usernameValues?.[usernameValues.length - 1]?.value ?? "").trim().length > 0;
   const entryStrength = useMemo(
     () => getPasswordStrength(passwordValue),
     [passwordValue],
   );
 
-  const HandleSuggestStrongPassword = () => {
-    const password = SuggestPassword();
+  const HandleSuggestStrongPassword = (password) => {
     if (password) {
       setValue("password", password, { shouldValidate: true });
       setIsPassSuggested(true);
@@ -105,16 +113,24 @@ const LoginForm = () => {
   const handleOnSubmit = async (formData) => {
     try {
       if (!encKey) {
-        toCreateMasterPass
-          ? setShowCreateMasterModel(true)
-          : setshowMasterPassModel(true);
+        if (toCreateMasterPass) {
+          setShowCreateMasterModel(true);
+        } else {
+          setShowMasterPassModel(true);
+        }
         return;
       }
       const strength = categorizePassword(formData.password);
+      const encryptedUsernames = await Promise.all(
+        formData.usernames
+          .map((username) => username.value.trim())
+          .filter(Boolean)
+          .map((username) => encryptV3(username, encKey)),
+      );
       await toast.promise(
         handleSavePassword({
           site: await encryptV3(formData.site, encKey),
-          username: await encryptV3(formData.username, encKey),
+          usernames: encryptedUsernames,
           password: await encryptV3(formData.password, encKey),
           strength: await encryptV3(strength, encKey),
         }),
@@ -133,24 +149,87 @@ const LoginForm = () => {
         },
       );
       reset();
-    } catch ({message}) {
-      toast.error(message??"Something went wrong, Try again.")
+      setCopiedUsernameIndex(null);
+    } catch ({ message }) {
+      toast.error(message ?? "Something went wrong, Try again.");
     } finally {
     }
   };
 
+  const PasswordField = (
+    <>
+      <InputField
+        label="Password"
+        icon={<KeyRound className="w-3.5 h-3.5" />}
+        error={errors.password?.message}
+        action={
+          <button
+            type="button"
+            onClick={() => handleCopy(passwordValue, setIsPassCopied)}
+            disabled={!passwordValue || isPassCopied}
+            className={`flex items-center gap-1 text-xs font-semibold transition-all duration-200 ${
+              !passwordValue
+                ? "opacity-30 cursor-not-allowed text-gray-400"
+                : isPassCopied
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-gray-400 hover:text-blue-500 dark:hover:text-blue-400"
+            }`}
+          >
+            {isPassCopied ? (
+              <>
+                <CopyCheck className="w-3.5 h-3.5" /> Copied!
+              </>
+            ) : (
+              <>
+                <Copy className="w-3.5 h-3.5" /> Copy
+              </>
+            )}
+          </button>
+        }
+      >
+        <div className="relative">
+          <input
+            {...register("password", {
+              required: "Password is required",
+            })}
+            type={seePassword ? "text" : "password"}
+            autoComplete="new-password"
+            placeholder="Enter or generate a password"
+            className={`${inputCls} pr-12 font-mono`}
+          />
+          <button
+            type="button"
+            onClick={() => setseePassword(!seePassword)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200"
+          >
+            {seePassword ? (
+              <EyeOff className="w-4 h-4" />
+            ) : (
+              <Eye className="w-4 h-4" />
+            )}
+          </button>
+        </div>
+      </InputField>
+
+      <PasswordGeneratorControls
+        isGenerated={isPassSuggested}
+        onPassword={HandleSuggestStrongPassword}
+      />
+    </>
+  );
+
   return (
-    <div className="flex flex-col items-center md:px-4 bg-gray-50 dark:bg-gray-950 transition-colors duration-300 ">
-      <div className="w-full grid grid-cols-1 gap-6 items-start pb-10">
-        {/* ── RIGHT FORM ───────────────────────────────────────────────── */}
+    <div className="flex flex-col items-center bg-gray-50 dark:bg-gray-950 transition-colors duration-300 ">
+      <div className="w-full grid grid-cols-1 gap-6 items-start">
+        {/* RIGHT FORM */}
         <ScrollReveal
           direction="up"
           delayMs={80}
-          className="lg:col-span-8 mb-6"
+          className="lg:col-span-8"
         >
           <div className="rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-hidden pb-4">
             {/* Form header */}
-            <div className="px-6 md:px-8 pt-7 pb-6 border-b border-gray-100 dark:border-gray-800">
+            <div className="px-6 md:px-8 pt-7 pb-6 border-b border-gray-100 dark:border-gray-800 mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/25 shrink-0">
                   <LockKeyhole className="w-5 h-5 text-white" />
@@ -182,7 +261,7 @@ const LoginForm = () => {
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 px-4 md:px-8 gap-4">
-                <div className="py-7 flex flex-col gap-6">
+                <div className="flex flex-col gap-4">
                   {/* Site Name */}
                   <InputField
                     label="Site Name"
@@ -199,130 +278,108 @@ const LoginForm = () => {
                     />
                   </InputField>
 
-                  {/* Username */}
+                  {/* Usernames */}
                   <InputField
-                    label="Username / Email"
+                    label="Usernames / Emails"
                     icon={<UserPen className="w-3.5 h-3.5" />}
-                    error={errors.username?.message}
+                    error={errors.usernames?.root?.message}
                     action={
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleCopy(usernameValue, setIsUserNameCopied)
-                        }
-                        disabled={!usernameValue || isUserNameCopied}
-                        className={`flex items-center gap-1 text-xs font-semibold transition-all duration-200 ${
-                          !usernameValue
-                            ? "opacity-30 cursor-not-allowed text-gray-400"
-                            : isUserNameCopied
-                              ? "text-emerald-600 dark:text-emerald-400"
-                              : "text-gray-400 hover:text-blue-500 dark:hover:text-blue-400"
-                        }`}
-                      >
-                        {isUserNameCopied ? (
-                          <>
-                            <CopyCheck className="w-3.5 h-3.5" /> Copied!
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-3.5 h-3.5" /> Copy
-                          </>
-                        )}
-                      </button>
+                      canAddMore && (
+                        <button
+                          type="button"
+                          onClick={() => append({ value: "" })}
+                          className="flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-200"
+                        >
+                          <Plus className="w-3.5 h-3.5" /> Add another
+                        </button>
+                      )
                     }
                   >
-                    <input
-                      {...register("username", {
-                        required: "Username is required",
-                      })}
-                      placeholder="e.g. john@example.com"
-                      className={inputCls}
-                      autoComplete="off"
-                    />
-                  </InputField>
+                    <div className="space-y-2">
+                      {fields.map((field, index) => {
+                        const usernameValue =
+                          usernameValues?.[index]?.value ?? "";
+                        const isCopied = copiedUsernameIndex === index;
 
-                  {/* Password */}
-                  <InputField
-                    label="Password"
-                    icon={<KeyRound className="w-3.5 h-3.5" />}
-                    error={errors.password?.message}
-                    action={
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleCopy(passwordValue, setIsPassCopied)
-                        }
-                        disabled={!passwordValue || isPassCopied}
-                        className={`flex items-center gap-1 text-xs font-semibold transition-all duration-200 ${
-                          !passwordValue
-                            ? "opacity-30 cursor-not-allowed text-gray-400"
-                            : isPassCopied
-                              ? "text-emerald-600 dark:text-emerald-400"
-                              : "text-gray-400 hover:text-blue-500 dark:hover:text-blue-400"
-                        }`}
-                      >
-                        {isPassCopied ? (
-                          <>
-                            <CopyCheck className="w-3.5 h-3.5" /> Copied!
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-3.5 h-3.5" /> Copy
-                          </>
-                        )}
-                      </button>
-                    }
-                  >
-                    <div className="relative">
-                      <input
-                        {...register("password", {
-                          required: "Password is required",
-                        })}
-                        type={seePassword ? "text" : "password"}
-                        autoComplete="new-password"
-                        placeholder="Enter or generate a password"
-                        className={`${inputCls} pr-12 font-mono`}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setseePassword(!seePassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200"
-                      >
-                        {seePassword ? (
-                          <EyeOff className="w-4 h-4" />
-                        ) : (
-                          <Eye className="w-4 h-4" />
-                        )}
-                      </button>
+                        return (
+                          <div key={field.id} className="flex items-start gap-0">
+                            <div className="flex-1">
+                              <div className="relative">
+                                <input
+                                  {...register(`usernames.${index}.value`, {
+                                    required:
+                                      index === 0
+                                        ? "At least one username is required"
+                                        : false,
+                                  })}
+                                  placeholder={
+                                    index === 0
+                                      ? "Primary username / email"
+                                      : "Alternative username / ID"
+                                  }
+                                  className={`${inputCls} pr-20`}
+                                  autoComplete="off"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handleCopy(usernameValue, (copied) =>
+                                      setCopiedUsernameIndex(
+                                        copied ? index : null,
+                                      ),
+                                    )
+                                  }
+                                  disabled={!usernameValue || isCopied}
+                                  className={`absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-xs font-semibold transition-all duration-200 ${
+                                    !usernameValue
+                                      ? "opacity-30 cursor-not-allowed text-gray-400"
+                                      : isCopied
+                                        ? "text-emerald-600 dark:text-emerald-400"
+                                        : "text-gray-400 hover:text-blue-500 dark:hover:text-blue-400"
+                                  }`}
+                                >
+                                  {isCopied ? (
+                                    <>
+                                      <CopyCheck className="w-3.5 h-3.5" />{" "}
+                                      Copied!
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Copy className="w-3.5 h-3.5" /> Copy
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                              {errors.usernames?.[index]?.value && (
+                                <p className="flex items-center gap-1.5 text-red-500 text-xs mt-1 px-1 font-medium">
+                                  <TriangleAlert className="w-3.5 h-3.5 shrink-0" />
+                                  {errors.usernames[index].value.message}
+                                </p>
+                              )}
+                            </div>
+
+                            {fields.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => remove(index)}
+                                className="shrink-0 h-12 px-2 ml-1 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
+                                aria-label="Remove username"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </InputField>
 
-                  {/* Suggest Password Button */}
-                  <button
-                    type="button"
-                    onClick={HandleSuggestStrongPassword}
-                    disabled={isPassSuggested}
-                    className={`w-full flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl font-bold text-sm transition-all duration-300 active:scale-95 ${
-                      isPassSuggested
-                        ? "bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 cursor-progress"
-                        : "bg-linear-to-r from-blue-600 to-purple-600 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5"
-                    }`}
-                  >
-                    {isPassSuggested ? (
-                      <>
-                        <ShieldCheck className="w-4 h-4 animate-bounce shrink-0" />
-                        Password Suggested!
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4 shrink-0" />
-                        Suggest Strong Password
-                      </>
-                    )}
-                  </button>
+                  {fields.length <= 3 && PasswordField}
                 </div>
 
-                <div className="py-7 flex flex-col gap-6">
+                <div className="flex flex-col gap-4">
+                  {fields.length > 3 && PasswordField}
+
                   {/* Strength Meter collapsible, CSS grid trick */}
                   <div
                     className={`grid transition-all duration-300 grid-rows-[1fr] opacity-100`}
@@ -474,7 +531,7 @@ const LoginForm = () => {
                 </div>
               </div>
 
-              <div className="px-8">
+              <div className="px-4 md:px-8 pt-4">
                 {/* Save Button */}
                 <button
                   type="submit"

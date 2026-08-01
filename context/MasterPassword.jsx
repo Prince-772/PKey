@@ -17,10 +17,22 @@ const MasterPasswordContext = createContext(undefined);
 export default function MasterPassProvider({ children }) {
   const [masterPass, setMasterPass] = useState(null);
   const [encKey, setEncKey] = useState(null);
-  const { status } = useSession();
+  const { data: session, status } = useSession();
+  const [sessionVersion, setSessionVersion] = useState(null);
+  const [sessionSalt, setSessionSalt] = useState(null);
   const [toCreateMasterPass, setToCreateMasterPass] = useState(false);
   const timerRef = useRef(null);
   const [decryptedAt, setDecryptedAt] = useState(null);
+  const [showMasterPassModel, setShowMasterPassModel] = useState(false);
+  const [showCreateMasterModel, setShowCreateMasterModel] = useState(false);
+
+  // Cache session version/salt when status becomes authenticated (not on every refetch)
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      setSessionVersion(session.user.version);
+      setSessionSalt(session.user.salt);
+    }
+  }, [status]);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -69,8 +81,8 @@ export default function MasterPassProvider({ children }) {
       () => {
         clearMasterPass();
       },
-      1000 * 60 * 60, // 1 Hr
-      // 5 * 60 * 1000, // 5 mins
+      // 1000 * 60 * 60, // 1 Hr
+      5 * 60 * 1000, // 5 mins
       // 10000, // 10 seconds
     );
   }, [clearMasterPass, masterPass, encKey]);
@@ -91,8 +103,24 @@ export default function MasterPassProvider({ children }) {
       setToCreateMasterPass,
       decryptedAt,
       setDecryptedAt,
+      showMasterPassModel,
+      setShowMasterPassModel,
+      showCreateMasterModel,
+      setShowCreateMasterModel,
+      sessionVersion,
+      sessionSalt,
     }),
-    [masterPass, encKey, resetTimer, toCreateMasterPass, decryptedAt],
+    [
+      masterPass,
+      encKey,
+      resetTimer,
+      toCreateMasterPass,
+      decryptedAt,
+      showMasterPassModel,
+      showCreateMasterModel,
+      sessionVersion,
+      sessionSalt,
+    ],
   );
 
   return (

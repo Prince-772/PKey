@@ -1,13 +1,22 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import { useMasterPass } from "@/context/MasterPassword";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
+import MasterPasswordModel from "@/components/MasterPasswordModal";
+import CreateMasterPasswordModal from "@/components/CreateMasterPassword";
 
-export default function DashboardLayout({ children, createpassword, user }) {
+export default function DashboardLayout({ children }) {
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
-  const { setMasterPass, setEncKey } = useMasterPass();
+  const {
+    setMasterPass,
+    setEncKey,
+    showMasterPassModel,
+    setShowMasterPassModel,
+    showCreateMasterModel,
+    setShowCreateMasterModel,
+  } = useMasterPass();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -22,11 +31,24 @@ export default function DashboardLayout({ children, createpassword, user }) {
     setEncKey(null);
     router.push("/");
   };
-  const tabRoutes = ["/dashboard", "/dashboard/add", "/dashboard/security"];
+
 
   return (
     <div className="mt-20">
       <main className="flex gap-4">
+        {/* Modals */}
+        {showMasterPassModel && (
+          <MasterPasswordModel
+            isOpen={showMasterPassModel}
+            onClose={() => setShowMasterPassModel(false)}
+          />
+        )}
+        {showCreateMasterModel && (
+          <CreateMasterPasswordModal
+            isOpen={showCreateMasterModel}
+            onClose={() => setShowCreateMasterModel(false)}
+          />
+        )}
         <div className="fixed md:left-0 md:top-0 md:pt-16 z-5 flex md:h-screen">
           <Sidebar
             expanded={sidebarExpanded}

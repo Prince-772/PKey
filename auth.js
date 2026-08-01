@@ -24,7 +24,7 @@ export const authOptions = {
       async authorize(credentials) {
         try {
           const { email, password } = credentials || {};
-          console.log(email, password);
+          // console.log(email, password);
 
           // Basic validation
           if (!email) throw new Error("Email is required");

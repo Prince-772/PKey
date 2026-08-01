@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ShieldCheck,
   KeyRound,
@@ -16,14 +16,12 @@ import {
   BookOpen,
 } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
-import MasterPasswordModel from "../MasterPasswordModal";
-import CreateMasterPasswordModal from "../CreateMasterPassword";
 import { useMasterPass } from "@/context/MasterPassword";
-import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { analyzePasswords } from "@/lib/helper";
+import { analyzeVault } from "@/lib/helper";
 import { usePasswords } from "@/context/PasswordsProvider";
+import { usePasscodes } from "@/context/PasscodesProvider.jsx";
 
 const formatTime = (date) => {
   if (!date) return "—";
@@ -41,21 +39,25 @@ const formatTime = (date) => {
 };
 
 export default function HomeTab() {
-
   const circleRadius = 45;
   const circumference = 2 * Math.PI * circleRadius;
-
-  const [showMasterPassModel, setshowMasterPassModel] = useState(false);
-  const [showCreateMasterModel, setShowCreateMasterModel] = useState(false);
-  const { passwords, loading } = usePasswords();
-  const { encKey, toCreateMasterPass, decryptedAt } = useMasterPass();
-  const { data: session, update } = useSession();
+  const { passwords, loading: passwordsLoading } = usePasswords();
+  const { passcodes, loading: passcodesLoading } = usePasscodes();
+  const loading = passwordsLoading || passcodesLoading;
+  const {
+    encKey,
+    toCreateMasterPass,
+    decryptedAt,
+    setShowMasterPassModel,
+    setShowCreateMasterModel,
+  } = useMasterPass();
+  const { data: session } = useSession();
   const isUnlocked = Boolean(encKey);
 
-  const analysis = useMemo(() => analyzePasswords(passwords), [passwords]);
+  const analysis = useMemo(() => analyzeVault(passwords, passcodes), [passwords, passcodes]);
   const { healthScore } = analysis;
   const strokeDashoffset = circumference - (healthScore / 100) * circumference;
-  const isEmpty = passwords.length === 0;
+  const isEmpty = passwords.length === 0 && passcodes.length === 0;
 
   const [, forceUpdate] = useState(0);
 
@@ -120,23 +122,9 @@ export default function HomeTab() {
 
   return (
     <div className="w-full transition-all duration-300 ease-in-out mx-auto space-y-6 md:space-y-8 scroll-bar-hide py-3 md:py-5">
-      {/* Modals */}
-      {showMasterPassModel && (
-        <MasterPasswordModel
-          isOpen={showMasterPassModel}
-          onClose={() => setshowMasterPassModel(false)}
-        />
-      )}
-      {showCreateMasterModel && (
-        <CreateMasterPasswordModal
-          isOpen={showCreateMasterModel}
-          onClose={() => setShowCreateMasterModel(false)}
-        />
-      )}
-
       <div className="space-y-8">
         {/* ── 1. Greeting Header ── */}
-        <ScrollReveal className="md:sticky top-0 z-10 w-[104%] -translate-x-[2%] mx-auto pl-4 md:pl-12 border-b border-gray-200/50 dark:border-gray-800/50 py-2 md:py-4 bg-gray-50 dark:bg-gray-950">
+        <ScrollReveal className="md:sticky -top-1 z-10 w-[104%] -translate-x-[2%] mx-auto pl-4 md:pl-12 border-b border-gray-200/50 dark:border-gray-800/50 py-2 md:py-4 bg-gray-50 dark:bg-gray-950">
           <h2 className="text-xl md:text-2xl font-bold font-inter text-gray-900 dark:text-white">
             Welcome back, {firstName} 👋
           </h2>
@@ -320,63 +308,65 @@ export default function HomeTab() {
         {((!isUnlocked && !toCreateMasterPass) || loading) && (
           <ScrollReveal direction="up" className="space-y-6">
             {/* Unlock CTA card */}
-            {!loading && (<ScrollReveal
-              direction="right"
-              className="relative overflow-hidden rounded-[1.5rem] md:rounded-4xl bg-gray-100/50 dark:bg-gray-900 border border-amber-200 dark:border-amber-800/50 p-5 md:p-12 shadow-sm"
-            >
-              <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 dark:bg-amber-500/10 rounded-full blur-[80px] pointer-events-none" />
+            {!loading && (
+              <ScrollReveal
+                direction="right"
+                className="relative overflow-hidden rounded-[1.5rem] md:rounded-4xl bg-gray-100/50 dark:bg-gray-900 border border-amber-200 dark:border-amber-800/50 p-5 md:p-12 shadow-sm"
+              >
+                <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 dark:bg-amber-500/10 rounded-full blur-[80px] pointer-events-none" />
 
-              <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-8 justify-between">
-                <div className="space-y-4 max-w-lg">
-                  <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-amber-50 dark:bg-amber-900/30 border border-amber-100 dark:border-amber-800/50 flex items-center justify-center text-amber-600 dark:text-amber-400">
-                    <Lock className="w-6 h-6 md:w-8 md:h-8" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl md:text-3xl font-extrabold font-inter text-gray-900 dark:text-white tracking-tight">
-                      Your Vault is Locked
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400 font-medium text-sm md:text-base leading-relaxed mt-2">
-                      Enter your Master Password to decrypt your vault and
-                      access your saved entries, security score, and stats.
-                    </p>
-                  </div>
+                <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-8 justify-between">
+                  <div className="space-y-4 max-w-lg">
+                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-amber-50 dark:bg-amber-900/30 border border-amber-100 dark:border-amber-800/50 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                      <Lock className="w-6 h-6 md:w-8 md:h-8" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl md:text-3xl font-extrabold font-inter text-gray-900 dark:text-white tracking-tight">
+                        Your Vault is Locked
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-400 font-medium text-sm md:text-base leading-relaxed mt-2">
+                        Enter your Master Password to decrypt your vault and
+                        access your saved entries, security score, and stats.
+                      </p>
+                    </div>
 
-                  {/* What's behind the lock — blurred preview */}
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {[
-                      "Security Score",
-                      "Saved Entries",
-                      "Weak Passwords",
-                      "Last Sync",
-                    ].map((item, i) => (
-                      <ScrollReveal delayMs={50 * i} key={item}>
-                        <span className="px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 text-xs font-bold blur-[2px] select-none">
-                          {item}
+                    {/* What's behind the lock — blurred preview */}
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {[
+                        "Security Score",
+                        "Saved Entries",
+                        "Weak Passwords",
+                        "Last Sync",
+                      ].map((item, i) => (
+                        <ScrollReveal delayMs={50 * i} key={item}>
+                          <span className="px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 text-xs font-bold blur-[2px] select-none">
+                            {item}
+                          </span>
+                        </ScrollReveal>
+                      ))}
+                      <ScrollReveal delayMs={200} direction="right">
+                        <span className="px-3 py-1.5 flex gap-1 items-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-xs font-bold">
+                          <Lock className="w-3.5 h-3.5 text-yellow-500" />{" "}
+                          Unlock to view
                         </span>
                       </ScrollReveal>
-                    ))}
-                    <ScrollReveal delayMs={200} direction="right">
-                      <span className="px-3 py-1.5 flex gap-1 items-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-xs font-bold">
-                        <Lock className="w-3.5 h-3.5 text-yellow-500" /> Unlock
-                        to view
-                      </span>
-                    </ScrollReveal>
+                    </div>
                   </div>
-                </div>
 
-                {/* Unlock button */}
-                <ScrollReveal>
-                  <button
-                    onClick={() => setshowMasterPassModel(true)}
-                    className="w-full md:w-auto shrink-0 group flex items-center justify-center gap-2.5 px-6 md:px-8 py-3 md:py-4 text-nowrap rounded-full bg-linear-to-r from-amber-500 to-orange-500 text-white font-black shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 active:scale-95 transition-all duration-300 text-sm md:text-base"
-                  >
-                    <LockOpen className="w-5 h-5 shrink-0" />
-                    Unlock Vault
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-                  </button>
-                </ScrollReveal>
-              </div>
-            </ScrollReveal>)}
+                  {/* Unlock button */}
+                  <ScrollReveal>
+                    <button
+                      onClick={() => setShowMasterPassModel(true)}
+                      className="w-full md:w-auto shrink-0 group flex items-center justify-center gap-2.5 px-6 md:px-8 py-3 md:py-4 text-nowrap rounded-full bg-linear-to-r from-amber-500 to-orange-500 text-white font-black shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 active:scale-95 transition-all duration-300 text-sm md:text-base"
+                    >
+                      <LockOpen className="w-5 h-5 shrink-0" />
+                      Unlock Vault
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                    </button>
+                  </ScrollReveal>
+                </div>
+              </ScrollReveal>
+            )}
 
             {/* Blurred score card hint */}
             <ScrollReveal
@@ -630,9 +620,9 @@ export default function HomeTab() {
                           : "Your Vault Needs Immediate Attention"}
                     </h3>
                     <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 font-medium mt-2 max-w-lg">
-                      {analysis.weak.length} weak ·{" "}
-                      {analysis.reusedGroups.length} reused groups ·{" "}
-                      {analysis.strong.length} strong. Analyzed locally, nothing
+                      {analysis.weak?.length || 0} weak ·{" "}
+                      {analysis.reusedGroups?.length || 0} reused groups ·{" "}
+                      {analysis.passwords.strong.length + analysis.passcodes.strong.length} strong. Analyzed locally, nothing
                       sent to server.
                     </p>
                   </div>
@@ -654,7 +644,7 @@ export default function HomeTab() {
                     <KeyRound className="w-4 h-4 md:w-5 md:h-5" />
                   </div>
                   <p className="text-lg md:text-3xl font-black text-gray-900 dark:text-white mb-1">
-                    {passwords.length}
+                    {passwords.length + passcodes.length}
                   </p>
                   <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
                     Saved Entries

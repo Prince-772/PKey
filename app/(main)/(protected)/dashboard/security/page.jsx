@@ -1,11 +1,12 @@
 "use client";
+import { Suspense } from "react";
 import SecurityTab from "@/components/dashboard/SecurityTab";
 
-
 const Page = () => {
-
   return (
-    <SecurityTab expanded={null}/>
+    <Suspense fallback={null}>
+      <SecurityTab />
+    </Suspense>
   );
 };
 

@@ -19,13 +19,16 @@ const schema = z
     password: z.string().min(6, "Password must be at least 6 characters long"),
     confirmPassword: z.string(),
   })
-  .refine((data) => {
-    const {realScore} = getPasswordStrength(data.password);
-    return realScore >= 2;
-  }, {
-    message: "Password is too weak.",
-    path: ["password"],
-  })
+  .refine(
+    (data) => {
+      const { realScore } = getPasswordStrength(data.password);
+      return realScore >= 2;
+    },
+    {
+      message: "Password is too weak.",
+      path: ["password"],
+    },
+  )
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
@@ -77,7 +80,9 @@ export default function SignupPage() {
       await toast.promise(HandleSignUp(data), {
         loading: "Signing up...",
         success: <b>Signed up successfully!</b>,
-        error: (err) => {console.log(err, "dfdafd"); return <b>{err.message || "Sign-up failed"}</b>},
+        error: (err) => {
+          return <b>{err.message || "Sign-up failed"}</b>;
+        },
       });
 
       // Only runs if sign-up was successful

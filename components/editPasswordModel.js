@@ -58,6 +58,9 @@ const EditModal = ({ onClose, onSave, editingData, noMasterPass }) => {
   });
 
   const passwordValue = watch("password", "");
+  const usernameValues = watch("usernames", []);
+  const canAddMore =
+    (usernameValues?.[usernameValues.length - 1]?.value ?? "").trim().length > 0;
 
   const entryStrength = useMemo(
     () => getPasswordStrength(passwordValue),
@@ -232,13 +235,15 @@ const EditModal = ({ onClose, onSave, editingData, noMasterPass }) => {
                   <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">
                     Usernames / Emails
                   </label>
-                  <button
-                    type="button"
-                    onClick={() => append({ value: "" })}
-                    className="flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-200"
-                  >
-                    <Plus className="w-3.5 h-3.5" /> Add another
-                  </button>
+                  {canAddMore && (
+                    <button
+                      type="button"
+                      onClick={() => append({ value: "" })}
+                      className="flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-200"
+                    >
+                      <Plus className="w-3.5 h-3.5" /> Add another
+                    </button>
+                  )}
                 </div>
 
                 {fields.map((field, index) => (

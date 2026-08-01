@@ -67,8 +67,11 @@ const NavBar = () => {
   const showLoading = status === "loading";
   const showSignIn =
     status === "unauthenticated" && unProtectedRoutes.includes(pathname);
-  const showVault = status === "authenticated" && (["/dashboard","/dashboard/add","/dashboard/security"].includes(pathname));
-  const showDashboard = status === "authenticated" && !pathname.startsWith("/dashboard");
+  const showVault =
+    status === "authenticated" &&
+    ["/dashboard", "/dashboard/add", "/dashboard/security"].includes(pathname);
+  const showDashboard =
+    status === "authenticated" && !pathname.startsWith("/dashboard");
   const showGithub = unProtectedRoutes.includes(pathname);
   const showProfile =
     status === "authenticated" && !unProtectedRoutes.includes(pathname);
@@ -206,7 +209,10 @@ const NavBar = () => {
           )}
 
           {showLoading && (
-            <LoaderCircle className="animate-spin text-blue-600 w-5 h-5" />
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 rounded-full bg-gray-200 dark:bg-gray-800 animate-pulse" />
+              <div className="hidden md:block w-20 h-4 rounded bg-gray-200 dark:bg-gray-800 animate-pulse" />
+            </div>
           )}
 
           {showSignIn && (

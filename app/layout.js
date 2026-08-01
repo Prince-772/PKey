@@ -6,6 +6,8 @@ import { Toaster } from "react-hot-toast";
 import PasswordsProvider from "@/context/PasswordsProvider";
 // import NavBar from "@/components/navbar";
 
+import PasscodesProvider from "@/context/PasscodesProvider.jsx";
+
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const roboto = Roboto({ subsets: ["latin"], variable: "--font-roboto" });
 
@@ -95,7 +97,9 @@ export default function RootLayout({ children }) {
       >
         <AuthProvider>
           <MasterPassProvider>
-            <PasswordsProvider>{children}</PasswordsProvider>
+            <PasswordsProvider>
+              <PasscodesProvider>{children}</PasscodesProvider>
+            </PasswordsProvider>
           </MasterPassProvider>
         </AuthProvider>
         <Toaster />

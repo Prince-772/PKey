@@ -1,39 +1,36 @@
 "use client";
+
+import ScrollReveal from "@/components/ScrollReveal";
 import {
-  Home,
-  PlusSquare,
-  Shield,
-  Lock,
-  LogOut,
   ChevronLeft,
   ChevronRight,
-  Database,
-  Vault,
+  Hash,
+  Home,
+  LayoutDashboard,
+  Lock,
+  LogOut,
+  ShieldCheck,
 } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
 import Link from "next/link";
-import ScrollReveal from "@/components/ScrollReveal";
-import { useMasterPass } from "@/context/MasterPassword";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import PasswordIcon from "./PasswordIcon";
 
-const tabs = [
+const filters = [
   {
-    id: "home",
-    text: "Home",
-    icon: <Home className="w-4 md:w-6 h-4 md:h-6" />,
-    href: "/dashboard",
+    id: "all",
+    text: "All",
+    icon: <ShieldCheck className="w-4 md:w-6 h-4 md:h-6" />,
   },
   {
-    id: "add",
-    text: "Add Entry",
-    icon: <PlusSquare className="w-4 md:w-6 h-4 md:h-6" />,
-    href: "/dashboard/add",
+    id: "passwords",
+    text: "Passwords",
+    icon: <PasswordIcon className="w-4 md:w-6 h-4 md:h-6" />,
   },
   {
-    id: "security",
-    text: "Security",
-    icon: <Shield className="w-4 md:w-6 h-4 md:h-6" />,
-    href: "/dashboard/security",
+    id: "passcodes",
+    text: "Passcodes",
+    icon: <Hash className="w-4 md:w-6 h-4 md:h-6" />,
   },
 ];
 
@@ -55,9 +52,37 @@ export default function Sidebar({
   onExpandChange,
   onLockVault,
   onLogOut,
+  encKey,
 }) {
   const pathname = usePathname();
-  const { encKey } = useMasterPass();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryFilter = searchParams.get("type");
+  const isValidFilter = filters.some(({ id }) => id === queryFilter);
+  const selectedFilter = isValidFilter ? queryFilter : "all";
+
+  useEffect(() => {
+    if (queryFilter && !isValidFilter) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("type");
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, {
+        scroll: false,
+      });
+    }
+  }, [queryFilter, isValidFilter, pathname, router, searchParams]);
+
+  const applyFilter = (filter) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (filter === "all") params.delete("type");
+    else params.set("type", filter);
+
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, {
+      scroll: false,
+    });
+  };
 
   const actionButtons = [
     {
@@ -75,8 +100,9 @@ export default function Sidebar({
       toShow: true,
     },
   ];
+
+
   return (
-    // Only visible on large screens
     <div
       className={`flex fixed md:left-0 md:top-0 bottom-0 md:pt-16 z-5 md:h-screen w-screen flex-col transition-all duration-300 ease-in-out shadow-lg shadow-slate-500 dark:shadow-black ${
         expanded ? "md:w-64" : "md:w-18"
@@ -87,41 +113,43 @@ export default function Sidebar({
         <div className="md:hidden absolute top-0 left-0 right-0 h-[0.5px] bg-linear-to-r from-blue-600 via-indigo-500 to-purple-600" />
         {/* Toggle button */}
         <button
-          onClick={() => onExpandChange((p) => !p)}
-          aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"}
+          type="button"
+          onClick={() => onExpandChange((previous) => !previous)}
+          aria-label={expanded ? "Collapse filters" : "Expand filters"}
           className={`hidden absolute right-5 top-3 z-5 w-7 h-7 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-md md:flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 hover:scale-110 active:scale-95`}
         >
           {expanded ? (
-            <ChevronLeft className="w-3.5 h-3.5" />
+            <ChevronLeft className="h-3.5 w-3.5" />
           ) : (
-            <ChevronRight className="w-3.5 h-3.5" />
+            <ChevronRight className="h-3.5 w-3.5" />
           )}
         </button>
 
-        {/* Main nav */}
         <nav className="flex-1 border-t  md:border-t-0 overflow-y-auto scroll-bar-hide px-3 py-0 md:py-3 space-y-1 md:pt-5">
-          {/* Section label */}
           <div
             className={`hidden md:block px-3 mb-3 overflow-hidden transition-all duration-200 ${expanded ? "opacity-100 h-5" : "opacity-0 h-0"}`}
           >
-            <p className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest whitespace-nowrap">
-              Navigation
+            <p className="text-nowrap text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest whitespace-nowrap">
+              Filter Vault
             </p>
           </div>
 
           <div className="pt-2 md:pt-4 flex justify-around md:block">
-            {tabs.map((tab, i) => {
-              const active = pathname === tab.href;
+            {filters.map(({ id, text, icon }, index) => {
+              const active = selectedFilter === id;
+
               return (
                 <ScrollReveal
-                  delayMs={50 * (i + 1) * 2}
+                  delayMs={50 * (index + 1) * 2}
                   direction="down"
-                  key={i}
+                  key={id}
+                  // className="flex-1 md:block"
                   rootMargin="0px 0px -5% 0px"
                 >
-                  <Link
-                    key={tab.href}
-                    href={tab.href}
+                  <button
+                    type="button"
+                    onClick={() => applyFilter(id)}
+                    aria-current={active ? "page" : undefined}
                     className={`group relative w-full flex flex-col md:flex-row items-center justify-center md:justify-start md:mb-1 md:gap-3 px-3 pb-1 md:py-3 rounded-xl transition-all duration-200 overflow-hidden
                   ${
                     active
@@ -143,7 +171,7 @@ export default function Sidebar({
                     <span
                       className={`relative z-5 shrink-0 transition-transform duration-200 ${!active ? "group-hover:scale-110" : ""}`}
                     >
-                      {tab.icon}
+                      {icon}
                     </span>
 
                     {/* Label */}
@@ -154,16 +182,16 @@ export default function Sidebar({
                           : "md:opacity-0 md:w-0 md:pointer-events-none"
                       }`}
                     >
-                      {tab.text}
+                      {text}
                     </span>
 
                     {/* Tooltip collapsed only */}
                     {!expanded && (
                       <span className="absolute border-2 left-full ml-3 px-2.5 py-1.5 rounded-lg bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs font-semibold whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 translate-x-1 group-hover:translate-x-0 shadow-lg z-5">
-                        {tab.text}
+                        {text}
                       </span>
                     )}
-                  </Link>
+                  </button>
                 </ScrollReveal>
               );
             })}
@@ -174,7 +202,7 @@ export default function Sidebar({
               className="md:border-t border-gray-600 dark:border-gray-400 md:pt-1 md:mt-1"
             >
               <Link
-                href="/vault"
+                href="/dashboard"
                 className={`group relative w-full flex flex-col md:flex-row items-center justify-center md:justify-start md:mb-1 md:gap-3 px-3 pb-1 md:py-3 rounded-xl transition-all duration-200 overflow-hidden text-gray-600 dark:text-gray-400 md:hover:bg-gray-100 md:dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-white`}
               >
                 <span className="absolute inset-0 rounded-xl md:bg-linear-to-r md:from-blue-500/0 md:to-purple-500/0 md:group-hover:from-blue-500/5 md:group-hover:to-purple-500/5 transition-all duration-300" />
@@ -183,7 +211,7 @@ export default function Sidebar({
                 <span
                   className={`relative z-5 shrink-0 transition-transform duration-200`}
                 >
-                  <Vault className="w-4 h-4 md:w-6 md:h-6" />
+                  <Home className="w-4 h-4 md:w-6 md:h-6" />
                 </span>
 
                 {/* Label */}
@@ -194,7 +222,7 @@ export default function Sidebar({
                       : "md:opacity-0 md:w-0 md:pointer-events-none"
                   }`}
                 >
-                  Vault
+                  Dashboard
                 </span>
 
                 {/* Tooltip collapsed only */}
@@ -209,7 +237,7 @@ export default function Sidebar({
         </nav>
 
         {/* Bottom section */}
-        <div className="hidden md:block shrink-0 p-3 border-t border-gray-100 dark:border-gray-800 space-y-1">
+        <div className="hidden md:block shrink-0 p-3 border-t border-gray-100 dark:border-gray-800 space-y-1">  
           {actionButtons.map(
             ({ label, icon: Icon, onClick, color, toShow }) => {
               if (!toShow) return null;

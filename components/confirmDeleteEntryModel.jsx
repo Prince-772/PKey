@@ -3,15 +3,18 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Trash2, LoaderCircle, ShieldAlert, User } from "lucide-react";
 import { handleDeletePassword } from "@/lib/passwords/deletePassword";
+import { handleDeletePasscode } from "@/lib/passcodes/deletePasscode";
 import toast from "react-hot-toast";
 
 export default function DeleteEntryModal({ onClose, callback, resetID, data }) {
   const [isDeleting, setIsDeleting] = useState(false);
-  const { id, siteName, usernames = [] } = data;
+  const { id, siteName, usernames = [], type = "password" } = data;
 
   const handleDelete = async () => {
     setIsDeleting(true);
-    await toast.promise(handleDeletePassword(id), {
+    const deleteFn =
+      type === "passcode" ? handleDeletePasscode : handleDeletePassword;
+    await toast.promise(deleteFn(id), {
       loading: "Deleting...",
       success: (data) => {
         setIsDeleting(false);
@@ -121,13 +124,15 @@ export default function DeleteEntryModal({ onClose, callback, resetID, data }) {
           </div>
 
           {/* Warning note */}
-          <div className="flex items-start gap-2.5 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/40">
+          <div className="flex text-xs font-medium text-red-700 dark:text-red-300 items-start gap-2.5 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/40">
             <Trash2 className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-            <p className="text-xs font-medium text-red-700 dark:text-red-300 leading-snug">
-              All usernames, passwords, and associated data for{" "}
-              <span className="font-black">{siteName}</span> will be permanently
-              erased from your vault.
-            </p>
+            <div className="overflow-hidden">
+              <p className=" leading-snug">
+                All usernames, passwords, and associated data for
+              </p>
+              <p className="font-black truncate">{siteName}</p>
+              <p>will be permanently erased from your vault.</p>
+            </div>
           </div>
         </div>
 

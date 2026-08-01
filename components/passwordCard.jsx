@@ -127,12 +127,12 @@ const PasswordCard = ({
             <div className="flex flex-col justify-center overflow-hidden w-full">
               <div className="relative">
                 <div
-                  className="text-base md:text-lg font-semibold truncate
-    w-[calc(100%-4rem)] md:w-[calc(100%-6rem)]"
+                  className="text-base md:text-lg font-semibold
+    w-[calc(100%-2rem)] md:w-[calc(100%-9rem)]"
                 >
                   <div className="flex items-center relative cursor-default">
                     {/* Animated link icon wrapper */}
-                    <div className="group flex items-center">
+                    <div className="group flex items-center truncate">
                       <div
                         className="
     flex items-center justify-center shrink-0 overflow-hidden
@@ -159,7 +159,7 @@ const PasswordCard = ({
                       </div>
 
                       {/* Text Section */}
-                      <p className="inline-block relative bg-clip-text text-transparent bg-linear-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
+                      <p className="inline-block relative bg-clip-text text-transparent bg-linear-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 truncate">
                         {getDisplayUrl(platform)}
                         <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-blue-500 to-purple-500 group-hover:w-full transition-all duration-500 ease-out rounded-full" />
                       </p>
@@ -291,31 +291,33 @@ const PasswordCard = ({
           </div>
 
           <div className="flex absolute top-3 right-3 items-center gap-2">
-            <ScrollReveal direction="down" delayMs={300}>
-              <div
-                tabIndex={0}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                className={`relative p-2 rounded-full ${strength === "weak" ? "bg-red-500" : strength === "moderate" ? "bg-yellow-500" : "bg-green-600"} group transition-colors duration-300 cursor-pointer text-white`}
-              >
-                {strength === "weak" && (
-                  <ShieldOff className="w-4 h-4 text-white" />
-                )}
-                {strength === "moderate" && (
-                  <AlertTriangle className="w-4 h-4 text-white" />
-                )}
-                {strength === "strong" && (
-                  <ShieldCheck className="w-4 h-4 text-white" />
-                )}
-                <p
-                  className={`absolute top-0 right-10 ${strength === "weak" ? "bg-red-500/70" : strength === "moderate" ? "bg-yellow-500/70" : "bg-green-600/70"} text-nowrap text-black py-1 px-2 rounded-lg text-sm hidden group-hover:block group-focus:block`}
+            {strength && (
+              <ScrollReveal direction="down" delayMs={300}>
+                <div
+                  tabIndex={0}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  className={`relative p-2 rounded-full ${strength === "weak" ? "bg-red-500" : strength === "moderate" ? "bg-yellow-500" : "bg-green-600"} group transition-colors duration-300 cursor-pointer text-white`}
                 >
-                  This password is {strength}.
-                </p>
-              </div>
-            </ScrollReveal>
+                  {strength === "weak" && (
+                    <ShieldOff className="w-4 h-4 text-white" />
+                  )}
+                  {strength === "moderate" && (
+                    <AlertTriangle className="w-4 h-4 text-white" />
+                  )}
+                  {strength === "strong" && (
+                    <ShieldCheck className="w-4 h-4 text-white" />
+                  )}
+                  <p
+                    className={`absolute top-0 right-10 ${strength === "weak" ? "bg-red-500/70" : strength === "moderate" ? "bg-yellow-500/70" : "bg-green-600/70"} text-nowrap text-black py-1 px-2 rounded-lg text-sm hidden group-hover:block group-focus:block`}
+                  >
+                    This password is {strength}.
+                  </p>
+                </div>
+              </ScrollReveal>
+            )}
 
             <ScrollReveal
               direction="down"

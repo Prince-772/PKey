@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { authRateLimit, apiRateLimit, signupRateLimit, editFavoriteRateLimit } from "./lib/rateLimit";
 
-export async function middleware(req) {
+export async function proxy(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const url = req.nextUrl;
   const pathname = url.pathname;
@@ -19,9 +19,16 @@ export async function middleware(req) {
       process.env.ADMIN_EMAIL3,
       process.env.ADMIN_EMAIL4,
       process.env.ADMIN_EMAIL5,
-    ].filter(Boolean); // remove undefined
+    ]
+      .filter(Boolean)
+      .map((e) => e.toLowerCase());
 
-    if (!token || !allowedEmails.includes(token.email)) {
+    // Allow admins to sign in and use the app during maintenance.
+    const isAdmin = token && allowedEmails.includes(token.email?.toLowerCase());
+
+    const isPreAuthSignIn = !token && pathname.startsWith("/api/auth/");
+
+    if (!isAdmin && !isPreAuthSignIn) {
       return new NextResponse("🚧 Site under maintenance", { status: 503 });
     }
   }

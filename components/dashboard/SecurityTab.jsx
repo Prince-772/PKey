@@ -1,9 +1,8 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import {
   ShieldCheck,
   ShieldAlert,
-  ShieldOff,
   Lock,
   LockOpen,
   AlertTriangle,
@@ -17,66 +16,68 @@ import {
   KeyRound,
   Zap,
   BookOpen,
-  ChevronRight,
   Lightbulb,
   Sparkles,
   TrendingUp,
-  Scroll,
+  Pin,
+  Shield,
+  Hash,
+  ChevronDown,
 } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
 import { useMasterPass } from "@/context/MasterPassword";
-import MasterPasswordModel from "../MasterPasswordModal";
-import CreateMasterPasswordModal from "../CreateMasterPassword";
-import toast from "react-hot-toast";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useCallback } from "react";
-import { analyzePasswords } from "@/lib/helper";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { analyzeVault } from "@/lib/helper";
 import { usePasswords } from "@/context/PasswordsProvider";
+import { usePasscodes } from "@/context/PasscodesProvider.jsx";
+import PasswordIcon from "@/components/vault/PasswordIcon";
+import EditPasscodeModal from "@/components/EditPasscodeModal";
+import EditModal from "@/components/editPasswordModel";
+import { handleEditPassword } from "@/lib/passwords/editpasswords";
+import { handleEditPasscode } from "@/lib/passcodes/editPasscode";
+import { encryptV3 } from "@/lib/passwords/encryptPassV3";
+import { categorizePasscode } from "@/lib/passcodes/passcodeStrength";
+import toast from "react-hot-toast";
+import { Pencil } from "lucide-react";
 import Image from "next/image";
 
-// ── Strength Badge ─────────────────────────────────────────────────────────────
-function StrengthBadge({ score }) {
-  const cfg =
-    score === "strong"
-      ? {
-          label: "Strong",
-          cls: "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300",
-        }
-      : score === "moderate"
-        ? {
-            label: "Medium",
-            cls: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300",
-          }
-        : {
-            label: "Weak",
-            cls: "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300",
-          };
-  return (
-    <span
-      className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${cfg.cls}`}
-    >
-      {cfg.label}
-    </span>
-  );
-}
+// Same ids/param as components/vault/Sidebar.jsx so ?type= means one thing app-wide
+const views = [
+  { id: "all", text: "All", icon: <ShieldCheck className="w-3.5 h-3.5" /> },
+  {
+    id: "passwords",
+    text: "Passwords",
+    icon: <PasswordIcon className="w-3.5 h-3.5" />,
+  },
+  {
+    id: "passcodes",
+    text: "Passcodes",
+    icon: <Hash className="w-3.5 h-3.5" />,
+  },
+];
 
-// ── Password Row ───────────────────────────────────────────────────────────────
-function PasswordRow({ entry, isReused, delay }) {
+// Entry Row (handles both passwords and passcodes)
+function EntryRow({ entry, isReused, delay, onEdit }) {
   const [visible, setVisible] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(true);
-   const imgSrc = `https://icons.duckduckgo.com/ip3/${entry.siteName}.ico`; 
+  const imgSrc = `https://icons.duckduckgo.com/ip3/${entry.siteName}.ico`;
+  const isPin = entry.type === "passcode";
+  const secret = isPin ? entry.pin : entry.password;
+
   return (
     <ScrollReveal direction="right" delayMs={delay}>
       <div
         className={`group flex items-center gap-3 p-3 md:p-4 rounded-xl border transition-all duration-200
-      ${
-        isReused
-          ? "bg-rose-200/50 dark:bg-rose-900/20 border-rose-300 dark:border-rose-800/40 hover:border-rose-400 dark:hover:border-rose-800"
-          : "bg-orange-200/50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-800/40 hover:border-orange-400 dark:hover:border-orange-800"
-      }`}
+          ${
+            isReused
+              ? "bg-rose-200/50 dark:bg-rose-900/20 border-rose-300 dark:border-rose-800/40 hover:border-rose-400 dark:hover:border-rose-800"
+              : isPin
+                ? "bg-cyan-200/50 dark:bg-cyan-900/20 border-cyan-300 dark:border-cyan-800/40 hover:border-cyan-400 dark:hover:border-cyan-800"
+                : "bg-orange-200/50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-800/40 hover:border-orange-400 dark:hover:border-orange-800"
+          }`}
       >
-        {/* Site icon placeholder */}
+        {/* Site icon */}
         <div className="shrink-0 relative flex w-8 md:w-9 aspect-square rounded-full overflow-hidden bg-linear-to-r to-blue-600/20 from-purple-600/20 shadow-inner border border-purple-600">
           {imgLoaded && (
             <Image
@@ -101,15 +102,34 @@ function PasswordRow({ entry, isReused, delay }) {
             <p className="text-sm font-bold text-gray-900 dark:text-white truncate">
               {entry.siteName}
             </p>
-            <StrengthBadge score={entry.strength} />
+            <span
+              className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                entry.strength === "strong"
+                  ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300"
+                  : entry.strength === "moderate"
+                    ? "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300"
+                    : "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300"
+              }`}
+            >
+              {entry.strength === "strong"
+                ? "Strong"
+                : entry.strength === "moderate"
+                  ? "Medium"
+                  : "Weak"}
+            </span>
             {isReused && (
               <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300">
                 Reused
               </span>
             )}
+            {isPin && (
+              <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-900/40 text-cyan-700 dark:text-cyan-300">
+                PIN
+              </span>
+            )}
           </div>
           <p className="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5 font-mono">
-            {visible ? entry.password : "•".repeat(12)}
+            {visible ? secret : "•".repeat(isPin ? 6 : 12)}
           </p>
         </div>
 
@@ -125,19 +145,108 @@ function PasswordRow({ entry, isReused, delay }) {
               <Eye className="w-3.5 h-3.5" />
             )}
           </button>
-          <Link
-            href="/dashboard/vault"
+          <button
+            type="button"
+            onClick={() => onEdit?.(entry)}
+            aria-label={`Edit ${entry.siteName}`}
             className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
           >
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+            <Pencil className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     </ScrollReveal>
   );
 }
 
-// ── Skeleton row ───────────────────────────────────────────────────────────────
+// View filter dropdown
+// Rendered twice (mobile pinned / desktop in-header), so it lives here rather
+// than inline. Each instance owns its own open state. only one is ever visible.
+function ViewFilter({ view, countOf, onSelect }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e) => {
+      if (!ref.current?.contains(e.target)) setOpen(false);
+    };
+    const onKey = (e) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className="inline-flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-full text-xs font-bold bg-linear-to-r from-blue-600 to-purple-600 text-white shadow-sm shadow-blue-500/25 transition-all duration-200"
+      >
+        {view.icon}
+        {view.text}
+        <span className="text-[10px] font-black text-blue-100">
+          {countOf(view.id)}
+        </span>
+        <ChevronDown
+          className={`w-3.5 h-3.5 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {/* Panel stays mounted so max-h/translate can animate both ways */}
+      <div
+        className={`absolute right-0 top-full overflow-hidden transition-all duration-300 ease-out ${
+          open
+            ? "max-h-48 opacity-100 translate-y-2"
+            : "max-h-0 opacity-0 -translate-y-1 pointer-events-none"
+        }`}
+        inert={!open}
+      >
+        <div
+          role="listbox"
+          className="flex flex-col gap-1 p-1.5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 shadow-lg dark:shadow-black/40"
+        >
+          {views.map(({ id, text, icon }) => {
+            const active = view.id === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                role="option"
+                aria-selected={active}
+                onClick={() => {
+                  onSelect(id);
+                  setOpen(false);
+                }}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors duration-200 ${
+                  active
+                    ? "bg-linear-to-r from-blue-600 to-purple-600 text-white shadow-sm shadow-blue-500/25"
+                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+                }`}
+              >
+                {icon}
+                {text}
+                <span
+                  className={`ml-auto text-[10px] font-black ${active ? "text-blue-100" : "text-gray-400 dark:text-gray-500"}`}
+                >
+                  {countOf(id)}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Skeleton row
 function SkeletonRow() {
   return (
     <div className="flex items-center gap-3 p-3 md:p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
@@ -151,7 +260,7 @@ function SkeletonRow() {
   );
 }
 
-// ── Section wrapper ────────────────────────────────────────────────────────────
+// Section wrapper
 function Section({ title, icon, count, countCls, children, delay = 0 }) {
   return (
     <ScrollReveal
@@ -181,18 +290,156 @@ function Section({ title, icon, count, countCls, children, delay = 0 }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 export default function SecurityTab() {
-  const { encKey, toCreateMasterPass } = useMasterPass();
-  const [showMasterPassModel, setShowMasterPassModel] = useState(false);
-  const [showCreateMasterModel, setShowCreateMasterModel] = useState(false);
+  const {
+    encKey,
+    toCreateMasterPass,
+    setShowCreateMasterModel,
+    setShowMasterPassModel,
+  } = useMasterPass();
 
   const isUnlocked = Boolean(encKey);
 
-  const { passwords, loading } = usePasswords();
-  const isEmpty = passwords.length === 0;
+  const {
+    passwords,
+    loading: passwordsLoading,
+    fetchPasswords,
+  } = usePasswords();
+  const {
+    passcodes,
+    loading: passcodesLoading,
+    fetchPasscodes,
+  } = usePasscodes();
+  const loading = passwordsLoading || passcodesLoading;
+  const isEmpty = passwords.length === 0 && passcodes.length === 0;
 
-  const analysis = useMemo(() => analyzePasswords(passwords), [passwords]);
+  // View filter (?type=)
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryView = searchParams.get("type");
+  const isValidView = views.some(({ id }) => id === queryView);
+  const view = views.find(({ id }) => id === (isValidView ? queryView : "all"));
+
+  useEffect(() => {
+    if (queryView && !isValidView) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("type");
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, {
+        scroll: false,
+      });
+    }
+  }, [queryView, isValidView, pathname, router, searchParams]);
+
+  const applyView = (next) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (next === "all") params.delete("type");
+    else params.set("type", next);
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, {
+      scroll: false,
+    });
+  };
+
+  const countOf = (id) =>
+    id === "passwords"
+      ? passwords.length
+      : id === "passcodes"
+        ? passcodes.length
+        : passwords.length + passcodes.length;
+
+  const [isPwEditOpen, setIsPwEditOpen] = useState(false);
+  const [isPinEditOpen, setIsPinEditOpen] = useState(false);
+  const [editingPwData, setEditingPwData] = useState({
+    usernames: [""],
+    platform: "",
+    password: "",
+    id: "",
+    version: 0,
+  });
+  const [editingPinData, setEditingPinData] = useState({
+    usernames: [""],
+    platform: "",
+    pin: "",
+    id: "",
+  });
+
+  const openEdit = (entry) => {
+    if (!encKey) {
+      if (toCreateMasterPass) setShowCreateMasterModel(true);
+      else setShowMasterPassModel(true);
+      return;
+    }
+    const common = {
+      id: entry._id,
+      platform: entry.siteName,
+      usernames: entry.userNames ?? [""],
+    };
+    if (entry.type === "passcode") {
+      setEditingPinData({ ...common, pin: entry.pin });
+      setIsPinEditOpen(true);
+    } else {
+      setEditingPwData({ ...common, password: entry.password, version: 0 });
+      setIsPwEditOpen(true);
+    }
+  };
+
+  // Password modal encrypts inside handleSave; we just refetch on success.
+  const handleSavePw = (payload) => {
+    if (!encKey) {
+      if (toCreateMasterPass) setShowCreateMasterModel(true);
+      else setShowMasterPassModel(true);
+      return;
+    }
+    toast.promise(handleEditPassword(payload), {
+      loading: "Saving...",
+      success: (res) => {
+        fetchPasswords();
+        return res?.message || "Changes saved!";
+      },
+      error: ({ message }) => message || "Something went wrong",
+    });
+  };
+
+  // Passcode modal: parent must encrypt and return truthy on success.
+  const handleSavePin = async ({ id, siteName, usernames, pin }) => {
+    if (!encKey) {
+      if (toCreateMasterPass) setShowCreateMasterModel(true);
+      else setShowMasterPassModel(true);
+      return;
+    }
+    const strength = categorizePasscode(pin).category;
+    const payload = {
+      id,
+      siteName: await encryptV3(siteName, encKey),
+      userNames: await Promise.all(usernames.map((u) => encryptV3(u, encKey))),
+      pin: await encryptV3(pin, encKey),
+      strength: await encryptV3(strength, encKey),
+    };
+    try {
+      await toast.promise(handleEditPasscode(payload), {
+        loading: "Saving passcode...",
+        success: (res) => res?.message || "Passcode updated!",
+        error: ({ message }) => message || "Something went wrong",
+      });
+      await fetchPasscodes();
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  // Scope the input, not the output every section below follows for free.
+  const scopedPasswords = view.id === "passcodes" ? [] : passwords;
+  const scopedPasscodes = view.id === "passwords" ? [] : passcodes;
+  const scopedTotal = scopedPasswords.length + scopedPasscodes.length;
+  const scopedEmpty = scopedTotal === 0;
+
+  const analysis = useMemo(
+    () => analyzeVault(scopedPasswords, scopedPasscodes),
+    [view.id, passwords, passcodes],
+  );
 
   // Score ring
   const circleRadius = 45;
@@ -240,24 +487,36 @@ export default function SecurityTab() {
         };
 
   return (
-    <div className="w-full mx-auto space-y-6 md:space-y-8 scroll-bar-hide py-3 md:py-5">
-      {/* Modals */}
-      {showMasterPassModel && (
-        <MasterPasswordModel
-          isOpen={showMasterPassModel}
-          onClose={() => setShowMasterPassModel(false)}
+    <>
+      {/* Edit modals portal to document.body, safe inside the scroll container */}
+      {isPwEditOpen && (
+        <EditModal
+          isOpen={isPwEditOpen}
+          onClose={() => setIsPwEditOpen(false)}
+          onSave={handleSavePw}
+          editingData={editingPwData}
+          noMasterPass={() => setShowMasterPassModel(true)}
         />
       )}
-      {showCreateMasterModel && (
-        <CreateMasterPasswordModal
-          isOpen={showCreateMasterModel}
-          onClose={() => setShowCreateMasterModel(false)}
+      {isPinEditOpen && (
+        <EditPasscodeModal
+          isOpen={isPinEditOpen}
+          onClose={() => setIsPinEditOpen(false)}
+          data={editingPinData}
+          onSave={handleSavePin}
         />
       )}
-
+      <div className="w-full mx-auto space-y-6 md:space-y-8 scroll-bar-hide py-3 md:py-5">
+      {/* Mobile: pinned to viewport so it survives the header scrolling away.
+          Must sit outside ScrollReveal its transform would trap `fixed`. */}
+      {isUnlocked && !loading && !isEmpty && (
+        <div className="md:hidden fixed right-4 top-20 z-30">
+          <ViewFilter view={view} countOf={countOf} onSelect={applyView} />
+        </div>
+      )}
       <div className="space-y-6 md:space-y-8">
-        {/* ── Sticky Header ── */}
-        <ScrollReveal className="md:sticky top-0 z-10 w-[104%] -translate-x-[2%] mx-auto pl-4 md:pl-12 border-b border-gray-200/50 dark:border-gray-800/50 py-2 md:py-4 bg-gray-50 dark:bg-gray-950">
+        {/* Sticky Header */}
+        <ScrollReveal className="relative md:sticky -top-1 z-10 w-[104%] -translate-x-[2%] mx-auto pl-4 md:pl-12 border-b border-gray-200/50 dark:border-gray-800/50 py-2 md:py-4 bg-gray-50 dark:bg-gray-950">
           <h2 className="text-xl md:text-2xl font-bold font-inter text-gray-900 dark:text-white">
             Security Audit
           </h2>
@@ -278,79 +537,92 @@ export default function SecurityTab() {
               {vaultStatus.label}
             </div>
           </ScrollReveal>
+
+          {/* View filter (desktop: rides the sticky header) */}
+          {isUnlocked && !loading && !isEmpty && (
+            <ScrollReveal
+              className="hidden md:block absolute right-12 top-5 z-20"
+              direction="right"
+              delayMs={150}
+            >
+              <ViewFilter view={view} countOf={countOf} onSelect={applyView} />
+            </ScrollReveal>
+          )}
         </ScrollReveal>
 
-        {/* ══════════════════════════════════════════════════
-              CASE 1 — Vault locked or not created
-          ══════════════════════════════════════════════════ */}
+        {/*CASE 1 = Vault locked or not created */}
         {(!isUnlocked || loading) && (
           <ScrollReveal direction="up" className="space-y-6">
             {/* CTA card */}
-            {!loading && (<div
-              className={`relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] p-5 md:p-10 border shadow-sm
+            {!loading && (
+              <div
+                className={`relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] p-5 md:p-10 border shadow-sm
                 ${
                   toCreateMasterPass
                     ? "bg-linear-to-br from-blue-600 via-indigo-600 to-purple-700 border-transparent text-white"
                     : "bg-white dark:bg-gray-900 border-amber-200 dark:border-amber-800/50"
                 }`}
-            >
-              <div className="absolute top-0 right-0 w-48 h-48 rounded-full blur-[80px] pointer-events-none opacity-20 bg-white" />
+              >
+                <div className="absolute top-0 right-0 w-48 h-48 rounded-full blur-[80px] pointer-events-none opacity-20 bg-white" />
 
-              <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6 justify-between">
-                <div className="space-y-3 max-w-lg">
-                  <div
-                    className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center
-                      ${
-                        toCreateMasterPass
-                          ? "bg-white/20 text-white"
-                          : "bg-amber-50 dark:bg-amber-900/30 border border-amber-100 dark:border-amber-800/50 text-amber-600 dark:text-amber-400"
-                      }`}
-                  >
-                    {toCreateMasterPass ? (
-                      <ShieldAlert className="w-7 h-7" />
-                    ) : (
-                      <Lock className="w-7 h-7" />
-                    )}
+                <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6 justify-between">
+                  <div className="space-y-3 max-w-lg">
+                    <div
+                      className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center
+                    ${
+                      toCreateMasterPass
+                        ? "bg-white/20 text-white"
+                        : "bg-amber-50 dark:bg-amber-900/30 border border-amber-100 dark:border-amber-800/50 text-amber-600 dark:text-amber-400"
+                    }`}
+                    >
+                      {toCreateMasterPass ? (
+                        <ShieldAlert className="w-7 h-7" />
+                      ) : (
+                        <Lock className="w-7 h-7" />
+                      )}
+                    </div>
+                    <h3
+                      className={`text-xl md:text-2xl font-black tracking-tight ${toCreateMasterPass ? "text-white" : "text-gray-900 dark:text-white"}`}
+                    >
+                      {toCreateMasterPass
+                        ? "Set Up Your Vault First"
+                        : "Vault is Locked"}
+                    </h3>
+                    <p
+                      className={`text-sm md:text-base font-medium leading-relaxed ${toCreateMasterPass ? "text-blue-100" : "text-gray-600 dark:text-gray-400"}`}
+                    >
+                      {toCreateMasterPass
+                        ? "Your security audit will be available once you create a Master Password and add some entries."
+                        : "Enter your Master Password to decrypt and analyze your vault entries."}
+                    </p>
                   </div>
-                  <h3
-                    className={`text-xl md:text-2xl font-black tracking-tight ${toCreateMasterPass ? "text-white" : "text-gray-900 dark:text-white"}`}
-                  >
-                    {toCreateMasterPass
-                      ? "Set Up Your Vault First"
-                      : "Vault is Locked"}
-                  </h3>
-                  <p
-                    className={`text-sm md:text-base font-medium leading-relaxed ${toCreateMasterPass ? "text-blue-100" : "text-gray-600 dark:text-gray-400"}`}
-                  >
-                    {toCreateMasterPass
-                      ? "Your security audit will be available once you create a Master Password and add some entries."
-                      : "Enter your Master Password to decrypt and analyze your vault entries."}
-                  </p>
-                </div>
 
-                <button
-                  onClick={() =>
-                    toCreateMasterPass
-                      ? setShowCreateMasterModel(true)
-                      : setShowMasterPassModel(true)
-                  }
-                  className={`w-full md:w-auto shrink-0 flex items-center justify-center gap-2.5 px-6 py-3 md:py-4 rounded-full font-black text-sm md:text-base shadow-lg active:scale-95 hover:scale-105 transition-all duration-300
+                  <button
+                    onClick={() =>
+                      toCreateMasterPass
+                        ? setShowCreateMasterModel(true)
+                        : setShowMasterPassModel(true)
+                    }
+                    className={`w-full md:w-auto shrink-0 flex items-center justify-center gap-2.5 px-6 py-3 md:py-4 rounded-full font-black text-sm md:text-base shadow-lg active:scale-95 hover:scale-105 transition-all duration-300
                       ${
                         toCreateMasterPass
                           ? "bg-white text-blue-700 hover:bg-blue-50 shadow-white/20"
                           : "bg-linear-to-r from-amber-500 to-orange-500 text-white shadow-amber-500/25 hover:shadow-amber-500/40"
                       }`}
-                >
-                  {toCreateMasterPass ? (
-                    <KeyRound className="w-4 h-4 shrink-0" />
-                  ) : (
-                    <LockOpen className="w-4 h-4 shrink-0" />
-                  )}
-                  {toCreateMasterPass ? "Set Master Password" : "Unlock Vault"}
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-                </button>
+                  >
+                    {toCreateMasterPass ? (
+                      <KeyRound className="w-4 h-4 shrink-0" />
+                    ) : (
+                      <LockOpen className="w-4 h-4 shrink-0" />
+                    )}
+                    {toCreateMasterPass
+                      ? "Set Master Password"
+                      : "Unlock Vault"}
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                  </button>
+                </div>
               </div>
-            </div>)}
+            )}
 
             {/* Skeleton score card */}
             <div className="relative overflow-hidden p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 opacity-40 select-none pointer-events-none">
@@ -401,9 +673,7 @@ export default function SecurityTab() {
           </ScrollReveal>
         )}
 
-        {/* ══════════════════════════════════════════════════
-              CASE 2 — Unlocked but vault is empty
-          ══════════════════════════════════════════════════ */}
+        {/*CASE 2 = Unlocked but vault is empty */}
         {isUnlocked && isEmpty && (
           <ScrollReveal direction="up" className="space-y-6">
             {/* Empty state card */}
@@ -433,7 +703,7 @@ export default function SecurityTab() {
               </div>
             </div>
 
-            {/* Static security tips — always useful */}
+            {/* Static security tips */}
             <Section
               title="Security Tips"
               icon={<Lightbulb className="w-4 h-4 text-yellow-500" />}
@@ -442,11 +712,11 @@ export default function SecurityTab() {
             >
               {[
                 {
-                  tip: "Use passphrases — 4 random words are stronger than P@ssw0rd!",
+                  tip: "Use passphrases. 4 random words are stronger than P@ssw0rd!",
                   icon: <Zap className="w-4 h-4 text-yellow-500" />,
                 },
                 {
-                  tip: "Never reuse passwords across sites — one breach exposes all.",
+                  tip: "Never reuse passwords across sites. One breach exposes all.",
                   icon: <RefreshCcw className="w-4 h-4 text-blue-500" />,
                 },
                 {
@@ -478,19 +748,45 @@ export default function SecurityTab() {
           </ScrollReveal>
         )}
 
-        {/* ══════════════════════════════════════════════════
-              CASE 3 — Unlocked + has data = full audit
-          ══════════════════════════════════════════════════ */}
-        {isUnlocked && !isEmpty && (
+        {/* CASE 3a = filter selected, but that slice is empty */}
+        {isUnlocked && !loading && !isEmpty && scopedEmpty && (
+          <ScrollReveal direction="up">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between p-5 md:p-6 rounded-[1.5rem] bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 shrink-0 rounded-xl bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800/50 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                  {view.id === "passcodes" ? (
+                    <Hash className="w-5 h-5" />
+                  ) : (
+                    <KeyRound className="w-5 h-5" />
+                  )}
+                </div>
+                <p className="text-sm md:text-base font-bold text-gray-700 dark:text-gray-300">
+                  No {view.id === "passcodes" ? "passcodes" : "passwords"} in
+                  your vault yet.
+                </p>
+              </div>
+              <Link
+                href="/dashboard/add"
+                className="group shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-linear-to-r from-blue-600 to-purple-600 text-white font-black text-xs shadow-lg shadow-blue-500/20 hover:scale-105 active:scale-95 transition-all duration-300"
+              >
+                Add Entry
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-300" />
+              </Link>
+            </div>
+          </ScrollReveal>
+        )}
+
+        {/* CASE 3 = Unlocked + has data = full audit */}
+        {isUnlocked && !isEmpty && !scopedEmpty && (
           <>
-            {/* ── Score card ── */}
+            {/* Score card */}
             <ScrollReveal
               direction="up"
               className="relative overflow-hidden p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 shadow-sm"
             >
               <div
                 className={`absolute top-0 right-0 w-56 h-56 rounded-full blur-[80px] pointer-events-none opacity-10
-                  ${analysis.healthScore >= 75 ? "bg-emerald-500" : analysis.healthScore >= 50 ? "bg-amber-500" : "bg-red-500"}`}
+                ${analysis.healthScore >= 75 ? "bg-emerald-500" : analysis.healthScore >= 50 ? "bg-amber-500" : "bg-red-500"}`}
               />
               <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-">
                 <div className="flex flex-col items-center">
@@ -551,15 +847,16 @@ export default function SecurityTab() {
                     <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 font-medium mt-2 max-w-lg">
                       {analysis.weak.length} weak ·{" "}
                       {analysis.reusedGroups.length} reused groups ·{" "}
-                      {analysis.strong.length} strong. Analyzed locally, nothing
-                      sent to server.
+                      {analysis.passwords.strong.length +
+                        analysis.passcodes.strong.length}{" "}
+                      strong. Analyzed locally, nothing sent to server.
                     </p>
                   </div>
                 </div>
               </div>
             </ScrollReveal>
 
-            {/* ── Quick stat cards ── */}
+            {/* Quick stat cards */}
             <ScrollReveal
               direction="up"
               delayMs={50}
@@ -568,7 +865,7 @@ export default function SecurityTab() {
               {[
                 {
                   label: "Total Entries",
-                  value: passwords.length,
+                  value: scopedTotal,
                   icon: <KeyRound className="w-5 h-5" />,
                   bg: "bg-blue-50 dark:bg-blue-900/30",
                   text: "text-blue-600 dark:text-blue-400",
@@ -589,7 +886,9 @@ export default function SecurityTab() {
                 },
                 {
                   label: "Strong",
-                  value: analysis.strong.length,
+                  value:
+                    analysis.passwords.strong.length +
+                    analysis.passcodes.strong.length,
                   icon: <ShieldCheck className="w-5 h-5" />,
                   bg: "bg-emerald-50 dark:bg-emerald-900/30",
                   text: "text-emerald-600 dark:text-emerald-400",
@@ -613,32 +912,33 @@ export default function SecurityTab() {
               ))}
             </ScrollReveal>
 
-            {/* ── Weak passwords ── */}
+            {/* Weak entries (passwords + PINs) */}
             {analysis.weak.length > 0 && (
               <Section
-                title="Weak Passwords"
+                title="Weak Entries"
                 icon={<AlertTriangle className="w-4 h-4 text-red-500" />}
                 count={analysis.weak.length}
                 countCls="bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300"
                 delay={80}
-                key="WeakPasswords"
+                key="WeakEntries"
               >
                 {analysis.weak.map((entry, i) => (
-                  <PasswordRow
+                  <EntryRow
                     key={entry._id}
                     entry={entry}
                     isReused={analysis.reusedIds.has(entry._id)}
                     delay={50 * i}
+                    onEdit={openEdit}
                   />
                 ))}
               </Section>
             )}
 
-            {/* ── Reused passwords ── */}
+            {/* Reused entries */}
             {analysis.reusedGroups.length > 0 && (
               <Section
-                title="Reused Passwords"
-                key="ReusedPasswords"
+                title="Reused Entries"
+                key="ReusedEntries"
                 icon={<Copy className="w-4 h-4 text-rose-500" />}
                 count={analysis.reusedGroups.reduce(
                   (acc, g) => acc + g.length,
@@ -650,14 +950,20 @@ export default function SecurityTab() {
                 {analysis.reusedGroups.map((group, gi) => (
                   <div key={group[0]._id} className="space-y-1.5">
                     <p className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest px-1">
-                      Same password on {group.length} sites
+                      Same{" "}
+                      {"password" +
+                        (group.some((e) => e.type === "passcode")
+                          ? "/PIN"
+                          : "")}{" "}
+                      on {group.length} sites
                     </p>
                     {group.map((entry, i) => (
-                      <PasswordRow
+                      <EntryRow
                         key={entry._id}
                         entry={entry}
                         isReused
                         delay={50 * i}
+                        onEdit={openEdit}
                       />
                     ))}
                   </div>
@@ -665,7 +971,7 @@ export default function SecurityTab() {
               </Section>
             )}
 
-            {/* ── What's good ── */}
+            {/* What's good */}
             <Section
               title="What's Good"
               key="WhatsGood"
@@ -673,13 +979,15 @@ export default function SecurityTab() {
               delay={160}
             >
               {[
-                analysis.strong.length > 0 &&
-                  `${analysis.strong.length} passwords are strong and unique`,
+                analysis.passwords.strong.length +
+                  analysis.passcodes.strong.length >
+                  0 &&
+                  `${analysis.passwords.strong.length + analysis.passcodes.strong.length} entries are strong and unique`,
                 analysis.weak.length === 0 &&
-                  "No weak passwords detected — great job!",
+                  "No weak passwords or PINs detected. Great job!",
                 analysis.reusedGroups.length === 0 &&
-                  "No reused passwords — every site has a unique key",
-                "Zero-Knowledge vault — we never see your data",
+                  "No reused credentials. Every site has a unique key",
+                "Zero-Knowledge vault. We never see your data",
                 "AES-256-GCM encryption active on all entries",
               ]
                 .filter(Boolean)
@@ -695,7 +1003,7 @@ export default function SecurityTab() {
                 ))}
             </Section>
 
-            {/* ── Security tips ── */}
+            {/* Security tips */}
             <Section
               title="Tips to Improve"
               key="TipsToImprove"
@@ -704,16 +1012,20 @@ export default function SecurityTab() {
             >
               {[
                 {
-                  tip: "Use passphrases — 4 random words are stronger than P@ssw0rd!",
+                  tip: "Use passphrases. 4 random words are stronger than P@ssw0rd!",
                   icon: <Zap className="w-4 h-4 text-yellow-500" />,
                 },
                 {
-                  tip: "Never reuse passwords. One breach exposes everything.",
+                  tip: "Never reuse passwords or PINs. One breach exposes everything.",
                   icon: <RefreshCcw className="w-4 h-4 text-blue-500" />,
                 },
                 {
                   tip: "16+ characters beats complexity every time.",
                   icon: <TrendingUp className="w-4 h-4 text-emerald-500" />,
+                },
+                {
+                  tip: "Use our password/PIN generator for every new entry.",
+                  icon: <Sparkles className="w-4 h-4 text-purple-500" />,
                 },
               ].map(({ tip, icon }, i) => (
                 <ScrollReveal direction="right" key={tip} delayMs={50 * i}>
@@ -729,10 +1041,9 @@ export default function SecurityTab() {
               ))}
             </Section>
 
-            {/* ── Learn more ── */}
+            {/* Learn more */}
             <ScrollReveal
               direction="right"
-              // delayMs={240}
               className="flex flex-wrap gap-3 pb-4"
               rootMargin="0px 0px -5% 0px"
             >
@@ -766,6 +1077,7 @@ export default function SecurityTab() {
           </>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }
