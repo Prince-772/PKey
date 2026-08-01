@@ -87,7 +87,7 @@ export default function PasswordDetailModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/70 p-4 backdrop-blur-md">
       <button className="absolute inset-0" onClick={onClose} aria-label="Close modal" />
 
-      <div className="relative z-10 w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-3xl border border-blue-200 bg-white shadow-2xl dark:border-blue-900 dark:bg-gray-900 animate-scale-in scroll-bar-hide">
+      <div className="relative z-10 w-full max-w-lg max-h-[80vh] overflow-y-auto rounded-3xl border border-blue-200 bg-white shadow-2xl dark:border-blue-900 dark:bg-gray-900 animate-scale-in scroll-bar-hide">
         <div className="h-1.5 shrink-0 bg-linear-to-r from-blue-500 via-indigo-500 to-purple-600" />
 
         <div className="flex items-center gap-3 border-b border-gray-100 p-5 dark:border-gray-800">

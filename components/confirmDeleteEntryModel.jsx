@@ -47,7 +47,7 @@ export default function DeleteEntryModal({ onClose, callback, resetID, data }) {
       />
 
       {/* Panel */}
-      <div className="relative max-h-[95vh] z-10 w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl md:rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-800/50 overflow-y-auto scroll-bar-hide animate-scale-in">
+      <div className="relative max-h-[80vh] z-10 w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl md:rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-800/50 overflow-y-auto scroll-bar-hide animate-scale-in">
         {/* Red top strip */}
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-linear-to-r from-red-500 via-rose-500 to-red-600" />
 

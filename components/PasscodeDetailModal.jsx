@@ -73,7 +73,7 @@ export default function PasscodeDetailModal({
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/70 p-4 backdrop-blur-md">
       <button className="absolute inset-0" onClick={onClose} aria-label="Close modal" />
-      <div className="relative z-10 w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-3xl border border-cyan-200 bg-white shadow-2xl dark:border-cyan-900 dark:bg-gray-900 animate-scale-in">
+      <div className="relative z-10 w-full max-w-lg max-h-[80vh] overflow-y-auto rounded-3xl border border-cyan-200 bg-white shadow-2xl dark:border-cyan-900 dark:bg-gray-900 animate-scale-in">
         <div className="h-1.5 bg-linear-to-r from-cyan-500 via-blue-500 to-indigo-600" />
         <div className="flex items-center gap-3 border-b border-gray-100 p-5 dark:border-gray-800">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-br from-cyan-500 to-indigo-600 text-white shadow-lg shadow-cyan-500/20"><Pin className="h-5 w-5" /></div>

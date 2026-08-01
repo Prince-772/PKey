@@ -127,7 +127,7 @@ export default function EditPasscodeModal({ isOpen, onClose, data, onSave }) {
       />
       <form
         onSubmit={submit}
-        className="relative z-10 max-h-[92vh] w-full max-w-lg md:max-w-3xl overflow-y-auto scroll-bar-hide rounded-3xl border border-cyan-200 bg-white shadow-2xl dark:border-cyan-900 dark:bg-gray-900 animate-scale-in"
+        className="relative z-10 max-h-[80vh] w-full max-w-lg md:max-w-3xl overflow-y-auto scroll-bar-hide rounded-3xl border border-cyan-200 bg-white shadow-2xl dark:border-cyan-900 dark:bg-gray-900 animate-scale-in"
       >
         <div className="h-1.5 bg-linear-to-r from-cyan-500 via-blue-500 to-indigo-600" />
         <div className="flex items-center border-b border-gray-100 p-5 dark:border-gray-800">

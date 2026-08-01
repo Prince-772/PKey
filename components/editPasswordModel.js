@@ -185,7 +185,7 @@ const EditModal = ({ onClose, onSave, editingData, noMasterPass }) => {
       {/* Backdrop click */}
       <div className="absolute inset-0" onClick={onClose} />
       <div
-        className={`relative bg-white dark:bg-gray-800 px-4 pb-4 md:px-8 md:pb-8 pt-0 rounded-2xl shadow-2xl w-[95%] max-w-md md:max-w-3xl max-h-[95vh] animate-scale-in border-3 border-gray-200 dark:border-gray-700 overflow-auto scroll-bar-hide my-auto`}
+        className={`relative bg-white dark:bg-gray-800 px-4 pb-4 md:px-8 md:pb-8 pt-0 rounded-2xl shadow-2xl w-[95%] max-w-md md:max-w-3xl max-h-[80vh] animate-scale-in border-3 border-gray-200 dark:border-gray-700 overflow-auto scroll-bar-hide my-auto`}
       >
         <div className="sticky -top-2 md:-top-5 bg-white dark:bg-gray-800 z-1 pt-4 md:pt-8 flex items-center justify-between mb-6 pb-3 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
