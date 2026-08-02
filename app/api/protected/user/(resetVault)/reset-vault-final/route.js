@@ -9,6 +9,7 @@ import { VaultResetHtml } from "@/lib/html/Emails";
 import { sendEmail } from "@/lib/managers/mailManager";
 import { authOptions } from "@/auth";
 import PasswordsModel from "@/models/Passwords";
+import { clearMasPassFailures } from "@/lib/masterpassword/lockout";
 
 export async function DELETE(req) {
   try {
@@ -31,7 +32,7 @@ export async function DELETE(req) {
 
     await PasswordsModel.deleteMany({ userID: user._id });
     user.masPass = null;
-    user.remainingMasPassAtempts = 5;
+    clearMasPassFailures(user);
     user.salt = null;
     user.resetVaultToken = null;
     user.resetVaultTokenExpiry = null;

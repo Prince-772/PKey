@@ -202,7 +202,7 @@ const EditModal = ({ onClose, onSave, editingData, noMasterPass }) => {
           />
         </div>
 
-        <form onSubmit={handleSubmit(handleSave)}>
+        <form onSubmit={handleSubmit(handleSave)} autoComplete="off">
           <div className="flex flex-col md:flex-row gap-5 font-inter">
             <div className="md:w-1/2 flex flex-col gap-5">
               <div className="relative group">

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/auth";
 import ConnectToDB from "@/lib/dbConnect";
 import UserModel from "@/models/User";
+import { isMasPassLocked } from "@/lib/masterpassword/lockout";
 import PasswordsModel from "@/models/Passwords";
 
 export async function GET() {
@@ -12,10 +13,10 @@ export async function GET() {
 
     await ConnectToDB();
     const user = await UserModel.findOne({ email }).select(
-      "_id remainingMasPassAtempts",
+      "_id masPassLockUntil",
     );
     if (!user) throw new Error("User not found");
-    if (user.remainingMasPassAtempts <= 0) throw new Error("BLOCKED_ACCOUNT");
+    if (isMasPassLocked(user)) throw new Error("BLOCKED_ACCOUNT");
     const PassDocs = await PasswordsModel.find({ userID: user._id })
       .select(
         "siteName userNames password isFavorite strength version createdAt updatedAt",

@@ -6,6 +6,23 @@ import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { accountBlocked } from "@/lib/html/Emails";
 import { sendEmail } from "@/lib/managers/mailManager";
+import {
+  isMasPassLocked,
+  registerMasPassFailure,
+  clearMasPassFailures,
+  masPassLockRemainingMs,
+  MAX_MAS_PASS_ATTEMPTS,
+} from "@/lib/masterpassword/lockout";
+
+const lockedResponse = (user) =>
+  NextResponse.json(
+    {
+      success: false,
+      message: "BLOCKED_ACCOUNT",
+      retryAfterMs: masPassLockRemainingMs(user),
+    },
+    { status: 403 },
+  );
 
 export async function POST(req) {
   try {
@@ -15,44 +32,50 @@ export async function POST(req) {
     await ConnectToDB();
     const { email } = session.user;
     const user = await UserModel.findOne({ email }).select(
-      "name masPass remainingMasPassAtempts",
+      "name masPass masPassAttempts masPassLockUntil masPassLockLevel",
     );
     if (!user) throw new Error("User not found!");
     if (!user.masPass)
       throw new Error("Please create a master password to proceed");
-    if (user.remainingMasPassAtempts <= 0) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "BLOCKED_ACCOUNT",
-        },
-        { status: 403 },
-      );
+
+    // Expired lock: clear it so the user gets a fresh set of attempts.
+    if (
+      user.masPassLockUntil &&
+      new Date(user.masPassLockUntil) <= new Date()
+    ) {
+      clearMasPassFailures(user);
+      await user.save();
     }
+
+    if (isMasPassLocked(user)) return lockedResponse(user);
+
     const name = user.name;
     // No need to check version here as all Uv use same process
     const isMatched = await bcrypt.compare(authHash, user.masPass);
     if (!isMatched) {
-      user.remainingMasPassAtempts = user.remainingMasPassAtempts - 1;
+      const justLocked = registerMasPassFailure(user);
       await user.save();
-      if (user.remainingMasPassAtempts === 0) {
+      if (justLocked) {
+        const minutes = Math.max(
+          1,
+          Math.round(masPassLockRemainingMs(user) / 60000),
+        );
         await sendEmail({
           to: email,
-          subject: "Account blocked!",
-          text: `Hello ${name}, we have permanently blocked your account due to too many incorrect master password attempts.`,
-          html: accountBlocked(name),
+          subject: "Vault locked temporarily!",
+          text: `Hello ${name}, your vault was locked for ${minutes} minute(s) due to too many incorrect master password attempts. It will unlock automatically.`,
+          html: accountBlocked(name, minutes),
         });
-        throw new Error(
-          `Wrong password. We have permanently blocked your account!`,
-        );
-      } else
-        throw new Error(
-          `Wrong password. After ${user.remainingMasPassAtempts} failed ${
-            user.remainingMasPassAtempts === 1 ? "attempt" : "attempts"
-          } your account will be blocked!`,
-        );
+        return lockedResponse(user);
+      }
+      const remaining = MAX_MAS_PASS_ATTEMPTS - user.masPassAttempts;
+      throw new Error(
+        `Wrong password. After ${remaining} failed ${
+          remaining === 1 ? "attempt" : "attempts"
+        } your vault will be locked temporarily!`,
+      );
     }
-    user.remainingMasPassAtempts = 5;
+    clearMasPassFailures(user);
     await user.save();
     return NextResponse.json(
       {

@@ -4,6 +4,7 @@ import UserModel from "@/models/User";
 import { getServerSession } from "next-auth";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
+import { isMasPassLocked, clearMasPassFailures } from "@/lib/masterpassword/lockout";
 
 export async function POST(req) {
   try {
@@ -12,17 +13,17 @@ export async function POST(req) {
     await ConnectToDB();
     const { email } = session.user;
     const user = await UserModel.findOne({ email }).select(
-      "masPass remainingMasPassAtempts salt",
+      "masPass masPassAttempts masPassLockUntil masPassLockLevel salt",
     );
     if (!user) throw new Error("User not found!");
-    if (user.remainingMasPassAtempts <= 0) throw new Error("BLOCKED_ACCOUNT");
+    if (isMasPassLocked(user)) throw new Error("BLOCKED_ACCOUNT");
     if (user.masPass) throw new Error("You already have a master password!");
     // const hashedMasPass = await bcrypt.hash(masPass, 12);
     const finalHash = await bcrypt.hash(authHash, 12);
 
     // saves only hashed verison of authHash
     user.masPass = finalHash;
-    user.remainingMasPassAtempts = 5;
+    clearMasPassFailures(user);
     user.salt = salt;
     await user.save();
 

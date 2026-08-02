@@ -110,7 +110,7 @@ export default function SignupPage() {
         <h1 className="text-xl font-semibold dark:text-white mb-4 text-center">
           Sign Up
         </h1>
-        <form onSubmit={onSubmitHandler} className="space-y-4">
+        <form onSubmit={onSubmitHandler} className="space-y-4" autoComplete="off">
           <div>
             <label
               htmlFor="name"

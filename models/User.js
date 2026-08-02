@@ -33,9 +33,18 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 3,
     },
-    remainingMasPassAtempts: {
+    // Escalating temporary lockout for master-password verification.
+    masPassAttempts: {
       type: Number,
-      default: 5,
+      default: 0,
+    },
+    masPassLockUntil: {
+      type: Date,
+      default: null,
+    },
+    masPassLockLevel: {
+      type: Number,
+      default: 0,
     },
     isVerified: {
       type: Boolean,

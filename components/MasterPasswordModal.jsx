@@ -88,7 +88,7 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
             setIsLoading(false);
 
             if (err.message === "BLOCKED_ACCOUNT") {
-              return <BlockedAccount />;
+              return <BlockedAccount retryAfterMs={err.retryAfterMs} />;
             } else {
               return err.message || "Something went wrong";
             }
@@ -125,7 +125,7 @@ export default function MasterPasswordModel({ isOpen, onClose }) {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6" autoComplete="off">
           <div className="group text-left">
             <label
               htmlFor="master-password-input"

@@ -197,7 +197,7 @@ const Passwords = () => {
           loading: "Saving passcode...",
           success: (res) => res.message || "Passcode updated!",
           error: ({ message }) =>
-            message === "BLOCKED_ACCOUNT" ? "Account is blocked" : message,
+            message === "BLOCKED_ACCOUNT" ? "Vault is temporarily locked" : message,
         });
         await fetchPasscodes();
         resetTimer();

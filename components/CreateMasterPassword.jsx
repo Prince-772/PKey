@@ -105,7 +105,7 @@ export default function CreateMasterPasswordModal({ isOpen, onClose }) {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit(onCreateMasterPass)} className="flex flex-col gap-5">
+        <form onSubmit={handleSubmit(onCreateMasterPass)} className="flex flex-col gap-5" autoComplete="off">
           <div className="w-full">
             <input
               type="password"

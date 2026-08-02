@@ -2,6 +2,7 @@ import { authOptions } from "@/auth";
 import ConnectToDB from "@/lib/dbConnect";
 import PasswordsModel from "@/models/Passwords";
 import UserModel from "@/models/User";
+import { isMasPassLocked } from "@/lib/masterpassword/lockout";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
@@ -15,11 +16,11 @@ export async function PATCH(req) {
     await ConnectToDB();
 
     const user = await UserModel.findOne({ email: session.user.email }).select(
-      "_id remainingMasPassAtempts version",
+      "_id masPassLockUntil version",
     );
 
     if (!user) throw new Error("Authentication failed: User not found.");
-    if (user.remainingMasPassAtempts <= 0) throw new Error("BLOCKED_ACCOUNT");
+    if (isMasPassLocked(user)) throw new Error("BLOCKED_ACCOUNT");
 
     // Prepare Bulk Operations
     const bulkOps = newDocArray

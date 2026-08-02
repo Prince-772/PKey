@@ -36,14 +36,15 @@ export default function AccountBlockedPage() {
                 <h1 className="text-3xl md:text-5xl font-black text-gray-800 dark:text-white mb-4 tracking-tight">
                   Vault{" "}
                   <span className="text-transparent bg-clip-text bg-linear-to-r from-red-600 to-rose-600 dark:from-red-400 dark:to-rose-400">
-                    Locked
+                    Temporarily Locked
                   </span>
                 </h1>
 
                 <p className="text-lg text-gray-600 dark:text-gray-400 font-medium max-w-xl mx-auto leading-relaxed">
-                  Your account has been permanently blocked due to multiple
-                  incorrect master password attempts. This is a strict
-                  zero-knowledge security measure to protect your data.
+                  Your vault was locked due to multiple incorrect master
+                  password attempts. It will unlock automatically after a short
+                  wait. This is a zero-knowledge security measure to protect
+                  your data.
                 </p>
               </div>
             </div>
@@ -63,9 +64,9 @@ export default function AccountBlockedPage() {
                   </h3>
                 </div>
                 <p className="text-gray-600 dark:text-gray-400 font-medium text-sm mb-6 grow">
-                  Since we don&apos;t know your password, we cannot recover your
-                  data. The only way to reuse this account is to reset it
-                  completely.
+                  If you remember your master password, simply wait for the
+                  lock to expire and unlock your vault as usual. Reset Vault is
+                  only for when you&apos;ve genuinely forgotten it.
                 </p>
                 <div className="space-y-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-6 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
                   <div className="flex gap-2">
@@ -106,10 +107,11 @@ export default function AccountBlockedPage() {
                   </h3>
                 </div>
                 <p className="text-gray-600 dark:text-gray-400 font-medium text-sm mb-8 grow">
-                  Understand PKey&apos;s strict security protocols. We enforce a
-                  zero-knowledge architecture, meaning if someone tries to
-                  brute-force your vault, we lock it down to prevent
-                  unauthorized decryption.
+                  Understand PKey&apos;s security protocols. After 5 wrong
+                  attempts the vault locks for 15 minutes, then longer each
+                  repeat (up to 24 hours), and unlocks itself automatically.
+                  This blocks brute-force while never permanently locking you
+                  out of your own data.
                 </p>
 
                 <Link

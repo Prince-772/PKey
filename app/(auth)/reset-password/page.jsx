@@ -57,6 +57,7 @@ export default function ForgotPasswordPage() {
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col gap-6 mt-6"
+          autoComplete="off"
         >
           {/* Email Field */}
           <div className="group">

@@ -109,7 +109,7 @@ export default function ResetPasswordPage() {
             </Link>
           </div>
         ) : (
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-6">
+          <form onSubmit={handleSubmit(onSubmit)} autoComplete="off" className="flex flex-col gap-6 mt-6">
             <div>
               <label
                 htmlFor="newPassword"

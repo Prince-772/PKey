@@ -137,7 +137,7 @@ export default function LoginPage() {
           Sign In
         </h1>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" autoComplete="off">
           <div>
             <label
               htmlFor="emailOrUsername"

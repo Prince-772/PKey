@@ -2,6 +2,7 @@ import { authOptions } from "@/auth";
 import ConnectToDB from "@/lib/dbConnect";
 import PasswordsModel from "@/models/Passwords";
 import UserModel from "@/models/User";
+import { isMasPassLocked } from "@/lib/masterpassword/lockout";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
@@ -12,10 +13,10 @@ export async function DELETE(req) {
     if(!id) throw new Error("ID is required")
     await ConnectToDB();
     const user = await UserModel.findOne({ email: session.user.email }).select(
-      "_id remainingMasPassAtempts"
+      "_id masPassLockUntil"
     );
     if (!user) throw new Error("User not found");
-    if (user.remainingMasPassAtempts <= 0) throw new Error("BLOCKED_ACCOUNT");
+    if (isMasPassLocked(user)) throw new Error("BLOCKED_ACCOUNT");
     const Doc = await PasswordsModel.findOne({ userID: user._id, _id: id });
     if (!Doc) throw new Error("Entry not found in your account");
     await Doc.deleteOne()
