@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { authRateLimit, apiRateLimit, signupRateLimit, editFavoriteRateLimit } from "./lib/rateLimit";
+import {
+  authRateLimit,
+  apiRateLimit,
+  signupRateLimit,
+  editFavoriteRateLimit,
+} from "./lib/rateLimit";
 
 export async function proxy(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
@@ -38,7 +43,9 @@ export async function proxy(req) {
     "/api/auth/resend-verification",
   ];
   const isResetPassword = pathname.startsWith("/api/auth/resetPassword");
-  const isEditFavorite = pathname.startsWith("/api/protected/passwords/editfavorite");
+  const isEditFavorite = pathname.startsWith(
+    "/api/protected/passwords/editfavorite",
+  );
   const isOAuthRoute =
     pathname.startsWith("/api/auth/signin") ||
     pathname.startsWith("/api/auth/callback");
@@ -65,10 +72,7 @@ export async function proxy(req) {
     if (!success) {
       if (isOAuthRoute) {
         return NextResponse.redirect(
-          new URL(
-            "/auth/error?error=RateLimited",
-            req.url,
-          ),
+          new URL("/auth/error?error=RateLimited", req.url),
         );
       }
       return NextResponse.json(
@@ -83,7 +87,10 @@ export async function proxy(req) {
         },
       );
     }
-  } else if (strictRoutes.some((r) => pathname.startsWith(r)) || pathname.startsWith("/api")) {
+  } else if (
+    strictRoutes.some((r) => pathname.startsWith(r)) ||
+    pathname.startsWith("/api")
+  ) {
     const { success } = await apiRateLimit.limit(ip);
     if (!success) {
       if (isOAuthRoute) {
@@ -104,7 +111,11 @@ export async function proxy(req) {
         { success: false, message: "Unauthorized: Please sign in" },
         { status: 401 },
       );
-    } else if (["/dashboard", "/vault", "/masterPass"].includes(pathname)) {
+    } else if (
+      ["/dashboard", "/vault",].some((path) =>
+        pathname.startsWith(path),
+      )
+    ) {
       return NextResponse.redirect(new URL("/sign-in", req.url));
     }
   }
