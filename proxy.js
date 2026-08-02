@@ -112,5 +112,5 @@ export async function proxy(req) {
 }
 
 export const config = {
-  matcher: ["/api/:path*", "/dashboard", "/vault", "/masterPass"],
+  matcher: ["/api/:path*", "/dashboard/:path*", "/vault/:path*"],
 };
