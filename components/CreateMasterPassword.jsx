@@ -16,8 +16,10 @@ import { useSession } from "next-auth/react";
 import { generateAuthData } from "@/lib/masterpassword/mPasscryptoV3";
 import { CreateMasterPass } from "@/lib/masterpassword/create";
 import BlockedAccount from "./BlockedAccountToast";
+import { useMasterPass } from "@/context/MasterPassword";
 
 export default function CreateMasterPasswordModal({ isOpen, onClose }) {
+  const { setToCreateMasterPass } = useMasterPass();
   const {
     handleSubmit,
     register,
@@ -47,6 +49,7 @@ export default function CreateMasterPasswordModal({ isOpen, onClose }) {
           success: async (res) => {
             if (session)
               await update({ ...session, user: { ...session.user, salt } });
+            setToCreateMasterPass(false);
             return res.message || "Master Password created!";
           },
           error: ({ message }) => {
