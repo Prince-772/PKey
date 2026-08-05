@@ -558,7 +558,7 @@ export default function SecurityTab() {
         </ScrollReveal>
 
         {/*CASE 1 = Vault locked or not created */}
-        {(!isUnlocked || loading) && (
+        {(!isUnlocked) && (
           <ScrollReveal direction="up" className="space-y-6">
             {/* CTA card */}
             {!loading && (

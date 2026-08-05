@@ -310,7 +310,7 @@ export default function HomeTab() {
             CASE 2 — isUnlocked = false, toCreateMasterPass = false
             Master password exists but not entered yet
         ══════════════════════════════════════════════════ */}
-        {((!isUnlocked && !toCreateMasterPass) || loading) && (
+        {((!isUnlocked && !toCreateMasterPass)) && (
           <ScrollReveal direction="up" className="space-y-6">
             {/* Unlock CTA card */}
             {!loading && (
