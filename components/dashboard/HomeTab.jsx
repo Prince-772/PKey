@@ -121,7 +121,7 @@ export default function HomeTab() {
 
   const firstName = session?.user?.name?.split(" ")[0] || "there";
 
-  if (sessionStatus === "loading") {
+  if (sessionStatus === "loading" || loading) {
     return <DashboardSkeleton />;
   }
 

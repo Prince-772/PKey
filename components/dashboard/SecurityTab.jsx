@@ -489,7 +489,7 @@ export default function SecurityTab() {
           cls: "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700/50",
         };
 
-  if (sessionStatus === "loading") {
+  if (sessionStatus === "loading" || loading) {
     return <DashboardSkeleton />;
   }
 
