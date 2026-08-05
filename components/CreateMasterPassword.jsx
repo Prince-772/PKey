@@ -1,3 +1,4 @@
+"use client";
 import React, { useCallback, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -10,6 +11,8 @@ import {
 } from "lucide-react";
 import { capitalize, getPasswordStrength } from "@/lib/helper";
 import { createPortal } from "react-dom";
+import toast from "react-hot-toast";
+import { useSession } from "next-auth/react";
 import { generateAuthData } from "@/lib/masterpassword/mPasscryptoV3";
 import { CreateMasterPass } from "@/lib/masterpassword/create";
 import BlockedAccount from "./BlockedAccountToast";
@@ -22,6 +25,7 @@ export default function CreateMasterPasswordModal({ isOpen, onClose }) {
     formState: { errors, isSubmitting },
     reset,
   } = useForm();
+  const { data: session, update } = useSession();
 
   const masterPasswordValue = watch("masterPassword", "");
   const strength = useMemo(
@@ -33,8 +37,6 @@ export default function CreateMasterPasswordModal({ isOpen, onClose }) {
     document.body.style.overflow = "hidden";
     return () => (document.body.style.overflow = "auto");
   }, []);
-
-  if (!isOpen) return null;
 
   const onCreateMasterPass = useCallback(
     async ({ masterPassword: masterPass }) => {
@@ -63,6 +65,8 @@ export default function CreateMasterPasswordModal({ isOpen, onClose }) {
     },
     [session, update],
   );
+
+  if (!isOpen) return null;
 
   const getBarColor = (score) => {
     if (score < 25) return "bg-red-500";
