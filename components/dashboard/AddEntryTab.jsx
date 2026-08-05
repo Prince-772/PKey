@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import LoginForm from "@/components/dashboard/forms/LoginForm";
 import PinForm from "@/components/dashboard/forms/PinForm.jsx";
+import PaymentCardForm from "@/components/dashboard/forms/PaymentCardForm.jsx";
 import ComingSoonForm from "@/components/dashboard/forms/ComingSoonForm";
 import ScrollReveal from "@/components/ScrollReveal";
 
@@ -37,7 +38,7 @@ export default function AddEntryTab({ expanded }) {
         "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400",
     },
     {
-      id: "passcodes",
+      id: "passcode",
       title: "PINs & Passcodes",
       description: "Device PINs, mPINs, and short numeric codes.",
       icon: <Hash className="w-5 h-5 md:w-6 md:h-6" />,
@@ -56,16 +57,15 @@ export default function AddEntryTab({ expanded }) {
       title: "Payment Card",
       description: "Credit, debit, and virtual cards.",
       icon: <CreditCard className="w-5 h-5 md:w-6 md:h-6" />,
-      color: "emerald",
-      bgColor: "bg-emerald-50 dark:bg-emerald-900/30",
-      textColor: "text-emerald-600 dark:text-emerald-400",
-      hoverBorder:
-        "hover:border-emerald-500/50 dark:hover:border-emerald-500/50",
-      accentBar: "bg-emerald-500",
-      hoverGlow: "group-hover:shadow-emerald-500/10",
+      color: "indigo",
+      bgColor: "bg-indigo-50 dark:bg-indigo-900/30",
+      textColor: "text-indigo-600 dark:text-indigo-400",
+      hoverBorder: "hover:border-indigo-500/50 dark:hover:border-indigo-500/50",
+      accentBar: "bg-indigo-500",
+      hoverGlow: "group-hover:shadow-indigo-500/10",
       badge: "Encrypted",
       badgeCls:
-        "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400",
+        "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400",
     },
     {
       id: "note",
@@ -239,11 +239,14 @@ export default function AddEntryTab({ expanded }) {
           {/* Form Area - Switch case */}
           <div className="rounded-[2rem] pb-4">
             {selectedCategory === "login" && <LoginForm />}
-            {selectedCategory === "passcodes" && <PinForm />}
-            {selectedCategory !== "login" && selectedCategory !== "passcodes" && (
+            {selectedCategory === "passcode" && <PinForm />}
+            {selectedCategory === "card" && <PaymentCardForm />}
+            {!["login", "passcode", "card"].some(
+              (id) => id === selectedCategory,
+            ) && (
               <ComingSoonForm
                 {...categories.find(
-                  (category) => category.id === selectedCategory
+                  (category) => category.id === selectedCategory,
                 )}
               />
             )}

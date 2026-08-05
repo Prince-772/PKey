@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import DashboardSkeleton from "@/components/dashboard/Skeleton";
 import {
   ShieldCheck,
   KeyRound,
@@ -51,7 +52,7 @@ export default function HomeTab() {
     setShowMasterPassModel,
     setShowCreateMasterModel,
   } = useMasterPass();
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
   const isUnlocked = Boolean(encKey);
 
   const analysis = useMemo(() => analyzeVault(passwords, passcodes), [passwords, passcodes]);
@@ -119,6 +120,10 @@ export default function HomeTab() {
           };
 
   const firstName = session?.user?.name?.split(" ")[0] || "there";
+
+  if (sessionStatus === "loading") {
+    return <DashboardSkeleton />;
+  }
 
   return (
     <div className="w-full transition-all duration-300 ease-in-out mx-auto space-y-6 md:space-y-8 scroll-bar-hide py-3 md:py-5">

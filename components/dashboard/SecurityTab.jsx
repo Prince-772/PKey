@@ -25,6 +25,8 @@ import {
   ChevronDown,
 } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
+import { useSession } from "next-auth/react";
+import DashboardSkeleton from "@/components/dashboard/Skeleton";
 import { useMasterPass } from "@/context/MasterPassword";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -291,6 +293,7 @@ function Section({ title, icon, count, countCls, children, delay = 0 }) {
 }
 
 export default function SecurityTab() {
+  const { status: sessionStatus } = useSession();
   const {
     encKey,
     toCreateMasterPass,
@@ -485,6 +488,10 @@ export default function SecurityTab() {
           icon: <AlertCircle className="w-3.5 h-3.5" />,
           cls: "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700/50",
         };
+
+  if (sessionStatus === "loading") {
+    return <DashboardSkeleton />;
+  }
 
   return (
     <>
