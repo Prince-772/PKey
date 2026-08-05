@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import LoginForm from "@/components/dashboard/forms/LoginForm";
 import PinForm from "@/components/dashboard/forms/PinForm.jsx";
-import PaymentCardForm from "@/components/dashboard/forms/PaymentCardForm.jsx";
+// import PaymentCardForm from "@/components/dashboard/forms/PaymentCardForm.jsx";
 import ComingSoonForm from "@/components/dashboard/forms/ComingSoonForm";
 import ScrollReveal from "@/components/ScrollReveal";
 
@@ -240,8 +240,8 @@ export default function AddEntryTab({ expanded }) {
           <div className="rounded-[2rem] pb-4">
             {selectedCategory === "login" && <LoginForm />}
             {selectedCategory === "passcode" && <PinForm />}
-            {selectedCategory === "card" && <PaymentCardForm />}
-            {!["login", "passcode", "card"].some(
+            {/* {selectedCategory === "card" && <PaymentCardForm />} */}
+            {!["login", "passcode",].some(
               (id) => id === selectedCategory,
             ) && (
               <ComingSoonForm
